@@ -27,21 +27,18 @@ class FollowMeAppController extends Controller
         return response()->json([
             'patient_info' => $patient_info,
             'patient_token' => Str::random(60),
-            'check' => true
         ],200);
     }
 
     public function app_signup(Request $request){
         return response()->json([
             'message'=>'생성되었습니다',
-            'check' => true
         ],200);
     }
 
     public function app_clinic(Request $request){
         return response()->json([
             'message'=>'정상 접수가 되었습니다.',
-            'check' => true
         ],200);
     }
 
@@ -58,7 +55,7 @@ class FollowMeAppController extends Controller
             }
         }
         $algorithm = new Dijkstra($graph);
-        $path = $algorithm->shortestPaths('2222', '9999'); 
+        $path = $algorithm->shortestPaths('1111', '666666'); 
         
         $nodeFlow = [];
         for($i = 0; $i < count($path[0]) ; $i++){
@@ -66,9 +63,16 @@ class FollowMeAppController extends Controller
                         ->where('beacon_id_minor', "{$path[0][$i]}")->get();
             $nodeFlow[$i] = $node[0];
         }
+        // $request->session()->put('id', '1111');
+
+        // session(['id' => '1111']);
+        // dd($request);
+        // $value = $request->session()->get('key');
+        // session(['id' => '1111']);
+        // dd($request->session()->get('id'));
+        // $request->session()->get('id');
         return response()->json([
             'nodeFlow' => $nodeFlow,
-            'check' => true
         ],200);
     }
 
@@ -96,7 +100,6 @@ class FollowMeAppController extends Controller
         }
         return response()->json([
             'nodeFlow' => $nodeFlow,
-            'check' => true
         ],200);
     }
 
@@ -108,7 +111,6 @@ class FollowMeAppController extends Controller
                             ->get();
         return response()->json([
             'storage' => $storage,
-            'check' => true
         ],200);
     }
 
@@ -120,7 +122,6 @@ class FollowMeAppController extends Controller
                             ->get();
         return response()->json([
             'storage_record' => $storage_record,
-            'check' => true
         ],200);
     }
 
@@ -131,7 +132,7 @@ class FollowMeAppController extends Controller
     //                         ->get();
     //     return response()->json([
     //         'patient_info' => $patient_info,
-    //         'check' => true            
+    //                 
     //     ],200);
     // }
 
@@ -143,8 +144,7 @@ class FollowMeAppController extends Controller
                                         ->where('flow_status_check','1')
                                         ->get();
         return response()->json([
-            'flow_record' => $flow_record,
-            'check' => true            
+            'flow_record' => $flow_record,            
         ],200);
     }
 

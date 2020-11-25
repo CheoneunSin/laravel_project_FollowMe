@@ -7,7 +7,9 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-
+Route::group(['middleware' => ['web']], function () {
+    // your routes here
+});
 
 Route::prefix('patient')->group(function () {
     Route::post('/login', 'FollowMeAppController@app_login');

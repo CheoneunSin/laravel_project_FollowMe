@@ -115,10 +115,10 @@ class Dijkstra
     {
         // 모든 노드에 대한 최단 거리는 무한대로 초기화
         $this->distance = array_fill_keys(array_keys($this->graph), INF);
-        // ...except the start node
+        // 시작 노드의 출발점 0 초기화
         $this->distance[$source] = 0;
 
-        // The previously visited nodes
+        // 이전에 방문한 노드 배열 초기화
         $this->previous = array_fill_keys(array_keys($this->graph), array());
 
         // Process all nodes in order

@@ -24,14 +24,12 @@ class FollowMeWebMedicalController extends Controller
         return response()->json([
             'auth' => $auth_info[0],
             'message' => "로그인에 성공했습니다",
-            'check' => true
         ],200);
     }
 
     public function medical_patient_create(Request $request){
         return response()->json([
             'message' => "생성 되었습니다.",
-            'check' => true
         ],200);
     }
 
@@ -64,15 +62,13 @@ class FollowMeWebMedicalController extends Controller
         return response()->json([
             'patient_info' => $patient_info,
             'patient_clinic_info' =>  $patient_clinic_info,
-            'flow_record' => $flow_record,
-            'check' => true            
+            'flow_record' => $flow_record,            
         ],200);
     }
     public function medical_clinic_setting(Request $request){
 
         return response()->json([
-            'message' => '진료 정보가 설정되었습니다.',
-            'check' => true            
+            'message' => '진료 정보가 설정되었습니다.',            
         ],200);
     }
     public function medical_clinic_record(Request $request){
@@ -89,21 +85,18 @@ class FollowMeWebMedicalController extends Controller
                                     ->where('test_clinics.clinic_date',$request->clinic_date)
                                     ->get();
         return response()->json([
-            'clinic_record' => $clinic_record,
-            'check' => true            
+            'clinic_record' => $clinic_record,            
         ],200);
     }
     public function medical_clinic_end(Request $request){
         return response()->json([
-            'message' => '진료가 종료되었습니다.',
-            'check' => true            
+            'message' => '진료가 종료되었습니다.',            
         ],200);
     }
 
     public function medical_flow_setting(Request $request){
         return response()->json([
-            'message' => '동선이 설정되었습니다.',
-            'check' => true            
+            'message' => '동선이 설정되었습니다.',            
         ],200);
     }
 }

@@ -24,7 +24,6 @@ class FollowMeWebAdminController extends Controller
         return response()->json([
             'auth' => $auth_info[0],
             'message' => "로그인에 성공했습니다",
-            'check' => true
         ],200);
     }
 
@@ -32,22 +31,29 @@ class FollowMeWebAdminController extends Controller
         $beacon_info = testBeacon::select('beacon_id_minor', 'uuid', 'major', 'lat', 'lon')->get();
         return response()->json([
             'beacon_info' => $beacon_info,
-            'check' => true
         ],200);
     }
 
     public function admin_beacon_create(Request $request){
+        foreach($request->beacon as $beacon){
+            $newBeacon = new testBeacon;
+            $newBeacon->beacon_id_minor = $beacon['minor'];
+            $newBeacon->uuid = $beacon['uuid'];
+            $newBeacon->major = $beacon['major'];
+            $newBeacon->lat = $beacon['lat'];
+            $newBeacon->lng = $beacon['lng'];
+            $newBeacon->save();
+        }
+    
         return response()->json([
             'message' => "설정되었습니다.",
-            'check' => true
+            // 'newBeacon' => $newBeacon , 
         ],200);
     }
 
     public function admin_beacon_delete(Request $request){
-
         return response()->json([
             'message' => "삭제되었습니다.",
-            'check' => true
         ],200);
     }
 
@@ -57,7 +63,6 @@ class FollowMeWebAdminController extends Controller
                                     ->get();
         return response()->json([
             'beacon_defect' => $beacon_defect,
-            'check' => true
         ],200);
     }
 
@@ -67,7 +72,6 @@ class FollowMeWebAdminController extends Controller
                                     ->get();
         return response()->json([
             'beacon_info' => $beacon_info,
-            'check' => true
         ],200);
     }
 
@@ -77,14 +81,12 @@ class FollowMeWebAdminController extends Controller
                                     ->get();
         return response()->json([
             'beacon_info' => $beacon_info,
-            'check' => true
         ],200);
     }
 
     public function admin_node_create(Request $request){
         return response()->json([
             'message' => "설정되었습니다.",
-            'check' => true
         ],200);
     }
 
@@ -92,7 +94,6 @@ class FollowMeWebAdminController extends Controller
 
         return response()->json([
             'message' => "삭제되었습니다.",
-            'check' => true
         ],200);
     }
 
@@ -100,7 +101,6 @@ class FollowMeWebAdminController extends Controller
         
         return response()->json([
             'message' => "설정되었습니다.",
-            'check' => true
         ],200);
     }
 }
