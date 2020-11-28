@@ -15,28 +15,31 @@ class FollowMeWebMedicalController extends Controller
 {
     public function medical_login(Request $request){
         $auth_info = testAuth::select("auth_id", "auth_name")
-                                ->where('login_id', $request->login_id)
-                                ->where('login_pw', $request->login_pw)
+                                ->where('login_id', $request->input('login_id'))
+                                ->where('login_pw', $request->input('login_pw'))
                                 ->where('auth_id' , '1')
                                 ->get();                        
         // $request->session()->put('login_id', $request->login_id);
         // $request->session()->get('login_id');p;
+        $message = Config::get('constants.medical_message.login_ok');
+
         return response()->json([
-            'auth' => $auth_info[0],
-            'message' => "로그인에 성공했습니다",
+            'auth' => $auth_info->first(),
+            'message' => $message,
         ],200);
     }
 
     public function medical_patient_create(Request $request){
+        $message = Config::get('constants.medical_message.patient_create_ok');
         return response()->json([
-            'message' => "생성 되었습니다.",
+            'message' => $message,
         ],200);
     }
 
     public function medical_patient_search(Request $request){
         $patient_info = testPatient::select('patient_id','patient_name', 'resident_number', 'postal_code', 
                             'address', 'detail_address', 'phone_number', 'notes')
-                            ->where('patient_name', $request->patient_name)
+                            ->where('patient_name', $request->input('patient_name'))
                             ->get();
         $patient_clinic_info = DB::table('test_clinics')->join('test_patients', 
                                         'test_patients.patient_id' , 
@@ -46,7 +49,7 @@ class FollowMeWebMedicalController extends Controller
                                                     'test_clinics.clinic_date',
                                                     'test_clinics.first_category')
                                         ->where('test_clinics.standby_status',"1")
-                                        ->where('patient_name', $request->patient_name)
+                                        ->where('patient_name', $request->input('patient_name'))
                                         ->get();
         $flow_record  = DB::table('teat_flows')->join('test_patients', 
                                 'test_patients.patient_id' , 
@@ -57,18 +60,19 @@ class FollowMeWebMedicalController extends Controller
                                 ->select(   'teat_room_locations.room_name',
                                             'teat_flows.flow_sequence')
                                 ->where('teat_flows.flow_status_check',"1")
-                                ->where('test_patients.patient_name', $request->patient_name)
+                                ->where('test_patients.patient_name', $request->input('patient_name'))
                                 ->get();
         return response()->json([
-            'patient_info' => $patient_info,
-            'patient_clinic_info' =>  $patient_clinic_info,
-            'flow_record' => $flow_record,            
+            'patient_info' => $patient_info->first(),
+            'patient_clinic_info' =>  $patient_clinic_info->first(),
+            'flow_record' => $flow_record->first(),            
         ],200);
     }
     public function medical_clinic_setting(Request $request){
+        $message = Config::get('constants.medical_message.clinic_setting_ok');
 
         return response()->json([
-            'message' => '진료 정보가 설정되었습니다.',            
+            'message' => $message,            
         ],200);
     }
     public function medical_clinic_record(Request $request){
@@ -82,21 +86,25 @@ class FollowMeWebMedicalController extends Controller
                                                 'test_clinics.doctor_name',
                                                 'test_clinics.clinic_time',
                                                 'test_clinics.standby_status')
-                                    ->where('test_clinics.clinic_date',$request->clinic_date)
+                                    ->where('test_clinics.clinic_date',$request->input('clinic_date'))
                                     ->get();
         return response()->json([
             'clinic_record' => $clinic_record,            
         ],200);
     }
     public function medical_clinic_end(Request $request){
+        $message = Config::get('constants.medical_message.clinic_end');
+
         return response()->json([
-            'message' => '진료가 종료되었습니다.',            
+            'message' => $message,            
         ],200);
     }
 
     public function medical_flow_setting(Request $request){
+        $message = Config::get('constants.medical_message.flow_setting');
+
         return response()->json([
-            'message' => '동선이 설정되었습니다.',            
+            'message' => $message,            
         ],200);
     }
 }
