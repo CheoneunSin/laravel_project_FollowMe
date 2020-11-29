@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Providers;
-
+use App\testPatient;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -24,6 +24,16 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        testPatient::saving(function($user){
+            if(!empty($user->login_pw)){
+                $user->login_pw = \Crypt::encrypt($user->login_pw);
+            }
+        });
+
+        // testPatient::retrieved(function($user){
+        //     if(!empty($user->login_pw)){
+        //         $user->login_pw = \Crypt::decrypt($user->login_pw);
+        //     }
+        // });
     }
 }

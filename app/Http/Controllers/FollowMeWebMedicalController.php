@@ -10,6 +10,7 @@ use App\testClinic;
 use App\testPatient;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
 
 class FollowMeWebMedicalController extends Controller
 {

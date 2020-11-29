@@ -17,10 +17,10 @@ class CreateTestClinicsTable extends Migration
             $table->id('clinic_id');
             $table->unsignedBigInteger('patient_id');
             $table->string('clinic_subject_name');
-            $table->string('room_name');
-            $table->string('doctor_name', '100');
+            $table->string('room_name')->nullable();;
+            $table->string('doctor_name', '100')->nullable();;
             $table->date('clinic_date');
-            $table->time('clinic_time');
+            $table->time('clinic_time')->nullable();;
             $table->boolean('first_category');
             $table->integer('storage');
             $table->boolean('storge_check');

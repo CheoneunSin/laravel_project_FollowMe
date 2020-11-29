@@ -13,6 +13,7 @@ use App\testClinic;
 use App\testPatient;
 use Illuminate\Support\Facades\DB;
 use App\Services\Dijkstra;
+use Illuminate\Support\Facades\Config;
 
 
 class FollowMeAppController extends Controller
@@ -31,8 +32,17 @@ class FollowMeAppController extends Controller
             'message'   =>$message
         ],200);
     }
-
+    //병원을 다닌 환자와 병원을 한번도 가지 않은 환자 분류
     public function app_signup(Request $request){
+        dd(testPatient::all());
+        $newPatient = new testPatient;
+        $newPatient->patient_name = $request->patient_name;
+        $newPatient->phone_number = $request->phone_number;
+        $newPatient->login_id = $request->login_id;
+        $newPatient->login_pw = $request->login_pw;
+        $newPatient->resident_number = $request->resident_number;  //범수한테 말하기 resudent X
+        $newPatient->patient_token = Str::random(60);
+        $newPatient->save();
         $message = Config::get('constants.patient_message.signup_ok');
         return response()->json([
             'message'=>$message,
@@ -61,20 +71,8 @@ class FollowMeAppController extends Controller
         $algorithm = new Dijkstra($graph);
         $path = $algorithm->shortestPaths('1111', '666666'); 
         
-        $nodeFlow = [];
-        for($i = 0; $i < count($path[0]) ; $i++){
-            $node = testBeacon::select('beacon_id_minor', 'major as floor', 'lat', 'lng')
-                        ->where('beacon_id_minor', "{$path[0][$i]}")->get();
-            $nodeFlow[$i] = $node[0];
-        }
-        // $request->session()->put('id', '1111');
-
-        // session(['id' => '1111']);
-        // dd($request);
-        // $value = $request->session()->get('key');
-        // session(['id' => '1111']);
-        // dd($request->session()->get('id'));
-        // $request->session()->get('id');
+        $nodeFlow = testBeacon::select('beacon_id_minor', 'major as floor', 'lat', 'lng')
+                        ->whereIn('beacon_id_minor', $path[0])->get();
         return response()->json([
             'nodeFlow' => $nodeFlow,
         ],200);
@@ -94,14 +92,9 @@ class FollowMeAppController extends Controller
         $algorithm = new Dijkstra($graph);
         $path = $algorithm->shortestPaths('1111', '22222'); 
         
-        $nodeFlow = [];
-        for($i = 0; $i < count($path[0]) ; $i++){
-            $node = testBeacon::select('beacon_id_minor', 'major as floor', 'lat', 'lng')
-                        ->where('beacon_id_minor', "{$path[0][$i]}")
-                        ->get();
-            $nodeFlow[$i] = $node[0];
-        }
-        //in 
+        $nodeFlow = testBeacon::select('beacon_id_minor', 'major as floor', 'lat', 'lng')
+                        ->whereIn('beacon_id_minor', $path[0])->get();
+                           
         return response()->json([
             'nodeFlow' => $nodeFlow,
         ],200);

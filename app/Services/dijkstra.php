@@ -54,18 +54,18 @@ class Dijkstra
      */
     protected function processNextNodeInQueue(array $exclude)
     {
-        // Process the closest vertex
+        //가장 가까운 정점 처리
         $closest = array_search(min($this->queue), $this->queue);
         if (!empty($this->graph[$closest]) && !in_array($closest, $exclude)) {
             foreach ($this->graph[$closest] as $neighbor => $cost) {
                 if (isset($this->distance[$neighbor])) {
                     if ($this->distance[$closest] + $cost < $this->distance[$neighbor]) {
-                        // A shorter path was found
+                        //더 짧은 경로를 찾았을 때
                         $this->distance[$neighbor] = $this->distance[$closest] + $cost;
                         $this->previous[$neighbor] = array($closest);
                         $this->queue[$neighbor] = $this->distance[$neighbor];
                     } elseif ($this->distance[$closest] + $cost === $this->distance[$neighbor]) {
-                        // An equally short path was found
+                        // 똑같은 길이의 경로를 찾았을 때
                         $this->previous[$neighbor][] = $closest;
                         $this->queue[$neighbor] = $this->distance[$neighbor];
                     }
@@ -121,20 +121,20 @@ class Dijkstra
         // 이전에 방문한 노드 배열 초기화
         $this->previous = array_fill_keys(array_keys($this->graph), array());
 
-        // Process all nodes in order
+        // 모든 노드를 순서대로 처리
         $this->queue = array($source => 0);
         while (!empty($this->queue)) {
             $this->processNextNodeInQueue($exclude);
         }
 
         if ($source === $target) {
-            // A null path
+            // A의 경로가 없을 때
             return array(array($source));
         } elseif (empty($this->previous[$target])) {
-            // No path between $source and $target
+            //$source와 $target 사이의 경로 없음
             return array();
         } else {
-            // One or more paths were found between $source and $target
+            // $source와 $target 사이에서 하나 이상의 경로가 발견됨
             return $this->extractPaths($target);
         }
     }

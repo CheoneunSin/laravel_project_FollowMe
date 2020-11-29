@@ -27,6 +27,5 @@ return [
         'signup_fail' => '생성하지 못했습니다',
         'clinic_ok' => '정상 접수가 되었습니다',
         'clinic_fail' => '접수가 되지않았습니다',
-
     ],
 ];
