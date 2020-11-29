@@ -35,7 +35,7 @@ Route::prefix('medical')->group(function () {
 Route::prefix('admin')->group(function () {
     Route::post('/login', 'FollowMeWebAdminController@admin_login');
     Route::get('/beacon_setting_main', 'FollowMeWebAdminController@admin_beacon_setting_main');
-    Route::post('/beacon_create', 'FollowMeWebAdminController@admin_beacon_create');
+    Route::any('/beacon_create', 'FollowMeWebAdminController@admin_beacon_create');
     Route::post('/beacon_delete', 'FollowMeWebAdminController@admin_beacon_delete');
     Route::get('/beacon_defect_check', 'FollowMeWebAdminController@admin_beacon_defect_check');
     Route::post('/beacon_search', 'FollowMeWebAdminController@admin_beacon_search');

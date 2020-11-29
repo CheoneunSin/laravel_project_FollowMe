@@ -39,22 +39,29 @@ class FollowMeWebAdminController extends Controller
     }
 
     public function admin_beacon_create(Request $request){
-        // teatRoom_location::select('id')->where('',$beacon['room']); //동선 설정
-        $room = [];
+        // dd($request->input('beacon'));
+        testBeacon::create([
+            'beacon_id_minor'=> $request->beacon_id_minor,
+            'uuid'=> $request->uuid,
+            'major'=> $request->major,
+            'lat'=> $request->lat,
+            'lng'=> $request->lng,
+        ]);
+            return null;
         foreach($request->input('beacon') as $beacon){
-            // $room[$beacon['beacon_id_minor']] = $beacon['room'];
-            $room_location = new teatRoom_location;
-            $room_location->room_node = $beacon['beacon_id_minor'];
-            $room_location->room_name = $beacon['room']; 
-            $room_location->save();
+            if($beacon['room'] != ''){
+                $room_location = new teatRoom_location;
+                $room_location->room_node = $beacon['beacon_id_minor'];
+                $room_location->room_name = $beacon['room']; 
+                $room_location->save();
+            }
             unset($beacon['room']);
-            testBeacon::create($beacon);  //minor -> $beacon_id_minor (범수한테 말하기)
-        }
+            testBeacon::create($beacon);  //minor -> beacon_id_minor (범수한테 말하기)
+        } 
         $message = Config::get('constants.admin_message.setting_ok');
         return response()->json([
             'message' => $message,
-            'room' => $room
-            // 'newBeacon' => $newBeacon , 
+            'beacon' => $beacon,
         ],200);
     }
     public function admin_beacon_delete(Request $request){

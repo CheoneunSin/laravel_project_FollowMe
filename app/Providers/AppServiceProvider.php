@@ -29,11 +29,11 @@ class AppServiceProvider extends ServiceProvider
                 $user->login_pw = \Crypt::encrypt($user->login_pw);
             }
         });
-
-        // testPatient::retrieved(function($user){
-        //     if(!empty($user->login_pw)){
-        //         $user->login_pw = \Crypt::decrypt($user->login_pw);
-        //     }
-        // });
+        //사용자 비밀번호 전부 암호화 후 사용
+        testPatient::retrieved(function($user){     
+            // if(!empty($user->login_pw)){
+            //     $user->login_pw = \Crypt::decrypt($user->login_pw);
+            // }
+        });
     }
 }

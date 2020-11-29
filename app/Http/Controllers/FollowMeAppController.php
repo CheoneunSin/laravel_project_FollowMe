@@ -34,7 +34,7 @@ class FollowMeAppController extends Controller
     }
     //병원을 다닌 환자와 병원을 한번도 가지 않은 환자 분류
     public function app_signup(Request $request){
-        dd(testPatient::all());
+
         $newPatient = new testPatient;
         $newPatient->patient_name = $request->patient_name;
         $newPatient->phone_number = $request->phone_number;
@@ -43,6 +43,7 @@ class FollowMeAppController extends Controller
         $newPatient->resident_number = $request->resident_number;  //범수한테 말하기 resudent X
         $newPatient->patient_token = Str::random(60);
         $newPatient->save();
+        
         $message = Config::get('constants.patient_message.signup_ok');
         return response()->json([
             'message'=>$message,
@@ -51,7 +52,6 @@ class FollowMeAppController extends Controller
 
     public function app_clinic(Request $request){
         $message = Config::get('constants.patient_message.clinic_ok');
-
         return response()->json([
             'message'=>$message,
         ],200);
@@ -113,17 +113,6 @@ class FollowMeAppController extends Controller
             'storage_record' => $storage_record,
         ],200);
     }
-
-    // public function app_info(Request $request){
-    //     $patient_info = testPatient::select('patient_name', 'resident_number', 'postal_code', 'address'
-    //                         , 'detail_address', 'phone_number', 'notes')
-    //                         ->where('patient_id', $request->input('patient_id'))
-    //                         ->get();
-    //     return response()->json([
-    //         'patient_info' => $patient_info,
-    //                 
-    //     ],200);
-    // }
 
     public function app_flow_record(Request $request){
         $flow_record  = DB::table('teat_flows')->join('teat_room_locations', 
