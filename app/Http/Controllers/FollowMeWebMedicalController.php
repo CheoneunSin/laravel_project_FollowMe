@@ -52,6 +52,7 @@ class FollowMeWebMedicalController extends Controller
                                         ->where('test_clinics.standby_status',"1")
                                         ->where('patient_name', $request->input('patient_name'))
                                         ->get();
+                                        
         $flow_record  = DB::table('teat_flows')->join('test_patients', 
                                 'test_patients.patient_id' , 
                                 'teat_flows.patient_id')
@@ -77,6 +78,8 @@ class FollowMeWebMedicalController extends Controller
         ],200);
     }
     public function medical_clinic_record(Request $request){
+        // $clinic_record = testClinic::find(20)->patient;
+        // dd($clinic_record->toArray());
         $clinic_record  = DB::table('test_clinics')->join('test_patients', 
                                     'test_patients.patient_id' , 
                                     'test_clinics.patient_id')

@@ -20,4 +20,9 @@ class testClinic extends Model
                         ->where('storage_check', $check)
                         ->where('storage', '!=' ,null);
     }
+
+    public function patient()
+    {
+        return $this->belongsTo('App\testPatient', 'patient_id');
+    } 
 }

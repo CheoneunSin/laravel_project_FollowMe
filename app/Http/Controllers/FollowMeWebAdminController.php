@@ -39,17 +39,9 @@ class FollowMeWebAdminController extends Controller
     }
 
     public function admin_beacon_create(Request $request){
-        // dd($request->input('beacon'));
-        // testBeacon::create([
-        //     'beacon_id_minor'=> $request->beacon_id_minor,
-        //     'uuid'=> $request->uuid,
-        //     'major'=> $request->major,
-        //     'lat'=> $request->lat,
-        //     'lng'=> $request->lng,
-        // ]);
-        // return null;
+        
         foreach($request->input('beacon') as $beacon){   //beacon : []
-            if($beacon['room'] != ''){
+            if($beacon['room'] != null){
                 $room_location = new teatRoom_location;
                 $room_location->room_node = $beacon['beacon_id_minor'];
                 $room_location->room_name = $beacon['room']; 
@@ -100,7 +92,6 @@ class FollowMeWebAdminController extends Controller
 
     public function admin_node_create(Request $request){
         $message = Config::get('constants.admin_message.setting_ok');
-
         return response()->json([
             'message' => $message,
         ],200);

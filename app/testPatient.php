@@ -10,5 +10,6 @@ class testPatient extends Model
 
     protected $primaryKey = 'patient_id';
     
-    protected $guarded = [];    
+    protected $guarded = []; 
+
 }

@@ -12,4 +12,8 @@ class teatRoom_location extends Model
     
     protected $guarded = [];
 
+    public function room_node_info()
+    {
+        return $this->belongsTo('App\testBeacon', 'room_node');
+    } 
 }
