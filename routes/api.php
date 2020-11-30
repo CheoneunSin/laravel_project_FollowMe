@@ -19,7 +19,6 @@ Route::prefix('patient')->group(function () {
     Route::post('/navigation', 'FollowMeAppController@app_navigation');
     Route::post('/storage', 'FollowMeAppController@app_storage');
     Route::post('/storage_record', 'FollowMeAppController@app_storage_record');
-    // Route::post('/info', 'FollowMeAppController@app_info');
     Route::post('/flow_record', 'FollowMeAppController@app_flow_record');
 });
 Route::prefix('medical')->group(function () {

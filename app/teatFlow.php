@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class teatFlow extends Model
 {
-    protected $table = 'test_flows';
+    protected $table = 'teat_flows';
 
     protected $primaryKey = 'flow_id';
     

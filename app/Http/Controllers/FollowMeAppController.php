@@ -36,11 +36,11 @@ class FollowMeAppController extends Controller
     public function app_signup(Request $request){
 
         $newPatient = new testPatient;
-        $newPatient->patient_name = $request->patient_name;
-        $newPatient->phone_number = $request->phone_number;
-        $newPatient->login_id = $request->login_id;
-        $newPatient->login_pw = $request->login_pw;
-        $newPatient->resident_number = $request->resident_number;  //범수한테 말하기 resudent X
+        $newPatient->patient_name = $request->input('patient_name');;
+        $newPatient->phone_number = $request->input('phone_number');;
+        $newPatient->login_id = $request->input('login_id');;
+        $newPatient->login_pw = $request->input('login_pw');;
+        $newPatient->resident_number = $request->input('resident_number');;  //범수한테 말하기 resudent X
         $newPatient->patient_token = Str::random(60);
         $newPatient->save();
         
@@ -69,10 +69,13 @@ class FollowMeAppController extends Controller
         }
 
         $algorithm = new Dijkstra($graph);
-        $path = $algorithm->shortestPaths('1111', '666666'); 
-        
-        $nodeFlow = testBeacon::select('beacon_id_minor', 'major as floor', 'lat', 'lng')
-                        ->whereIn('beacon_id_minor', $path[0])->get();
+        $path = $algorithm->shortestPaths('15001', '15009'); 
+        $pathArray = join(",",$path[0]);  
+        $nodeFlow = DB::select(DB::raw("SELECT `beacon_id_minor`, `uuid`, `major` as `floor`, 
+                        `lat` + 0.00001 as `lat`, `lng` + 0.000002 as `lng` FROM `test_beacons`
+                        where `beacon_id_minor` IN (".$pathArray.")") );
+        // $nodeFlow = testBeacon::select('beacon_id_minor', 'major as floor', 'lat', 'lng')
+        //                 ->whereIn('beacon_id_minor', $path[0])->get();
         return response()->json([
             'nodeFlow' => $nodeFlow,
         ],200);
@@ -90,11 +93,13 @@ class FollowMeAppController extends Controller
         }
 
         $algorithm = new Dijkstra($graph);
-        $path = $algorithm->shortestPaths('1111', '22222'); 
-        
-        $nodeFlow = testBeacon::select('beacon_id_minor', 'major as floor', 'lat', 'lng')
-                        ->whereIn('beacon_id_minor', $path[0])->get();
-                           
+        $path = $algorithm->shortestPaths('15001', '15009'); 
+        // $nodeFlow = testBeacon::select('beacon_id_minor', 'major as floor', 'lat', 'lng')
+        //                 ->whereIn('beacon_id_minor', $path[0])->get();
+        $pathArray = join(",",$path[0]);  
+        $nodeFlow = DB::select(DB::raw("SELECT `beacon_id_minor`, `uuid`, `major` as `floor`, 
+                        `lat` + 0.00001 as `lat`, `lng` + 0.000002 as `lng` FROM `test_beacons`
+                        where `beacon_id_minor` IN (".$pathArray.")") );
         return response()->json([
             'nodeFlow' => $nodeFlow,
         ],200);

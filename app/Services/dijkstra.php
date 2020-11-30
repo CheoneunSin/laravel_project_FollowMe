@@ -74,7 +74,6 @@ class Dijkstra
         }
         unset($this->queue[$closest]);
     }
-
     /**
      * Extract all the paths from $source to $target as arrays of nodes.
      *
@@ -98,7 +97,6 @@ class Dijkstra
                 unset($paths[$key]);
             }
         }
-
         return array_values($paths);
     }
 
