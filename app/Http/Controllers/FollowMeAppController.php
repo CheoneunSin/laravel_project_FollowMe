@@ -61,23 +61,20 @@ class FollowMeAppController extends Controller
                  
     public function app_flow(Request $request){
         $graph = []; 
-        foreach (testBeacon::select('beacon_id_minor')->where('node_check', 1)->cursor() as $node) {
-            $graph["$node->beacon_id_minor"] = [];
-            foreach (teatNodeDistance::select('nodeA', 'distance' ,"nodeB")->cursor() as $distance) {
-                if($distance->nodeA == $node->beacon_id_minor){
-                    $graph["$node->beacon_id_minor"]["$distance->nodeB"] = $distance->distance;
+        foreach (testNode::select('node_id')->where('node_check', 1)->cursor() as $node) {
+            $graph["$node->node_id"] = [];
+            foreach (teatNodeDistance::select('node_A', 'distance' ,"node_B")->cursor() as $distance) {
+                if($distance->node_A == $node->node_id){
+                    $graph["$node->node_id"]["$distance->node_B"] = $distance->distance;
                 }
             }
         }
 
         $algorithm = new Dijkstra($graph);
         $path = $algorithm->shortestPaths('15001', '15009'); 
-        $pathArray = join(",",$path[0]);  
-        $nodeFlow = DB::select(DB::raw("SELECT `beacon_id_minor`, `uuid`, `major` as `floor`, 
-                        `lat` + 0.00001 as `lat`, `lng` + 0.000002 as `lng` FROM `test_beacons`
-                        where `beacon_id_minor` IN (".$pathArray.")") );
-        // $nodeFlow = testBeacon::select('beacon_id_minor', 'major as floor', 'lat', 'lng')
-        //                 ->whereIn('beacon_id_minor', $path[0])->get();
+
+        $nodeFlow = testNode::select('node_id', 'floor', 'lat', 'lng')
+                            ->whereIn('node_id', $path[0])->get();
         return response()->json([
             'nodeFlow' => $nodeFlow,
         ],200);
@@ -88,23 +85,20 @@ class FollowMeAppController extends Controller
         $end_room_location = teatRoom_location::select('room_node')->where('room_name','화장실')->first();
 
         $graph = []; 
-        foreach (testBeacon::select('beacon_id_minor')->where('node_check', 1)->cursor() as $node) {
-            $graph["$node->beacon_id_minor"] = [];
-            foreach (teatNodeDistance::select('nodeA', 'distance' ,"nodeB")->cursor() as $distance) {
-                if($distance->nodeA == $node->beacon_id_minor){
-                    $graph["$node->beacon_id_minor"]["$distance->nodeB"] = $distance->distance;
+        foreach (testNode::select('node_id')->where('node_check', 1)->cursor() as $node) {
+            $graph["$node->node_id"] = [];
+            foreach (teatNodeDistance::select('node_A', 'distance' ,"node_B")->cursor() as $distance) {
+                if($distance->node_A == $node->node_id){
+                    $graph["$node->node_id"]["$distance->node_B"] = $distance->distance;
                 }
             }
         }
 
         $algorithm = new Dijkstra($graph);
         $path = $algorithm->shortestPaths($start_room_loaction->room_node, $end_room_location->room_node); 
-        // $nodeFlow = testBeacon::select('beacon_id_minor', 'major as floor', 'lat', 'lng')
-        //                 ->whereIn('beacon_id_minor', $path[0])->get();
-        $pathArray = join(",",$path[0]);  
-        $nodeFlow = DB::select(DB::raw("SELECT `beacon_id_minor`, `uuid`, `major` as `floor`, 
-                        `lat` + 0.00001 as `lat`, `lng` + 0.000002 as `lng` FROM `test_beacons`
-                        where `beacon_id_minor` IN (".$pathArray.")") );
+        $nodeFlow = testNode::select('node_id', 'floor', 'lat', 'lng')
+                        ->whereIn('node_id', $path[0])->get();
+
         return response()->json([
             'nodeFlow' => $nodeFlow,
         ],200);

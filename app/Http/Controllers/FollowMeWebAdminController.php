@@ -85,8 +85,7 @@ class FollowMeWebAdminController extends Controller
 
 
     public function admin_node_setting_main(){
-        $beacon_info = testBeacon::select('beacon_id_minor', 'uuid', 'major', 'lat', 'lng','node_check')
-                                    ->get();
+        $beacon_info = testNode::select('node_id', 'lat', 'lng','floor')->get();
         return response()->json([
             'beacon_info' => $beacon_info,
         ],200);
@@ -101,7 +100,6 @@ class FollowMeWebAdminController extends Controller
 
     public function admin_node_delete(Request $request){
         $message = Config::get('constants.admin_message.delete_ok');
-
         return response()->json([
             'message' => $message,
         ],200);
@@ -109,7 +107,6 @@ class FollowMeWebAdminController extends Controller
 
     public function admin_node_link(Request $request){
         $message = Config::get('constants.admin_message.setting_ok');
-        
         return response()->json([
             'message' => $message,
         ],200);
