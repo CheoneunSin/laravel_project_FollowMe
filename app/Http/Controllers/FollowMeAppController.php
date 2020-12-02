@@ -11,6 +11,8 @@ use App\teatRoom_location;
 use App\testBeacon;
 use App\testClinic;
 use App\testPatient;
+use App\testNode;
+
 use Illuminate\Support\Facades\DB;
 use App\Services\Dijkstra;
 use Illuminate\Support\Facades\Config;

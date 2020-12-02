@@ -12,4 +12,8 @@ class testPatient extends Model
     
     protected $guarded = []; 
 
+    public function clinic()
+    {
+        return $this->hasMany('App\testClinic', 'patient_id');
+    }
 }

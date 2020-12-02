@@ -21,8 +21,8 @@ class testClinic extends Model
                         ->where('storage', '!=' ,null);
     }
 
-    public function patient()
-    {
-        return $this->belongsTo('App\testPatient', 'patient_id');
-    } 
+    // public function patient()
+    // {
+    //     return $this->belongsTo('App\testPatient', 'patient_id');
+    // } 
 }

@@ -8,6 +8,8 @@ use App\testAuth;
 use App\testBeacon;
 use App\testClinic;
 use App\testPatient;
+use App\testNode;
+
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;

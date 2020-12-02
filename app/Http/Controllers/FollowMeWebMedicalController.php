@@ -8,6 +8,8 @@ use App\testAuth;
 use App\testBeacon;
 use App\testClinic;
 use App\testPatient;
+use App\testNode;
+
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
@@ -41,17 +43,15 @@ class FollowMeWebMedicalController extends Controller
         $patient_info = testPatient::select('patient_id','patient_name', 'resident_number', 'postal_code', 
                             'address', 'detail_address', 'phone_number', 'notes')
                             ->where('patient_name', $request->input('patient_name'))
-                            ->get();
-        $patient_clinic_info = DB::table('test_clinics')->join('test_patients', 
-                                        'test_patients.patient_id' , 
-                                        'test_clinics.patient_id')
-                                        ->select(   'test_clinics.clinic_id',
-                                                    'test_clinics.clinic_subject_name', 
-                                                    'test_clinics.clinic_date',
-                                                    'test_clinics.first_category')
-                                        ->where('test_clinics.standby_status',"1")
-                                        ->where('patient_name', $request->input('patient_name'))
-                                        ->get();
+                            ->first();
+        $patient_clinic_info = testPatient::find($patient_info->patient_id)
+                                            ->clinic->last()
+                                            ->select(   'clinic_id',
+                                                        'clinic_subject_name',
+                                                        'clinic_date',
+                                                        'first_category')
+                                            ->where(   'standby_status' , '1')
+                                            ->first();
                                         
         $flow_record  = DB::table('teat_flows')->join('test_patients', 
                                 'test_patients.patient_id' , 
@@ -65,8 +65,8 @@ class FollowMeWebMedicalController extends Controller
                                 ->where('test_patients.patient_name', $request->input('patient_name'))
                                 ->get();
         return response()->json([
-            'patient_info' => $patient_info->first(),
-            'patient_clinic_info' =>  $patient_clinic_info->first(),
+            'patient_info' => $patient_info,
+            'patient_clinic_info' =>  $patient_clinic_info,
             'flow_record' => $flow_record->first(),            
         ],200);
     }
@@ -78,8 +78,7 @@ class FollowMeWebMedicalController extends Controller
         ],200);
     }
     public function medical_clinic_record(Request $request){
-        // $clinic_record = testClinic::find(20)->patient;
-        // dd($clinic_record->toArray());
+
         $clinic_record  = DB::table('test_clinics')->join('test_patients', 
                                     'test_patients.patient_id' , 
                                     'test_clinics.patient_id')
