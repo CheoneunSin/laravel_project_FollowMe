@@ -61,7 +61,7 @@ class FollowMeAppController extends Controller
                  
     public function app_flow(Request $request){
         $graph = []; 
-        foreach (testNode::select('node_id')->where('node_check', 1)->cursor() as $node) {
+        foreach (testNode::select('node_id')->cursor() as $node) {
             $graph["$node->node_id"] = [];
             foreach (teatNodeDistance::select('node_A', 'distance' ,"node_B")->cursor() as $distance) {
                 if($distance->node_A == $node->node_id){
@@ -69,9 +69,8 @@ class FollowMeAppController extends Controller
                 }
             }
         }
-
         $algorithm = new Dijkstra($graph);
-        $path = $algorithm->shortestPaths('15001', '15009'); 
+        $path = $algorithm->shortestPaths('3001', '3022'); 
 
         $nodeFlow = testNode::select('node_id', 'floor', 'lat', 'lng')
                             ->whereIn('node_id', $path[0])->get();
@@ -82,10 +81,10 @@ class FollowMeAppController extends Controller
 
     public function app_navigation(Request $request){
         $start_room_loaction = teatRoom_location::select('room_node')->where('room_name','320')->first();
-        $end_room_location = teatRoom_location::select('room_node')->where('room_name','화장실')->first();
+        $end_room_location = teatRoom_location::select('room_node')->where('room_name','373')->first();
 
         $graph = []; 
-        foreach (testNode::select('node_id')->where('node_check', 1)->cursor() as $node) {
+        foreach (testNode::select('node_id')->cursor() as $node) {
             $graph["$node->node_id"] = [];
             foreach (teatNodeDistance::select('node_A', 'distance' ,"node_B")->cursor() as $distance) {
                 if($distance->node_A == $node->node_id){

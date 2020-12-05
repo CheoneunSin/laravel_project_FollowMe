@@ -15,10 +15,10 @@ class NodeDistanceChenge extends Migration
     {
         Schema::table('teat_node_distances', function (Blueprint $table) {
             
-            // $table->dropForeign('teat_node_distances_nodeA_foreign');
-            // $table->dropForeign('teat_node_distances_nodeB_foreign');
+            $table->dropForeign('teat_node_distances_nodeA_foreign');
+            $table->dropForeign('teat_node_distances_nodeB_foreign');
 
-            // $table->dropColumn(['nodeA', 'nodeB']);
+            $table->dropColumn(['nodeA', 'nodeB']);
 
         });
     }

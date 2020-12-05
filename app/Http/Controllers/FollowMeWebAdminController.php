@@ -82,8 +82,6 @@ class FollowMeWebAdminController extends Controller
             'beacon_info' => $beacon_info,
         ],200);
     }
-
-
     public function admin_node_setting_main(){
         $beacon_info = testNode::select('node_id', 'lat', 'lng','floor')->get();
         return response()->json([
