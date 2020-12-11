@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use App\Services\Dijkstra;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Config;
 
 use App\testFlow;
 use App\teatNodeDistance;
@@ -12,11 +15,6 @@ use App\testBeacon;
 use App\testClinic;
 use App\testPatient;
 use App\testNode;
-
-use Illuminate\Support\Facades\DB;
-use App\Services\Dijkstra;
-use Illuminate\Support\Facades\Config;
-
 
 class FollowMeAppController extends Controller
 {
@@ -72,7 +70,7 @@ class FollowMeAppController extends Controller
         $algorithm = new Dijkstra($graph);
         $path = $algorithm->shortestPaths('3001', '3022'); 
 
-        $nodeFlow = testNode::select('node_id', 'floor', 'lat', 'lng')
+        $nodeFlow = testNode::select('node_id', 'floor', 'lat', 'lng', 'stair_check', 'stair_check')
                             ->whereIn('node_id', $path[0])->get();
         return response()->json([
             'nodeFlow' => $nodeFlow,
@@ -95,7 +93,7 @@ class FollowMeAppController extends Controller
 
         $algorithm = new Dijkstra($graph);
         $path = $algorithm->shortestPaths($start_room_loaction->room_node, $end_room_location->room_node); 
-        $nodeFlow = testNode::select('node_id', 'floor', 'lat', 'lng')
+        $nodeFlow = testNode::select('node_id', 'floor', 'lat', 'lng', 'stair_check')
                         ->whereIn('node_id', $path[0])->get();
 
         return response()->json([

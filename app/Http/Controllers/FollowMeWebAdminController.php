@@ -43,13 +43,6 @@ class FollowMeWebAdminController extends Controller
     public function admin_beacon_create(Request $request){
         
         foreach($request->input('beacon') as $beacon){   //beacon : []
-            if($beacon['room'] != null){
-                $room_location = new teatRoom_location;
-                $room_location->room_node = $beacon['beacon_id_minor'];
-                $room_location->room_name = $beacon['room']; 
-                $room_location->save();
-            }
-            unset($beacon['room']);
             $newBeaconm = testBeacon::create($beacon);  //minor -> beacon_id_minor (범수한테 말하기)
         } 
         $message = Config::get('constants.admin_message.setting_ok');
@@ -59,6 +52,7 @@ class FollowMeWebAdminController extends Controller
         ],200);
     }
     public function admin_beacon_delete(Request $request){
+        testBeacon::destroy($request->input('beacon'));
         $message = Config::get('constants.admin_message.delete_ok');
         return response()->json([
             'message' => $message,
@@ -90,6 +84,23 @@ class FollowMeWebAdminController extends Controller
     }
 
     public function admin_node_create(Request $request){
+        foreach($request->input('node') as $node){   //node : []
+            if($node['room'] != null){
+                $room_location = new teatRoom_location;
+                $room_location->room_node = $node['id'];
+                $room_location->room_name = $node['room']; 
+                $room_location->save();
+            }
+            unset($node['room']);
+            $newNode = testNode::create($node);  //minor -> beacon_id_minor (범수한테 말하기)
+        } 
+        $message = Config::get('constants.admin_message.setting_ok');
+        return response()->json([
+            'message' => $message,
+            'node' => $newNode,
+        ],200);
+
+
         $message = Config::get('constants.admin_message.setting_ok');
         return response()->json([
             'message' => $message,
