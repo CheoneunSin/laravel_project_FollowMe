@@ -21,14 +21,14 @@ class FollowMeWebAdminController extends Controller
                                 ->where('login_id', $request->input('login_id'))
                                 ->where('login_pw', $request->input('login_pw'))
                                 ->where('auth_id' , '1')
-                                ->get();
+                                ->first();
         
         // $request->session()->put('login_id', $request->login_id);
         // $request->session()->get('login_id');
         $message = Config::get('constants.admin_message.login_ok');
         
         return response()->json([
-            'auth' => $auth_info->first(),  //범수한테 말하기
+            'auth' => $auth_info,  //범수한테 말하기
             'message' => $message,
         ],200);
     }
@@ -97,17 +97,12 @@ class FollowMeWebAdminController extends Controller
         $message = Config::get('constants.admin_message.setting_ok');
         return response()->json([
             'message' => $message,
-            'node' => $newNode,
         ],200);
 
-
-        $message = Config::get('constants.admin_message.setting_ok');
-        return response()->json([
-            'message' => $message,
-        ],200);
     }
 
     public function admin_node_delete(Request $request){
+        testNode::destroy($request->input('node'));
         $message = Config::get('constants.admin_message.delete_ok');
         return response()->json([
             'message' => $message,

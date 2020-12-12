@@ -17,18 +17,19 @@ use App\testPatient;
 use App\testNode;
 
 class FollowMeAppController extends Controller
-{
+{    
     public function app_login(Request $request){
         $patient_info = testPatient::select('patient_id','patient_name', 'resident_number', 'postal_code', 'address'
-                                , 'detail_address', 'phone_number', 'notes')
+                                , 'detail_address', 'phone_number', 'notes', 'patient_token')
                             ->where('login_id', $request->input('login_id'))
                             ->where('login_pw', $request->input('login_pw'))
-                            ->get();
+                            ->first();
+
         $message = Config::get('constants.patient_message.login_ok');
 
         return response()->json([
             'patient_info' => $patient_info,
-            'patient_token' => Str::random(60),
+            // 'patient_token' => Str::random(60),
             'message'   =>$message
         ],200);
     }
@@ -68,18 +69,27 @@ class FollowMeAppController extends Controller
             }
         }
         $algorithm = new Dijkstra($graph);
-        $path = $algorithm->shortestPaths('3001', '3022'); 
+        $path = $algorithm->shortestPaths('2001', '2013'); 
 
-        $nodeFlow = testNode::select('node_id', 'floor', 'lat', 'lng', 'stair_check', 'stair_check')
+        $nodeFlow = testNode::select('node_id', 'floor', 'lat', 'lng', 'stair_check')
                             ->whereIn('node_id', $path[0])->get();
         return response()->json([
             'nodeFlow' => $nodeFlow,
         ],200);
+        // [], JSON_PRETTY_PRINT
     }
 
     public function app_navigation(Request $request){
-        $start_room_loaction = teatRoom_location::select('room_node')->where('room_name','320')->first();
-        $end_room_location = teatRoom_location::select('room_node')->where('room_name','373')->first();
+
+        if(empty($request->input('current_location'))){
+            $start_loaction = $request->input('current_node');
+        }else{
+            $start_loaction = teatRoom_location::select('room_node')
+                                        ->where('room_name', $request->input('start_room'))->first();
+        }
+        
+        $end_room_location = teatRoom_location::select('room_node')
+                                        ->where('room_name',$request->input('end_room'))->first();
 
         $graph = []; 
         foreach (testNode::select('node_id')->cursor() as $node) {
@@ -92,7 +102,7 @@ class FollowMeAppController extends Controller
         }
 
         $algorithm = new Dijkstra($graph);
-        $path = $algorithm->shortestPaths($start_room_loaction->room_node, $end_room_location->room_node); 
+        $path = $algorithm->shortestPaths($start_loaction->room_node, $end_room_location->room_node); 
         $nodeFlow = testNode::select('node_id', 'floor', 'lat', 'lng', 'stair_check')
                         ->whereIn('node_id', $path[0])->get();
 

@@ -33,6 +33,16 @@ class FollowMeWebMedicalController extends Controller
     }
 
     public function medical_patient_create(Request $request){
+        $newPatient = new testPatient;
+        $newPatient->patient_name = $request->input('patient_name');
+        $newPatient->resident_number = $request->input('resident_number');
+        $newPatient->postal_code = $request->input('postal_code');
+        $newPatient->address = $request->input('address');
+        $newPatient->detail_address = $request->input('detail_address');
+        $newPatient->phone_number = $request->input('phone_number');
+        $newPatient->notes = $request->input('notes');
+        $newPatient->save();
+
         $message = Config::get('constants.medical_message.patient_create_ok');
         return response()->json([
             'message' => $message,
