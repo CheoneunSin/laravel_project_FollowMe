@@ -81,6 +81,20 @@ class FollowMeWebMedicalController extends Controller
         ],200);
     }
     public function medical_clinic_setting(Request $request){
+        // $patient_clinic_info = testPatient::find($request->input('patient_id'))
+        //         ->clinic->last()
+        //         ->where('standby_status' , '1')
+        //         ->update([
+        //             'room_name'     => $request->input('room_name'),
+        //             'doctor_name'   => $request->input('doctor_name'),
+        //             'storage'       => $request->input('storage'),
+        //         ]);
+        $clinic_info = testPatient::find($request->input('clinic_id'))
+                                ->update([
+                                    'room_name'     => $request->input('room_name'),
+                                    'doctor_name'   => $request->input('doctor_name'),
+                                    'storage'       => $request->input('storage'),
+                                ]);    
         $message = Config::get('constants.medical_message.clinic_setting_ok');
 
         return response()->json([
@@ -106,6 +120,7 @@ class FollowMeWebMedicalController extends Controller
         ],200);
     }
     public function medical_clinic_end(Request $request){
+ 
         $message = Config::get('constants.medical_message.clinic_end');
 
         return response()->json([
