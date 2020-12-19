@@ -11,10 +11,10 @@ class HomeController extends Controller
      *
      * @return void
      */
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
+    // public function __construct()
+    // {
+    //     $this->middleware('auth');
+    // }
 
     /**
      * Show the application dashboard.
@@ -25,4 +25,24 @@ class HomeController extends Controller
     {
         return view('home');
     }
+
+
+    // public function vue_login(Request $request)
+    // {
+    //     $request->session()->put('test', 'value');
+    //     $value = $request->session()->get('test');
+    //     return $value;
+    // }
+
+    // public function vue_main(Request $request)
+    // {
+    //     $value = $request->session()->get('test');
+    //     return $value;
+    // }
+
+    // public function vue_logout(Request $request)
+    // {
+    //     $request->session()->forget('test');
+    //     return "logout";
+    // }
 }
