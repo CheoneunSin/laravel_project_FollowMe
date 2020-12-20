@@ -10,7 +10,9 @@
  */
 
 return [
-
+    'ttl' => 120,
+    'refresh_ttl' => 20160,
+    'identifier' => 'id',
     /*
     |--------------------------------------------------------------------------
     | JWT Authentication Secret
@@ -275,8 +277,8 @@ return [
         |
         */
 
-        'jwt' => Tymon\JWTAuth\Providers\JWT\Lcobucci::class,
-
+        // 'jwt' => Tymon\JWTAuth\Providers\JWT\Lcobucci::class,
+        'jwt' => Tymon\JWTAuth\Providers\JWT\Namshi::class,
         /*
         |--------------------------------------------------------------------------
         | Authentication Provider

@@ -1,23 +1,49 @@
-<template>
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header">Example Component</div>
-
-                    <div class="card-body">
-                        I'm an example component.
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+<template id="login">
+  <div class="login-wrapper">
+    <form class="login-right" @submit.prevent>
+      <div class="h2">Login</div>
+      <div class="form-group">
+        <input type="text" id="email" placeholder="email" v-model="email">
+      </div>
+      <div class="form-group">
+        <input type="text" id="password" placeholder="password" v-model="password">
+      </div>
+      <!-- <div class="form-group">
+        <input type="password" id="Password" placeholder="Password" v-model="password">
+      </div> -->
+      <div class="button-area">
+        <button class="btn btn-primary pull-right" @click="login()" >Login</button>
+      </div>
+    </form>
+  </div>
 </template>
 
 <script>
-    export default {
-        mounted() {
-            console.log('Component mounted.')
-        }
-    }
+export default {
+  data() {
+    return {
+      email: "",
+      password: ""
+    };
+  },
+
+  methods: {
+    login() {
+   
+      axios
+        .post("http://127.0.0.1:8000/api/auth/login", {
+            email: this.email,
+            password: this.password
+        })
+        .then(response => {
+          console.log(response);
+          alert(response);
+        })
+        .catch(err => {
+          console.log(err);
+          alert(err);
+        });
+    },
+  }
+};
 </script>

@@ -3,7 +3,6 @@
 namespace App\Providers;
 use App\testPatient;
 use Illuminate\Support\ServiceProvider;
-
 class AppServiceProvider extends ServiceProvider
 {
     /**
