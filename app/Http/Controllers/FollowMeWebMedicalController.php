@@ -13,23 +13,44 @@ use App\testNode;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class FollowMeWebMedicalController extends Controller
 {
     public function medical_login(Request $request){
-        $auth_info = testAuth::select("auth_id", "auth_name")
-                                ->where('login_id', $request->input('login_id'))
-                                ->where('login_pw', $request->input('login_pw'))
-                                ->where('auth_id' , '1')
-                                ->get();                        
-        // $request->session()->put('login_id', $request->login_id);
-        // $request->session()->get('login_id');p;
-        $message = Config::get('constants.medical_message.login_ok');
-
+        // $auth_info = testAuth::select("auth_id", "auth_name")
+        //                         ->where('login_id', $request->input('login_id'))
+        //                         ->where('login_pw', $request->input('login_pw'))
+        //                         ->where('auth_id' , '1')
+        //                         ->get();                        
+        $credentials = $request->only('email', 'password');
+        if ($token = auth()->guard()->attempt($credentials)) {
+            $message = Config::get('constants.medical_message.login_ok');
+            return response()->json(['message' => $message, 'token' =>  $token], 200);
+        }
         return response()->json([
             'auth' => $auth_info->first(),
             'message' => $message,
         ],200);
+    }
+    public function medical_register(Request $request){
+        $v = Validator::make($request->all(), [
+            'email' => 'required|email|unique:users',
+            'password'  => 'required|min:3|confirmed',
+        ]);
+        if ($v->fails())
+        {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $v->errors()
+            ], 422);
+        }
+        $user = new User;
+        $user->email = $request->email;
+        $user->password = bcrypt($request->password);
+        $user->save();
+        return response()->json(['status' => 'success'], 200);
     }
 
     public function medical_patient_create(Request $request){
@@ -81,14 +102,6 @@ class FollowMeWebMedicalController extends Controller
         ],200);
     }
     public function medical_clinic_setting(Request $request){
-        // $patient_clinic_info = testPatient::find($request->input('patient_id'))
-        //         ->clinic->last()
-        //         ->where('standby_status' , '1')
-        //         ->update([
-        //             'room_name'     => $request->input('room_name'),
-        //             'doctor_name'   => $request->input('doctor_name'),
-        //             'storage'       => $request->input('storage'),
-        //         ]);
         $clinic_info = testPatient::find($request->input('clinic_id'))
                                 ->update([
                                     'room_name'     => $request->input('room_name'),
@@ -119,10 +132,10 @@ class FollowMeWebMedicalController extends Controller
             'clinic_record' => $clinic_record,            
         ],200);
     }
-    public function medical_clinic_end(Request $request){
- 
-        $message = Config::get('constants.medical_message.clinic_end');
 
+    public function medical_clinic_end(Request $request){
+        
+        $message = Config::get('constants.medical_message.clinic_end');
         return response()->json([
             'message' => $message,            
         ],200);

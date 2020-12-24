@@ -45,18 +45,6 @@ Route::prefix('admin')->group(function () {
     Route::post('/node_link', 'FollowMeWebAdminController@admin_node_link');
 
 });
-// Auth::routes();
-
-
-// Route::group([
-//     'middleware' => 'api',
-//     'prefix' => 'auth'
-// ], function ($router) {
-//     Route::post('login', 'AuthController@login');
-//     Route::post('logout', 'AuthController@logout');
-//     Route::post('refresh', 'AuthController@refresh');
-//     Route::post('me', 'AuthController@me');
-// });
 Route::prefix('auth')->group(function () {
     Route::post('register', 'AuthController@register');
     Route::post('login', 'AuthController@login');
