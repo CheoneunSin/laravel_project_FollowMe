@@ -24,12 +24,12 @@ class FollowMeAppController extends Controller
                             ->where('login_id', $request->input('login_id'))
                             ->where('login_pw', $request->input('login_pw'))
                             ->first();
-
+        $token = $patient_info->patient_token;
         $message = Config::get('constants.patient_message.login_ok');
 
         return response()->json([
             'patient_info' => $patient_info,
-            // 'patient_token' => Str::random(60),
+            'token' => $token,
             'message'   =>$message
         ],200);
     }
@@ -52,6 +52,10 @@ class FollowMeAppController extends Controller
     }
 
     public function app_clinic(Request $request){
+        $newClinic = new testClinic;
+        $newClinic->patient_id = $request->input('patient_id');
+        $newClinic->clinic_subject_name = $request->input('clinic_subject_name');
+        $newClinic->save();
         $message = Config::get('constants.patient_message.clinic_ok');
         return response()->json([
             'message'=>$message,
