@@ -95,6 +95,7 @@ class FollowMeWebMedicalController extends Controller
                                 ->where('teat_flows.flow_status_check',"1")
                                 ->where('test_patients.patient_name', $request->input('patient_name'))
                                 ->get();
+
         return response()->json([
             'patient_info' => $patient_info,
             'patient_clinic_info' =>  $patient_clinic_info,

@@ -13,16 +13,16 @@ class testClinic extends Model
     
     protected $guarded = [];
 
-    public function scopeStorage($query, $patient_id,$check)  //$check -> 1 : 수납 완료, 0 -> 미수납 
+    public function scopeStorage($query, $patient_id, $check)  //$check -> 1 : 수납 완료, 0 -> 미수납 
     {
         return $query->select('clinic_subject_name','storage','clinic_date','clinic_time')
                         ->where('patient_id', $patient_id)
                         ->where('storage_check', $check)
-                        ->where('storage', '!=' ,null);
+                        ->where('storage', '!=' , null);
     }
 
-    // public function patient()
-    // {
-    //     return $this->belongsTo('App\testPatient', 'patient_id');
-    // } 
+    public function patient()
+    {
+        return $this->belongsTo('App\testPatient', 'patient_id');
+    }
 }

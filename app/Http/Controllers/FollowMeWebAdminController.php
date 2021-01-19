@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Config;
 
 class FollowMeWebAdminController extends Controller
 {   
+    
     public function admin_login(Request $request){
         $auth_info = testAuth::select("auth_id", "auth_name")
                                 ->where('login_id', $request->input('login_id'))
@@ -58,7 +59,7 @@ class FollowMeWebAdminController extends Controller
             'message' => $message,
         ],200);
     }
-
+    //범수랑 주용이랑 상의
     public function admin_beacon_defect_check(){
         $beacon_defect = testBeacon::select('beacon_id_minor', 'uuid', 'major', 'lat', 'lng', 'node_defect_datetime')
                                     ->where('node_defect_check', 1)
@@ -71,7 +72,7 @@ class FollowMeWebAdminController extends Controller
     public function admin_beacon_search(Request $request){
         $beacon_info = testBeacon::select('beacon_id_minor', 'uuid', 'major', 'lat', 'lng', 'node_defect_datetime')
                                     ->where('beacon_id_minor', $request->input('beacon_id_minor'))
-                                    ->get();
+                                    ->first();
         return response()->json([
             'beacon_info' => $beacon_info,
         ],200);
