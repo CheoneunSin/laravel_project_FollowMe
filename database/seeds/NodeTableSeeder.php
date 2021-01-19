@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Seeder;
 use App\testNode;
+
 class NodeTableSeeder extends Seeder
 {
     /**
@@ -140,10 +141,10 @@ class NodeTableSeeder extends Seeder
             '128.62054658335202',
           ];
         $f = 0;  //층 0 : 2층, 1 : 3층
-        for($i = 0; $i < 53; $i++) {
+        for($i = 0; $i < 52; $i++) {
             if($node_id[$i] == '3001')
                 $f = 1;
-            testNode::creat([
+            testNode::create([
                 'node_id' => $node_id[$i],
                 'floor'   => $floor[$f],
                 'lat'     => $lat[$i],
