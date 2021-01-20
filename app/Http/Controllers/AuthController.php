@@ -22,6 +22,7 @@ class AuthController extends Controller
             ], 422);
         }
         $user = new User;
+        $user->name = $request->name;
         $user->email = $request->email;
         $user->password = bcrypt($request->password);
         $user->phone = $request->phone;
@@ -33,7 +34,7 @@ class AuthController extends Controller
     {
         $credentials = $request->only('email', 'password');
         if ($token = auth()->guard()->attempt($credentials)) {
-            return response()->json(['status' => 'success', 'token' =>  $token], 200);
+            return response()->json(['sWtatus' => 'success', 'token' =>  $token], 200);
             // ->header('Authorization', $token);
         }
         return response()->json(['error' => 'login_error'], 401) ;
