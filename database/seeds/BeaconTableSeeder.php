@@ -31,7 +31,6 @@ class BeaconTableSeeder extends Seeder
             [15016, 35.896810599568795, 128.62092529630306, '4_S002'],
             [15017, 35.896846993768406, 128.62101112699153, '4_S003'],
         ];
-        // $faker = Faker\Factory::create();
         $major = 30001;
         foreach($beacons as $beacon){
             if($beacon[0] == 15010)

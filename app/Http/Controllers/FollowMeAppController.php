@@ -24,13 +24,15 @@ class FollowMeAppController extends Controller
                             ->where('login_id', $request->input('login_id'))
                             ->where('login_pw', $request->input('login_pw'))
                             ->first();
+        if(empty($patient_info))
+            return response()->json(['error'],400);  
+        
         $token = $patient_info->patient_token;
         $message = Config::get('constants.patient_message.login_ok');
-
         return response()->json([
-            'patient_info' => $patient_info,
-            'token' => $token,
-            'message'   =>$message
+            'patient_info'  => $patient_info,
+            'token'         => $token,
+            'message'       =>$message
         ],200);
     }
     //병원을 다닌 환자와 병원을 한번도 가지 않은 환자 분류

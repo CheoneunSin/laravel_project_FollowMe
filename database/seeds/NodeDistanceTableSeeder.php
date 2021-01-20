@@ -3,7 +3,7 @@
 use Illuminate\Database\Seeder;
 use App\teatNodeDistance;
 
-class NodeDistances extends Seeder
+class NodeDistanceTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.
