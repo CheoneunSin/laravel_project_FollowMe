@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class UserRole extends Migration
+class UserNunAndPhoneNameChange extends Migration
 {
     /**
      * Run the migrations.
@@ -14,9 +14,8 @@ class UserRole extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->integer('role')->default(2);
-            $table->string('name')->nullable()->change();
-            $table->dropColumn('api_token');
+            $table->renameColumn('phone', 'phone_number');
+            $table->renameColumn('user_number', 'unique_number');
         });
     }
 
