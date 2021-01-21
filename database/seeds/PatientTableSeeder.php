@@ -10,6 +10,7 @@ class PatientTableSeeder extends Seeder
      *
      * @return void
      */
+    
     public function run() {
         $rrm = [
             '950316-1585439',
@@ -38,7 +39,7 @@ class PatientTableSeeder extends Seeder
             testPatient::create([
                 'patient_name' => $faker->name,
                 'login_id' => $faker->email,
-                // 'login_pw' => bcrypt('1234'),
+                'login_pw' => 1234,
                 'resident_number' => $rrm[$i],
                 'phone_number' => $faker->phoneNumber,
                 'address' => $faker->address,

@@ -99,7 +99,6 @@ class FollowMeWebAdminController extends Controller
         return response()->json([
             'message' => $message,
         ],200);
-
     }
 
     public function admin_node_delete(Request $request){
