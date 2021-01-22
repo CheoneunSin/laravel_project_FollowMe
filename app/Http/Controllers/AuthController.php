@@ -38,8 +38,8 @@ class AuthController extends Controller
 
         $credentials = $request->only('email', 'password');
         if ($token = auth()->guard()->attempt($credentials)) {
-            $user = User::find(Auth::user()->id);
-            return response()->json(['sWtatus' => 'success', 'token' =>  $token, 'role' => $user->role ], 200);
+            $user = Auth::user();
+            return response()->json(['status' => 'success', 'token' =>  $token, 'role' => $user->role ], 200);
             // ->header('Authorization', $token);
         }
         return response()->json(['error' => 'login_error'], 401) ;

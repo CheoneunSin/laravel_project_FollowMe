@@ -24,10 +24,8 @@ class FollowMeAppController extends Controller
         // $credentials = $request->only('email', 'password');
         // $credentials = $request->only('login_id', 'login_pw');
         if ($token = Auth::guard('patient')->attempt(['login_id' => $request->login_id, 'password' => $request->password])) {
-        // if ($token = Auth::guard('patient')->attempt($credentials)) {
-            
-            // $user = User::find(Auth::user()->id);
-            return response()->json(['sWtatus' => 'success', 'token' =>  $token], 200);
+            $patient =  Auth::guard('patient')->user();
+            return response()->json(['status' => 'success', 'patient_info' => $patient, 'token' =>  $token,], 200);
             // ->header('Authorization', $token);
         }
         return response()->json(['error' => 'login_error'], 401) ;
