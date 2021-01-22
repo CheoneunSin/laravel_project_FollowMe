@@ -46,6 +46,11 @@ return [
             'provider' => 'users',
             // 'hash' => false,
         ],
+        'patient' => [
+            'driver' => 'jwt',
+            'provider' => 'patient',
+            // 'hash' => false,
+        ],
     ],
 
     /*
@@ -70,7 +75,11 @@ return [
             'driver' => 'eloquent',
             'model' => App\User::class,
         ],
-
+        
+        'patient' => [
+            'driver' => 'eloquent',
+            'model' => App\testPatient::class,
+        ], 
         // 'users' => [
         //     'driver' => 'database',
         //     'table' => 'users',
@@ -91,7 +100,7 @@ return [
     | they have less time to be guessed. You may change this as needed.
     |
     */
-
+    
     'passwords' => [
         'users' => [
             'provider' => 'users',
@@ -99,6 +108,12 @@ return [
             'expire' => 60,
             'throttle' => 60,
         ],
+        // 'patient' => [
+        //     'provider' => 'patient',
+        //     'table' => 'password_resets',
+        //     'expire' => 15,
+        //     'throttle' => 60,
+        // ], 
     ],
 
     /*

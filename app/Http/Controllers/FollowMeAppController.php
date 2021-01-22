@@ -15,42 +15,74 @@ use App\testBeacon;
 use App\testClinic;
 use App\testPatient;
 use App\testNode;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class FollowMeAppController extends Controller
 {    
     public function app_login(Request $request){
-        $patient_info = testPatient::select('patient_id','patient_name', 'resident_number', 'postal_code', 'address'
-                                , 'detail_address', 'phone_number', 'notes', 'patient_token')
-                            ->where('login_id', $request->input('login_id'))
-                            ->where('login_pw', $request->input('login_pw'))
-                            ->first();
-        if(empty($patient_info))
-            return response()->json(['error'],400);  
+        // $credentials = $request->only('email', 'password');
+        // $credentials = $request->only('login_id', 'login_pw');
+        if ($token = Auth::guard('patient')->attempt(['login_id' => $request->login_id, 'password' => $request->password])) {
+        // if ($token = Auth::guard('patient')->attempt($credentials)) {
+            
+            // $user = User::find(Auth::user()->id);
+            return response()->json(['sWtatus' => 'success', 'token' =>  $token], 200);
+            // ->header('Authorization', $token);
+        }
+        return response()->json(['error' => 'login_error'], 401) ;
         
-        $token = $patient_info->patient_token;
-        $message = Config::get('constants.patient_message.login_ok');
-        return response()->json([
-            'patient_info'  => $patient_info,
-            'token'         => $token,
-            'message'       =>$message
-        ],200);
+        // $patient_info = testPatient::select('patient_id','patient_name', 'resident_number', 'postal_code', 'address'
+        //                         , 'detail_address', 'phone_number', 'notes', 'patient_token')
+        //                     ->where('login_id', $request->input('login_id'))
+        //                     ->where('login_pw', $request->input('login_pw'))
+        //                     ->first();
+        // if(empty($patient_info))
+        //     return response()->json(['error'],400);  
+        
+        // $token = $patient_info->patient_token;
+        // $message = Config::get('constants.patient_message.login_ok');
+        // return response()->json([
+        //     'patient_info'  => $patient_info,
+        //     'token'         => $token,
+        //     'message'       =>$message
+        // ],200);
     }
     //병원을 다닌 환자와 병원을 한번도 가지 않은 환자 분류
     public function app_signup(Request $request){
-
+        $v = Validator::make($request->all(), [
+            'patient_name'     => 'required',
+        ]);
+        if ($v->fails())
+        {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $v->errors()
+            ], 422);
+        }
         $newPatient = new testPatient;
-        $newPatient->patient_name = $request->input('patient_name');;
-        $newPatient->phone_number = $request->input('phone_number');;
-        $newPatient->login_id = $request->input('login_id');;
-        $newPatient->login_pw = $request->input('login_pw');;
-        $newPatient->resident_number = $request->input('resident_number');;  //범수한테 말하기 resudent X
+        $newPatient->patient_name = $request->input('patient_name');
+        $newPatient->phone_number = $request->input('phone_number');
+        $newPatient->login_id = $request->input('login_id');
+        $newPatient->password = bcrypt($request->input('password'));
+        $newPatient->resident_number = $request->input('resident_number');  //범수한테 말하기 resudent X
         $newPatient->patient_token = Str::random(60);
         $newPatient->save();
+        return response()->json(['status' => 'success'], 200);
+
+        // $newPatient = new testPatient;
+        // $newPatient->patient_name = $request->input('patient_name');
+        // $newPatient->phone_number = $request->input('phone_number');
+        // $newPatient->login_id = $request->input('login_id');
+        // $newPatient->login_pw = $request->input('login_pw');
+        // $newPatient->resident_number = $request->input('resident_number');  //범수한테 말하기 resudent X
+        // $newPatient->patient_token = Str::random(60);
+        // $newPatient->save();
             
-        $message = Config::get('constants.patient_message.signup_ok');
-        return response()->json([
-            'message'=>$message,
-        ],200);
+        // $message = Config::get('constants.patient_message.signup_ok');
+        // return response()->json([
+        //     'message'=>$message,
+        // ],200);
     }
 
     public function app_clinic(Request $request){
