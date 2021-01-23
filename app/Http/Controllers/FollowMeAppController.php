@@ -21,73 +21,37 @@ use Illuminate\Support\Facades\Validator;
 class FollowMeAppController extends Controller
 {    
     public function app_login(Request $request){
-        // $credentials = $request->only('email', 'password');
-        // $credentials = $request->only('login_id', 'login_pw');
         if ($token = Auth::guard('patient')->attempt(['login_id' => $request->login_id, 'password' => $request->password])) {
             $patient =  Auth::guard('patient')->user();
             return response()->json(['status' => 'success', 'patient_info' => $patient, 'token' =>  $token,], 200);
-            // ->header('Authorization', $token);
         }
         return response()->json(['error' => 'login_error'], 401) ;
-        
-        // $patient_info = testPatient::select('patient_id','patient_name', 'resident_number', 'postal_code', 'address'
-        //                         , 'detail_address', 'phone_number', 'notes', 'patient_token')
-        //                     ->where('login_id', $request->input('login_id'))
-        //                     ->where('login_pw', $request->input('login_pw'))
-        //                     ->first();
-        // if(empty($patient_info))
-        //     return response()->json(['error'],400);  
-        
-        // $token = $patient_info->patient_token;
-        // $message = Config::get('constants.patient_message.login_ok');
-        // return response()->json([
-        //     'patient_info'  => $patient_info,
-        //     'token'         => $token,
-        //     'message'       =>$message
-        // ],200);
     }
     //병원을 다닌 환자와 병원을 한번도 가지 않은 환자 분류
     public function app_signup(Request $request){
         $v = Validator::make($request->all(), [
-            'patient_name'     => 'required',
+            'patient_name' => 'required',
         ]);
         if ($v->fails())
         {
             return response()->json([
-                'status' => 'error',
+                'message' => 'error',
                 'errors' => $v->errors()
             ], 422);
         }
-        $newPatient = new testPatient;
-        $newPatient->patient_name = $request->input('patient_name');
-        $newPatient->phone_number = $request->input('phone_number');
-        $newPatient->login_id = $request->input('login_id');
-        $newPatient->password = bcrypt($request->input('password'));
-        $newPatient->resident_number = $request->input('resident_number');  //범수한테 말하기 resudent X
-        $newPatient->patient_token = Str::random(60);
-        $newPatient->save();
-        return response()->json(['status' => 'success'], 200);
-
-        // $newPatient = new testPatient;
-        // $newPatient->patient_name = $request->input('patient_name');
-        // $newPatient->phone_number = $request->input('phone_number');
-        // $newPatient->login_id = $request->input('login_id');
-        // $newPatient->login_pw = $request->input('login_pw');
-        // $newPatient->resident_number = $request->input('resident_number');  //범수한테 말하기 resudent X
-        // $newPatient->patient_token = Str::random(60);
-        // $newPatient->save();
-            
-        // $message = Config::get('constants.patient_message.signup_ok');
-        // return response()->json([
-        //     'message'=>$message,
-        // ],200);
+        testPatient::create($request->except('password_confirmation'));
+        $message = Config::get('constants.patient_message.signup_ok');
+        return response()->json(['message'=> $message],200);
     }
 
     public function app_clinic(Request $request){
-        $newClinic = new testClinic;
-        $newClinic->patient_id = $request->input('patient_id');
-        $newClinic->clinic_subject_name = $request->input('clinic_subject_name');
-        $newClinic->save();
+        //관계 저장
+        $patient = testPatient::find($request->patient_id);
+        // $patient->clinic()->create($request->except('patient_id'));
+        // $newClinic = new testClinic;
+        // $newClinic->patient_id = $request->input('patient_id');
+        // $newClinic->clinic_subject_name = $request->input('clinic_subject_name');
+        // $newClinic->save();
         $message = Config::get('constants.patient_message.clinic_ok');
         return response()->json([
             'message'=>$message,
@@ -95,6 +59,10 @@ class FollowMeAppController extends Controller
     }
                  
     public function app_flow(Request $request){
+        // if(Auth::guard('patient')->check())
+        //     return response()->json(['error' => 'ok'], 200) ;
+        // else 
+        //     return response()->json(['error' => 'login_error'], 200) ;
         $graph = []; 
         foreach (testNode::select('node_id')->cursor() as $node) {
             $graph["$node->node_id"] = [];
@@ -123,10 +91,8 @@ class FollowMeAppController extends Controller
             $start_loaction = teatRoom_location::select('room_node')
                                         ->where('room_name', $request->input('start_room'))->first();
         }
-        
         $end_room_location = teatRoom_location::select('room_node')
                                         ->where('room_name',$request->input('end_room'))->first();
-
         $graph = []; 
         foreach (testNode::select('node_id')->cursor() as $node) {
             $graph["$node->node_id"] = [];
@@ -134,7 +100,7 @@ class FollowMeAppController extends Controller
                 if($distance->node_A == $node->node_id){
                     $graph["$node->node_id"]["$distance->node_B"] = $distance->distance;
                 }
-            }
+            } 
         }
 
         $algorithm = new Dijkstra($graph);

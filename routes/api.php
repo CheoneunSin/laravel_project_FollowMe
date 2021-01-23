@@ -7,19 +7,17 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-// Route::group(['middleware' => ['web']], function () {
-//     // your routes here
-// });
-
 Route::prefix('patient')->group(function () {
     Route::post('/login', 'FollowMeAppController@app_login');
     Route::post('/signup', 'FollowMeAppController@app_signup');
     Route::post('/clinic', 'FollowMeAppController@app_clinic');
-    Route::any('/flow', 'FollowMeAppController@app_flow');
-    Route::post('/navigation', 'FollowMeAppController@app_navigation');
-    Route::post('/storage', 'FollowMeAppController@app_storage');
-    Route::post('/storage_record', 'FollowMeAppController@app_storage_record');
-    Route::post('/flow_record', 'FollowMeAppController@app_flow_record');
+    Route::group(['middleware' => 'auth:patient'], function(){
+        Route::any('/flow', 'FollowMeAppController@app_flow');
+        Route::post('/navigation', 'FollowMeAppController@app_navigation');
+        Route::post('/storage', 'FollowMeAppController@app_storage');
+        Route::post('/storage_record', 'FollowMeAppController@app_storage_record');
+        Route::post('/flow_record', 'FollowMeAppController@app_flow_record');    
+    });
 });
 Route::prefix('medical')->group(function () {
     Route::post('/login', 'FollowMeWebMedicalController@medical_login');
@@ -33,17 +31,19 @@ Route::prefix('medical')->group(function () {
 
 Route::prefix('admin')->group(function () {
     Route::post('/login', 'FollowMeWebAdminController@admin_login');
-    Route::get('/beacon_setting_main', 'FollowMeWebAdminController@admin_beacon_setting_main');
-    Route::post('/beacon_create', 'FollowMeWebAdminController@admin_beacon_create');
-    Route::post('/beacon_delete', 'FollowMeWebAdminController@admin_beacon_delete');
-    Route::get('/beacon_defect_check', 'FollowMeWebAdminController@admin_beacon_defect_check');
-    Route::post('/beacon_search', 'FollowMeWebAdminController@admin_beacon_search');
+    Route::group(['middleware' => 'auth:api'], function(){
 
-    Route::get('/node_setting_main', 'FollowMeWebAdminController@admin_node_setting_main');
-    Route::post('/node_create', 'FollowMeWebAdminController@admin_node_create');
-    Route::post('/node_delete', 'FollowMeWebAdminController@admin_node_delete');
-    Route::post('/node_link', 'FollowMeWebAdminController@admin_node_link');
+        Route::get('/beacon_setting_main', 'FollowMeWebAdminController@admin_beacon_setting_main');
+        Route::post('/beacon_create', 'FollowMeWebAdminController@admin_beacon_create');
+        Route::post('/beacon_delete', 'FollowMeWebAdminController@admin_beacon_delete');
+        Route::get('/beacon_defect_check', 'FollowMeWebAdminController@admin_beacon_defect_check');
+        Route::post('/beacon_search', 'FollowMeWebAdminController@admin_beacon_search');
 
+        Route::get('/node_setting_main', 'FollowMeWebAdminController@admin_node_setting_main');
+        Route::post('/node_create', 'FollowMeWebAdminController@admin_node_create');
+        Route::post('/node_delete', 'FollowMeWebAdminController@admin_node_delete');
+        Route::post('/node_link', 'FollowMeWebAdminController@admin_node_link');
+    });
 });
 Route::prefix('auth')->group(function () {
     Route::post('register', 'AuthController@register');

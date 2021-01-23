@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 use App\testPatient;
+
 use Illuminate\Support\ServiceProvider;
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,16 +24,19 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        // testPatient::saving(function($user){
-        //     if(!empty($user->login_pw)){
-        //         $user->login_pw = bcrypt($user->login_pw);
-        //     }
-        // });
+        testPatient::saving(function($user){
+            if(!empty($user->password)){
+                $user->password = bcrypt($user->password);
+            }
+            if(!empty($user->resident_number)){
+                $user->resident_number = encrypt($user->resident_number);
+            }
+        });
         // //사용자 비밀번호 전부 암호화 후 사용
-        // testPatient::retrieved(function($user){     
-        //     if(!empty($user->login_pw)){
-        //         $user->login_pw = \Crypt::decrypt($user->login_pw);
-        //     }
-        // });
+        testPatient::retrieved(function($user){     
+            if(!empty($user->resident_number)){
+                $user->resident_number = decrypt($user->resident_number);
+            }
+        });
     }
 }
