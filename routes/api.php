@@ -12,7 +12,8 @@ Route::prefix('patient')->group(function () {
     Route::post('/signup', 'FollowMeAppController@app_signup');
     Route::post('/clinic', 'FollowMeAppController@app_clinic');
     Route::group(['middleware' => 'auth:patient'], function(){
-        Route::any('/flow', 'FollowMeAppController@app_flow');
+        Route::post('/logout', 'FollowMeAppController@app_logout');
+        Route::post('/flow', 'FollowMeAppController@app_flow');
         Route::post('/navigation', 'FollowMeAppController@app_navigation');
         Route::post('/storage', 'FollowMeAppController@app_storage');
         Route::post('/storage_record', 'FollowMeAppController@app_storage_record');
@@ -32,7 +33,6 @@ Route::prefix('medical')->group(function () {
 Route::prefix('admin')->group(function () {
     Route::post('/login', 'FollowMeWebAdminController@admin_login');
     Route::group(['middleware' => 'auth:api'], function(){
-
         Route::get('/beacon_setting_main', 'FollowMeWebAdminController@admin_beacon_setting_main');
         Route::post('/beacon_create', 'FollowMeWebAdminController@admin_beacon_create');
         Route::post('/beacon_delete', 'FollowMeWebAdminController@admin_beacon_delete');

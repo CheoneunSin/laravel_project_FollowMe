@@ -43,7 +43,13 @@ class FollowMeAppController extends Controller
         $message = Config::get('constants.patient_message.signup_ok');
         return response()->json(['message'=> $message],200);
     }
-
+    public function app_logout(Request $request){
+        Auth::guard('patient')->logout();
+        $message = Config::get('constants.patient_message.logout_ok');
+        return response()->json([
+            'message' => $message
+        ], 200);
+    }
     public function app_clinic(Request $request){
         //관계 저장
         $patient = testPatient::find($request->patient_id);

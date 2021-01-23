@@ -12,6 +12,8 @@ return [
     'medical_message' => [
         'login_ok' => '로그인에 성공했습니다',
         'login_fail' => '로그인에 실패했습니다',
+        'logout_ok' => '로그아웃에 성공했습니다',
+        'logout_fail' => '로그아웃에 실패했습니다',
         'patient_create_ok' => '생성되었습니다',
         'patient_create_fail' => '생성하지 못했습니다',
         'clinic_setting_ok' => '진료 정보가 설정되었습니다',
