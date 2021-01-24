@@ -22,7 +22,10 @@ class testPatient extends Authenticatable implements JWTSubject
     {
         return $this->hasMany('App\testClinic', 'patient_id');
     }
-
+    public function flow()
+    {
+        return $this->hasMany('App\teatFlow', 'patient_id');
+    }
     public function getJWTIdentifier()
     {
         return $this->getKey();

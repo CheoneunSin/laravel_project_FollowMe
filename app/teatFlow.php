@@ -12,4 +12,12 @@ class teatFlow extends Model
     
     protected $guarded = [];
 
+    public function room_location()
+    {
+        return $this->belongsTo('App\teatRoom', 'room_location_id');
+    } 
+    public function patient()
+    {
+        return $this->belongsTo('App\testPatient', 'patient_id');
+    } 
 }

@@ -5,16 +5,17 @@ use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+
 class AuthController extends Controller
 {
     public function register(Request $request)
     {
         $v = Validator::make($request->all(), [
-            'email' => 'required|email|unique:users',
-            'password'  => 'required|min:3|confirmed',
-            'phone_number'     => 'required',
+            'email'             => 'required|email|unique:users',
+            'password'          => 'required|min:3|confirmed',
+            'phone_number'      => 'required',
             'unique_number'     => 'required',
-            'name'     => 'required',
+            'name'              => 'required',
         ]);
         if ($v->fails())
         {
@@ -23,19 +24,12 @@ class AuthController extends Controller
                 'errors' => $v->errors()
             ], 422);
         }
-        $user = new User;
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->password = bcrypt($request->password);
-        $user->phone_number = $request->phone_number;
-        $user->unique_number = $request->unique_number;
-        $user->save();
+        User::create($request->except('password_confirmation'));
         return response()->json(['status' => 'success'], 200);
     }
     
     public function login(Request $request)
     {
-
         $credentials = $request->only('email', 'password');
         if ($token = auth()->guard()->attempt($credentials)) {
             $user = Auth::user();
@@ -54,10 +48,10 @@ class AuthController extends Controller
     }
     public function user(Request $request)
     {
-        $user = User::find(Auth::user()->id);
+        $user = Auth::user();
         return response()->json([
             'status' => 'success',
-            'data' => $user
+            'user' => $user
         ]);
     }
     

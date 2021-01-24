@@ -16,4 +16,9 @@ class teatRoom_location extends Model
     {
         return $this->belongsTo('App\testBeacon', 'room_node');
     } 
+
+    public function flow()
+    {
+        return $this->hasMany('App\teatFlow', 'room_location_id');
+    } 
 }

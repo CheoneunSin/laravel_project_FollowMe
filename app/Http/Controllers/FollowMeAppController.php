@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Validator;
 
 class FollowMeAppController extends Controller
 {    
-    public function app_login(Request $request){
+    public function app_login(AppLoginPost $request){
         if ($token = Auth::guard('patient')->attempt(['login_id' => $request->login_id, 'password' => $request->password])) {
             $patient =  Auth::guard('patient')->user();
             return response()->json(['status' => 'success', 'patient_info' => $patient, 'token' =>  $token,], 200);
@@ -65,10 +65,6 @@ class FollowMeAppController extends Controller
     }
                  
     public function app_flow(Request $request){
-        // if(Auth::guard('patient')->check())
-        //     return response()->json(['error' => 'ok'], 200) ;
-        // else 
-        //     return response()->json(['error' => 'login_error'], 200) ;
         $graph = []; 
         foreach (testNode::select('node_id')->cursor() as $node) {
             $graph["$node->node_id"] = [];
@@ -90,7 +86,6 @@ class FollowMeAppController extends Controller
     }
 
     public function app_navigation(Request $request){
-
         if(empty($request->input('current_location'))){
             $start_loaction = $request->input('current_node');
         }else{
@@ -108,7 +103,6 @@ class FollowMeAppController extends Controller
                 }
             } 
         }
-
         $algorithm = new Dijkstra($graph);
         $path = $algorithm->shortestPaths($start_loaction->room_node, $end_room_location->room_node); 
         $nodeFlow = testNode::select('node_id', 'floor', 'lat', 'lng', 'stair_check')

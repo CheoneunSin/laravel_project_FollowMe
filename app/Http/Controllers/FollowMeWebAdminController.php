@@ -17,22 +17,22 @@ use Illuminate\Support\Facades\Config;
 class FollowMeWebAdminController extends Controller
 {   
     
-    public function admin_login(Request $request){
-        $auth_info = testAuth::select("auth_id", "auth_name")
-                                ->where('login_id', $request->input('login_id'))
-                                ->where('login_pw', $request->input('login_pw'))
-                                ->where('auth_id' , '1')
-                                ->first();
+    // public function admin_login(Request $request){
+    //     $auth_info = testAuth::select("auth_id", "auth_name")
+    //                             ->where('login_id', $request->input('login_id'))
+    //                             ->where('login_pw', $request->input('login_pw'))
+    //                             ->where('auth_id' , '1')
+    //                             ->first();
         
-        // $request->session()->put('login_id', $request->login_id);
-        // $request->session()->get('login_id');
-        $message = Config::get('constants.admin_message.login_ok');
+    //     // $request->session()->put('login_id', $request->login_id);
+    //     // $request->session()->get('login_id');
+    //     $message = Config::get('constants.admin_message.login_ok');
         
-        return response()->json([
-            'auth' => $auth_info,  //범수한테 말하기
-            'message' => $message,
-        ],200);
-    }
+    //     return response()->json([
+    //         'auth' => $auth_info,  //범수한테 말하기
+    //         'message' => $message,
+    //     ],200);
+    // }
 
     public function admin_beacon_setting_main(){
         $beacon_info = testBeacon::select('beacon_id_minor', 'uuid', 'major', 'lat', 'lng')->get();
@@ -40,23 +40,25 @@ class FollowMeWebAdminController extends Controller
             'beacon_info' => $beacon_info,
         ],200);
     }
+    public function admin_beacon_update(Request $request){
+        $beacon_delete_data = [];
+        foreach($request->input('beacon') as $beacon){
+            if($beacon['check'] === "delete")
+                array_push($beacon_delete_data, $beacon['beacon_id_minor']);
+            else if($beacon['check'] === "create"){
+                unset($beacon['check']);
+                testBeacon::create($beacon);
+            }
+        }
+        testBeacon::destroy($beacon_delete_data);
 
-    public function admin_beacon_create(Request $request){
-        
-        foreach($request->input('beacon') as $beacon){   //beacon : []
-            $newBeaconm = testBeacon::create($beacon);  //minor -> beacon_id_minor (범수한테 말하기)
-        } 
+        // foreach($r equest->input('beacon') as $beacon){   //beacon : []
+        //     $newBeaconm = testBeacon::create($beacon);  //minor -> beacon_id_minor (범수한테 말하기)
+        // } 
         $message = Config::get('constants.admin_message.setting_ok');
         return response()->json([
             'message' => $message,
-            'beacon' => $newBeaconm,
-        ],200);
-    }
-    public function admin_beacon_delete(Request $request){
-        testBeacon::destroy($request->input('beacon'));
-        $message = Config::get('constants.admin_message.delete_ok');
-        return response()->json([
-            'message' => $message,
+            // 'beacon' => $newBeaconm,
         ],200);
     }
     //범수랑 주용이랑 상의

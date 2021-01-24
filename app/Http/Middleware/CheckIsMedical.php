@@ -1,16 +1,22 @@
 <?php
+
 namespace App\Http\Middleware;
+
 use Closure;
 use Illuminate\Support\Facades\Auth;
-class CheckIsAdminOrSelf
+
+class CheckIsMedical
 {
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Closure  $next
+     * @return mixed
+     */
     public function handle($request, Closure $next)
     {
-        $requestedUserId = $request->route()->parameter('id');
-        if(
-            Auth::user()->role === 2 ||
-            Auth::user()->id == $requestedUserId
-        ) {
+        if(Auth::user()->role === 2) {
             return $next($request);
         }
         else {
