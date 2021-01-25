@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Validator;
 
 class FollowMeAppController extends Controller
 {    
-    public function app_login(AppLoginPost $request){
+    public function app_login(Request $request){
         if ($token = Auth::guard('patient')->attempt(['login_id' => $request->login_id, 'password' => $request->password])) {
             $patient =  Auth::guard('patient')->user();
             return response()->json(['status' => 'success', 'patient_info' => $patient, 'token' =>  $token,], 200);
@@ -114,14 +114,14 @@ class FollowMeAppController extends Controller
     }
 
     public function app_storage(Request $request){
-        $storage = testClinic::storage($request->input('patient_id'), '0')->get();
+        $storage = testClinic::storage(Auth::guard('patient')->user()->patient_id, '0')->get();
         return response()->json([
             'storage' => $storage,
         ],200);
     }
 
     public function app_storage_record(Request $request){
-        $storage_record = testClinic::storage($request->input('patient_id'), '1')->get();
+        $storage_record = testClinic::storage(Auth::guard('patient')->user()->patient_id, '1')->get();
         return response()->json([
             'storage_record' => $storage_record,
         ],200);

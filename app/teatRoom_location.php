@@ -12,9 +12,9 @@ class teatRoom_location extends Model
     
     protected $guarded = [];
 
-    public function room_node_info()
+    public function room_node()
     {
-        return $this->belongsTo('App\testBeacon', 'room_node');
+        return $this->belongsTo('App\testNode', 'room_id');
     } 
 
     public function flow()

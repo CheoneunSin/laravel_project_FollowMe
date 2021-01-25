@@ -39,7 +39,7 @@ class PatientTableSeeder extends Seeder
             testPatient::create([
                 'patient_name' => $faker->name,
                 'login_id' => $faker->email,
-                'login_pw' => 1234,
+                'password' => 1234,
                 'resident_number' => $rrm[$i],
                 'phone_number' => $faker->phoneNumber,
                 'address' => $faker->address,

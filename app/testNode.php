@@ -11,4 +11,9 @@ class testNode extends Model
     protected $primaryKey = 'node_id';
     
     protected $guarded = []; 
+
+    public function room_location()
+    {
+        return $this->hasMany('App\teatRoom_location', 'room_node');
+    } 
 }

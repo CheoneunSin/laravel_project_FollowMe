@@ -38,8 +38,9 @@ Route::middleware(['isAdmin'])->middleware(['auth:api'])
         Route::post('/beacon_search', 'FollowMeWebAdminController@admin_beacon_search');
 
         Route::get('/node_setting_main', 'FollowMeWebAdminController@admin_node_setting_main');
-        Route::post('/node_create', 'FollowMeWebAdminController@admin_node_create');
-        Route::post('/node_delete', 'FollowMeWebAdminController@admin_node_delete');
+        Route::post('/node_update', 'FollowMeWebAdminController@admin_node_update');
+        // Route::post('/node_create', 'FollowMeWebAdminController@admin_node_create');
+        // Route::post('/node_delete', 'FollowMeWebAdminController@admin_node_delete');
         Route::post('/node_link', 'FollowMeWebAdminController@admin_node_link');
 });
 Route::prefix('auth')->group(function () {

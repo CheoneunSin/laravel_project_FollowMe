@@ -51,10 +51,6 @@ class FollowMeWebAdminController extends Controller
             }
         }
         testBeacon::destroy($beacon_delete_data);
-
-        // foreach($r equest->input('beacon') as $beacon){   //beacon : []
-        //     $newBeaconm = testBeacon::create($beacon);  //minor -> beacon_id_minor (범수한테 말하기)
-        // } 
         $message = Config::get('constants.admin_message.setting_ok');
         return response()->json([
             'message' => $message,
@@ -85,29 +81,28 @@ class FollowMeWebAdminController extends Controller
             'beacon_info' => $beacon_info,
         ],200);
     }
-
-    public function admin_node_create(Request $request){
-        foreach($request->input('node') as $node){   //node : []
+    public function admin_node_update(Request $request){
+        $node_delete_data = [];
+        foreach($request->input('node') as $node){
             if($node['room'] != null){
-                $room_location = new teatRoom_location;
-                $room_location->room_node = $node['id'];
-                $room_location->room_name = $node['room']; 
-                $room_location->save();
+                testNode::find($node['node_id'])->room_location()->create([
+                    'room_name' =>  $node['room']
+                ]);
             }
             unset($node['room']);
-            $newNode = testNode::create($node);  //minor -> beacon_id_minor (범수한테 말하기)
-        } 
+            if($node['check'] === "delete")
+                array_push($node_delete_data, $node['node_id']);
+            else if($node['check'] === "create"){
+                unset($node['check']);
+                unset($node['check']);
+                testNode::create($node);
+            }
+        }
+        testNode::destroy($node_delete_data);
         $message = Config::get('constants.admin_message.setting_ok');
         return response()->json([
             'message' => $message,
-        ],200);
-    }
-
-    public function admin_node_delete(Request $request){
-        testNode::destroy($request->input('node'));
-        $message = Config::get('constants.admin_message.delete_ok');
-        return response()->json([
-            'message' => $message,
+            // 'beacon' => $newBeaconm,
         ],200);
     }
 
