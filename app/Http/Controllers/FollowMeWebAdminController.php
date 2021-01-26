@@ -16,23 +16,6 @@ use Illuminate\Support\Facades\Config;
 
 class FollowMeWebAdminController extends Controller
 {   
-    
-    // public function admin_login(Request $request){
-    //     $auth_info = testAuth::select("auth_id", "auth_name")
-    //                             ->where('login_id', $request->input('login_id'))
-    //                             ->where('login_pw', $request->input('login_pw'))
-    //                             ->where('auth_id' , '1')
-    //                             ->first();
-        
-    //     // $request->session()->put('login_id', $request->login_id);
-    //     // $request->session()->get('login_id');
-    //     $message = Config::get('constants.admin_message.login_ok');
-        
-    //     return response()->json([
-    //         'auth' => $auth_info,  //범수한테 말하기
-    //         'message' => $message,
-    //     ],200);
-    // }
 
     public function admin_beacon_setting_main(){
         $beacon_info = testBeacon::select('beacon_id_minor', 'uuid', 'major', 'lat', 'lng')->get();

@@ -11,10 +11,10 @@ class teatFlow extends Model
     protected $primaryKey = 'flow_id';
     
     protected $guarded = [];
-
+    
     public function room_location()
     {
-        return $this->belongsTo('App\teatRoom', 'room_location_id');
+        return $this->belongsTo('App\teatRoom_location', 'room_location_id');
     } 
     public function patient()
     {

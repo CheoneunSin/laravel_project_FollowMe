@@ -8,7 +8,7 @@ use App\Services\Dijkstra;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Config;
 
-use App\testFlow;
+use App\teatFlow;
 use App\teatNodeDistance;
 use App\teatRoom_location;
 use App\testBeacon;
@@ -128,15 +128,18 @@ class FollowMeAppController extends Controller
     }
 
     public function app_flow_record(Request $request){
-        $flow_record  = DB::table('teat_flows')->join('teat_room_locations', 
-                                        'teat_room_locations.room_location_id' , 
-                                        'teat_flows.patient_id')
-                                        ->select('room_name','flow_create_date' )
-                                        ->where('flow_status_check','1')
-                                        ->get();
+        $flows_record = [];
+        $flows = Auth::guard('patient')->user()->flow()->where('flow_status_check','0')->get();
+        foreach($flows as $flow){
+            $flow_record = [];
+            $flow_record["flow_id"] = $flow->flow_id;
+            $flow_record["flow_create_date"] = $flow->flow_create_date;
+            $flow_record["room_name"] = teatFlow::find($flow->flow_id)->room_location->room_name;
+            array_push($flows_record, $flow_record);
+        }
+                                
         return response()->json([
-            'flow_record' => $flow_record,            
+            'flow_record' => $flows_record,            
         ],200);
     }
-
 }
