@@ -39,9 +39,17 @@ class FollowMeAppController extends Controller
                 'errors' => $v->errors()
             ], 422);
         }
-        testPatient::create($request->except('password_confirmation'));
-        $message = Config::get('constants.patient_message.signup_ok');
-        return response()->json(['message'=> $message],200);
+        foreach (testPatient::select('resident_number')->cursor() as $resident_number) {
+            if($resident_number['resident_number'] == $request->resident_number )
+            {
+                testPatient::where('resident_number',$request->resident_number)
+                ->update($request->except('password_confirmation'));
+                return response()->json(['message'=> "update"],200);
+            }
+        }
+            testPatient::create($request->except('password_confirmation'));
+        // $message = Config::get('constants.patient_message.signup_ok');
+        return response()->json(['message'=> "create"],200);
     }
     public function app_logout(Request $request){
         Auth::guard('patient')->logout();
@@ -52,12 +60,19 @@ class FollowMeAppController extends Controller
     }
     public function app_clinic(Request $request){
         //관계 저장
-        $patient = testPatient::find($request->patient_id);
-        // $patient->clinic()->create($request->except('patient_id'));
-        // $newClinic = new testClinic;
-        // $newClinic->patient_id = $request->input('patient_id');
-        // $newClinic->clinic_subject_name = $request->input('clinic_subject_name');
-        // $newClinic->save();
+        $first_category = 1;  //초진 환자
+        if(testClinic::where('clinic_subject_name', $request->clinic_subject_name )
+                        ->where('patient_id',$request->patient_id )
+                        ->count() > 0){
+            $first_category = 0;  //
+        }
+        $patient = testPatient::find($request->patient_id)
+                                    ->clinic()
+                                    ->create([
+                                        'clinic_subject_name' => $request->clinic_subject_name,
+                                        'clinic_date' => \Carbon\Carbon::today()->toDateString(),
+                                        'first_category' => $first_category,
+                                    ]);
         $message = Config::get('constants.patient_message.clinic_ok');
         return response()->json([
             'message'=>$message,
@@ -137,7 +152,6 @@ class FollowMeAppController extends Controller
             $flow_record["room_name"] = teatFlow::find($flow->flow_id)->room_location->room_name;
             array_push($flows_record, $flow_record);
         }
-                                
         return response()->json([
             'flow_record' => $flows_record,            
         ],200);

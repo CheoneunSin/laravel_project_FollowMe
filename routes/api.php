@@ -7,10 +7,11 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::post('/patient/clinic', 'FollowMeAppController@app_clinic');
+
 Route::prefix('patient')->group(function () {
     Route::post('/login', 'FollowMeAppController@app_login');
     Route::post('/signup', 'FollowMeAppController@app_signup');
-    Route::post('/clinic', 'FollowMeAppController@app_clinic');
     Route::group(['middleware' => 'auth:patient'], function(){
         Route::post('/logout', 'FollowMeAppController@app_logout');
         Route::post('/flow', 'FollowMeAppController@app_flow');
@@ -30,6 +31,9 @@ Route::middleware(['isMedical'])->middleware(['auth:api'])
         Route::post('/clinic_end', 'FollowMeWebMedicalController@medical_clinic_end');
         Route::post('/flow_setting', 'FollowMeWebMedicalController@medical_flow_setting');
 });
+
+// Route::get('/admin/beacon_setting_main', 'FollowMeWebAdminController@admin_beacon_setting_main');
+
 Route::middleware(['isAdmin'])->middleware(['auth:api'])
     ->prefix('admin')->group(function () {
         Route::get('/beacon_setting_main', 'FollowMeWebAdminController@admin_beacon_setting_main');

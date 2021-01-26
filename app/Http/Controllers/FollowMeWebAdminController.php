@@ -33,7 +33,7 @@ class FollowMeWebAdminController extends Controller
                 testBeacon::create($beacon);
             }
         }
-        testBeacon::destroy($beacon_delete_data);
+        // testBeacon::destroy($beacon_delete_data);
         $message = Config::get('constants.admin_message.setting_ok');
         return response()->json([
             'message' => $message,
