@@ -47,7 +47,7 @@ class FollowMeAppController extends Controller
                 return response()->json(['message'=> "update"],200);
             }
         }
-            testPatient::create($request->except('password_confirmation'));
+        testPatient::create($request->except('password_confirmation'));
         // $message = Config::get('constants.patient_message.signup_ok');
         return response()->json(['message'=> "create"],200);
     }
@@ -78,8 +78,14 @@ class FollowMeAppController extends Controller
             'message'=>$message,
         ],200);
     }
-                 
+    public function standby_number(Request $request){
+        $clinic_subject_name = Auth::guard('patient')->user()->clinic()->where("standby_status", 1)->first()->clinic_subject_name;
+        return testClinic::where("clinic_subject_name", $clinic_subject_name)->where("standby_status", 1)->count();
+    }
     public function app_flow(Request $request){
+        // return response()->json([
+        //     'nodeFlow' => testNode::where("floor", 2)->get(),
+        // ],200);
         $graph = []; 
         foreach (testNode::select('node_id')->cursor() as $node) {
             $graph["$node->node_id"] = [];
@@ -90,7 +96,7 @@ class FollowMeAppController extends Controller
             }
         }
         $algorithm = new Dijkstra($graph);
-        $path = $algorithm->shortestPaths('2001', '2013'); 
+        $path = $algorithm->shortestPaths('2001', '2020'); 
 
         $nodeFlow = testNode::select('node_id', 'floor', 'lat', 'lng', 'stair_check')
                             ->whereIn('node_id', $path[0])->get();

@@ -14,8 +14,12 @@ Route::prefix('patient')->group(function () {
     Route::post('/signup', 'FollowMeAppController@app_signup');
     Route::group(['middleware' => 'auth:patient'], function(){
         Route::post('/logout', 'FollowMeAppController@app_logout');
+        
         Route::post('/flow', 'FollowMeAppController@app_flow');
         Route::post('/navigation', 'FollowMeAppController@app_navigation');
+        
+        Route::get('/standby_number', 'FollowMeAppController@standby_number');
+
         Route::post('/storage', 'FollowMeAppController@app_storage');
         Route::post('/storage_record', 'FollowMeAppController@app_storage_record');
         Route::post('/flow_record', 'FollowMeAppController@app_flow_record');    
