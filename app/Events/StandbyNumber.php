@@ -32,6 +32,11 @@ class StandbyNumber implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new Channel('stanby_number');
+        return ['FollowMe_standby_number'];
     }
+
+    public function broadcastAs()
+  {
+      return 'FollowMe_standby_number';
+  }
 }
