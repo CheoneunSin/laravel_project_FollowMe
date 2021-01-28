@@ -8,6 +8,8 @@ use App\Services\Dijkstra;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Config;
 
+
+
 use App\teatFlow;
 use App\teatNodeDistance;
 use App\teatRoom_location;
@@ -40,7 +42,7 @@ class FollowMeAppController extends Controller
             ], 422);
         }
         foreach (testPatient::select('resident_number')->cursor() as $resident_number) {
-            if($resident_number['resident_number'] == $request->resident_number )
+            if($resident_number['resident_number'] === $request->resident_number )
             {
                 testPatient::where('resident_number',$request->resident_number)
                 ->update($request->except('password_confirmation'));

@@ -52,16 +52,16 @@ class FollowMeWebAdminController extends Controller
 
     public function admin_beacon_search(Request $request){
         $beacon_info = testBeacon::select('beacon_id_minor', 'uuid', 'major', 'lat', 'lng', 'node_defect_datetime')
-                                    ->where('beacon_id_minor', $request->input('beacon_id_minor'))
-                                    ->first();
+                                    ->where('beacon_id_minor', "LIKE" ,"%{$request->input('beacon_id_minor')}%")
+                                    ->get();
         return response()->json([
             'beacon_info' => $beacon_info,
         ],200);
     }
     public function admin_node_setting_main(){
-        $beacon_info = testNode::select('node_id', 'lat', 'lng','floor')->get();
+        $node_info = testNode::select('node_id', 'lat', 'lng','floor')->get();
         return response()->json([
-            'beacon_info' => $beacon_info,
+            'beacon_info' => $node_info,
         ],200);
     }
     public function admin_node_update(Request $request){
