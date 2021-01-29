@@ -79,6 +79,10 @@ class FollowMeWebMedicalController extends Controller
     }
     
     public function medical_flow_setting(Request $request){
+        //동선을 다시 수정 시, 삭제 후 다시 생성
+        if($request->has("update")){
+            testPatient::find($request->flow[0]['patient_id'])->flow()->where("flow_status_check", 1)->delete();
+        }
         foreach($request->input('flow') as $flow){
             $room_location = teatRoom_location::where('room_name', $flow['room_name'])->firstOrFail();
             $room_location->flow()->create([
@@ -94,12 +98,16 @@ class FollowMeWebMedicalController extends Controller
     }
     
     public function medical_clinic_end(Request $request){
-        // $patient = testPatient::find($request->input('patient_id'))->flow()->where('flow_status_check', 1)
-        //                     ->orderBy('flow_sequence')
-        //                     ->firstOrFail();
-        // $patient->flow_status_check = 0;
-        // $patient->save();
 
+        testPatient::find($request->input('patient_id'))
+                        ->flow()
+                        ->where('flow_status_check', 1)
+                        ->where('flow_sequence', 1)
+                        ->update([
+                            "flow_status_check" => 0
+                        ]); 
+        teatFlow::where('flow_status_check', 1)->decrement("flow_sequence");
+        
         // $clinic = testPatient::find($request->input('patient_id'))->clinic()->where('stabdby_status', 1)
         //                     ->firstOrFail();
         // $clinic->stabdby_status = 0;

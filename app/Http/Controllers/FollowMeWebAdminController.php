@@ -41,7 +41,7 @@ class FollowMeWebAdminController extends Controller
     }
     //범수랑 주용이랑 상의
     public function admin_beacon_defect_check(){
-        $beacon_defect = testBeacon::select('beacon_id_minor', 'uuid', 'major', 'lat', 'lng', 'node_defect_datetime')
+        $beacon_defect = testBeacon::select('beacon_id_minor', 'uuid', 'major', 'lat', 'lng', 'beacon_defect_datetime')
                                     ->where('node_defect_check', 1)
                                     ->get();
         return response()->json([

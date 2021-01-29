@@ -8,8 +8,6 @@ use App\Services\Dijkstra;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Config;
 
-
-
 use App\teatFlow;
 use App\teatNodeDistance;
 use App\teatRoom_location;
@@ -29,7 +27,6 @@ class FollowMeAppController extends Controller
         }
         return response()->json(['error' => 'login_error'], 401) ;
     }
-    //병원을 다닌 환자와 병원을 한번도 가지 않은 환자 분류
     public function app_signup(Request $request){
         $v = Validator::make($request->all(), [
             'patient_name' => 'required',
@@ -61,7 +58,6 @@ class FollowMeAppController extends Controller
         ], 200);
     }
     public function app_clinic(Request $request){
-        //관계 저장
         $first_category = 1;  //초진 환자
         if(testClinic::where('clinic_subject_name', $request->clinic_subject_name )
                         ->where('patient_id',$request->patient_id )
@@ -80,14 +76,23 @@ class FollowMeAppController extends Controller
             'message'=>$message,
         ],200);
     }
+
     public function standby_number(Request $request){
         $clinic_subject_name = Auth::guard('patient')->user()->clinic()->where("standby_status", 1)->first()->clinic_subject_name;
         return testClinic::where("clinic_subject_name", $clinic_subject_name)->where("standby_status", 1)->count();
     }
+    //major 값 한 자리 수 로 변경? 
+    public function app_node_beacon_get(Request $request){ 
+        $node = testNode::where("floor", (int)($request->major / 1000))->get();
+        $beacon = testBeacon::select('beacon_id_minor', 'uuid', 'major', 'lat', 'lng')->get();
+        return response()->json([
+            'beacon'=>$beacon,
+            'node'  =>$node
+        ],200);
+    }
+
     public function app_flow(Request $request){
-        // return response()->json([
-        //     'nodeFlow' => testNode::where("floor", 2)->get(),
-        // ],200);
+
         $graph = []; 
         foreach (testNode::select('node_id')->cursor() as $node) {
             $graph["$node->node_id"] = [];
@@ -98,18 +103,42 @@ class FollowMeAppController extends Controller
             }
         }
         $algorithm = new Dijkstra($graph);
-        $path = $algorithm->shortestPaths('2001', '2020'); 
-
-        $nodeFlow = testNode::select('node_id', 'floor', 'lat', 'lng', 'stair_check')
-                            ->whereIn('node_id', $path[0])->get();
+        
+        $flows = Auth::guard('patient')->user()->flow()->with('room_location')->where("flow_status_check", 1)->get();
+        $start_node = [];
+        $end_node = [];
+        $i = 0;
+        foreach($flows as $flow){
+            array_push($start_node, $flow->room_location->room_node);
+            if($i === 0){
+                $i = 1;
+                continue;
+            }
+            array_push($end_node, $flow->room_location->room_node);
+        }
+        $paths = [];
+        for($i = 0 ; $i < count($end_node) ; $i++){
+            $path = $algorithm->shortestPaths($start_node[$i], $end_node[$i]); 
+            array_push($paths, $path);
+        }
+        // $path = $algorithm->shortestPaths('2001', '2020'); 
+        $nodeFlows = [];
+        for($i = 0 ; $i < count($paths) ; $i++){
+            $nodeFlow = testNode::select('node_id', 'floor', 'lat', 'lng', 'stair_check')
+                            ->whereIn('node_id', $paths[$i][0])->get();
+            array_push($nodeFlows, $nodeFlow);
+        }
+        // $nodeFlow = testNode::select('node_id', 'floor', 'lat', 'lng', 'stair_check')
+        //                     ->whereIn('node_id', $path[0])->get();
+                        
         return response()->json([
-            'nodeFlow' => $nodeFlow,
+            'nodeFlow' => $nodeFlows,
         ],200);
         // [], JSON_PRETTY_PRINT
     }
 
     public function app_navigation(Request $request){
-        if(empty($request->input('current_location'))){
+        if($request->has('current_location')){
             $start_loaction = $request->input('current_node');
         }else{
             $start_loaction = teatRoom_location::select('room_node')
