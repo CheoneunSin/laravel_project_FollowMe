@@ -92,7 +92,6 @@ class FollowMeAppController extends Controller
     }
 
     public function app_flow(Request $request){
-
         $graph = []; 
         foreach (testNode::select('node_id')->cursor() as $node) {
             $graph["$node->node_id"] = [];
@@ -136,7 +135,19 @@ class FollowMeAppController extends Controller
         ],200);
         // [], JSON_PRETTY_PRINT
     }
+    public function app_flow_end(){
+        Auth::guard('patient')->user()->flow()
+                        ->where('flow_status_check', 1)
+                        ->where('flow_sequence', 1)
+                        ->update([
+                            "flow_status_check" => 0
+                        ]); 
+        teatFlow::where('flow_status_check', 1)->decrement("flow_sequence");
+        return response()->json([
+            'message' => "ok",            
+        ],200);
 
+    }
     public function app_navigation(Request $request){
         if($request->has('current_location')){
             $start_loaction = $request->input('current_node');

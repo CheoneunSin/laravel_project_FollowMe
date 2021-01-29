@@ -99,14 +99,7 @@ class FollowMeWebMedicalController extends Controller
     
     public function medical_clinic_end(Request $request){
 
-        testPatient::find($request->input('patient_id'))
-                        ->flow()
-                        ->where('flow_status_check', 1)
-                        ->where('flow_sequence', 1)
-                        ->update([
-                            "flow_status_check" => 0
-                        ]); 
-        teatFlow::where('flow_status_check', 1)->decrement("flow_sequence");
+        
         
         // $clinic = testPatient::find($request->input('patient_id'))->clinic()->where('stabdby_status', 1)
         //                     ->firstOrFail();

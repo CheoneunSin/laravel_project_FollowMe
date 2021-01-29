@@ -19,6 +19,8 @@ Route::prefix('patient')->group(function () {
 
         Route::post('/app_node_beacon_get', 'FollowMeAppController@app_node_beacon_get');
         Route::post('/flow', 'FollowMeAppController@app_flow');
+        Route::get('/app_flow_end', 'FollowMeAppController@app_flow_end');
+
         Route::post('/navigation', 'FollowMeAppController@app_navigation');
         
         Route::get('/standby_number', 'FollowMeAppController@standby_number');
