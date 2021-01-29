@@ -33,11 +33,10 @@ class FollowMeWebAdminController extends Controller
                 testBeacon::create($beacon);
             }
         }
-        // testBeacon::destroy($beacon_delete_data);
+        testBeacon::destroy($beacon_delete_data);
         $message = Config::get('constants.admin_message.setting_ok');
         return response()->json([
             'message' => $message,
-            // 'beacon' => $newBeaconm,
         ],200);
     }
     //범수랑 주용이랑 상의
@@ -85,7 +84,6 @@ class FollowMeWebAdminController extends Controller
         $message = Config::get('constants.admin_message.setting_ok');
         return response()->json([
             'message' => $message,
-            // 'beacon' => $newBeaconm,
         ],200);
     }
 

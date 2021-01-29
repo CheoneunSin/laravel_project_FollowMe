@@ -49,19 +49,12 @@ class FollowMeWebMedicalController extends Controller
 
     public function medical_patient_select(Request $request){
         $patient = testPatient::find($request->input('patient_id'));
-        $clinic  = $patient->clinic()->where('standby_status' , '1')->orderBy("clinic_time", "DESC")->first();
-        $flows    = testPatient::find($request->input('patient_id'))->flow()->where("flow_status_check", 0)->get();
-        $flows_record = [];
-        foreach($flows as $flow){
-            $flow_record = [];
-            $flow_record["flow_id"] = $flow->flow_id;
-            $flow_record["room_name"] = teatFlow::find($flow->flow_id)->room_location->room_name;
-            array_push($flows_record, $flow_record);
-        }
+        $clinic  = $patient->clinic()->where('standby_status' , '1')->orderBy("clinic_time", "desc")->first();
+        $flows    = testPatient::find($request->input('patient_id'))->flow()->with('room_location')->where("flow_status_check", 0)->get();
         return response()->json([
             'patient' => $patient,
             'clinic' => $clinic,
-            'flow'   => $flows_record
+            'flow'   => $flows
         ],200);
     }
     
@@ -79,19 +72,7 @@ class FollowMeWebMedicalController extends Controller
         ],200);
     }
     public function medical_clinic_record(Request $request){
-
-        $clinic_record  = DB::table('test_clinics')->join('test_patients', 
-                                    'test_patients.patient_id' , 
-                                    'test_clinics.patient_id')
-                                    ->select(   'test_clinics.clinic_id',
-                                                'test_patients.patient_id','test_patients.patient_name',
-                                                'test_clinics.clinic_subject_name', 
-                                                'test_clinics.room_name',
-                                                'test_clinics.doctor_name',
-                                                'test_clinics.clinic_time',
-                                                'test_clinics.standby_status')
-                                    ->where('test_clinics.clinic_date',$request->input('clinic_date'))
-                                    ->get();
+        $clinic_record  = testClinic::with('patient')->where('test_clinics.clinic_date',$request->input('clinic_date'))->get();
         return response()->json([
             'clinic_record' => $clinic_record,            
         ],200);
@@ -99,7 +80,6 @@ class FollowMeWebMedicalController extends Controller
     
     public function medical_flow_setting(Request $request){
         foreach($request->input('flow') as $flow){
-            // return testPatient::find($flow['patient_id'])->flow()->create();
             $room_location = teatRoom_location::where('room_name', $flow['room_name'])->firstOrFail();
             $room_location->flow()->create([
                 'patient_id'        => $flow['patient_id'],
