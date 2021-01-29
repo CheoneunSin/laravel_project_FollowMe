@@ -14,7 +14,6 @@ Route::prefix('patient')->group(function () {
     Route::post('/signup', 'FollowMeAppController@app_signup');
     Route::group(['middleware' => 'auth:patient'], function(){
         Route::post('/logout', 'FollowMeAppController@app_logout');
-        
         Route::post('/flow', 'FollowMeAppController@app_flow');
         Route::post('/navigation', 'FollowMeAppController@app_navigation');
         
@@ -30,6 +29,7 @@ Route::middleware(['isMedical'])->middleware(['auth:api'])
     ->prefix('medical')->group(function () {
         Route::post('/patient_create', 'FollowMeWebMedicalController@medical_patient_create');
         Route::post('/patient_search', 'FollowMeWebMedicalController@medical_patient_search');
+        Route::post('/patient_select', 'FollowMeWebMedicalController@medical_patient_select');
         Route::post('/clinic_setting', 'FollowMeWebMedicalController@medical_clinic_setting');
         Route::post('/clinic_record', 'FollowMeWebMedicalController@medical_clinic_record');
         Route::post('/clinic_end', 'FollowMeWebMedicalController@medical_clinic_end');
@@ -51,6 +51,7 @@ Route::middleware(['isAdmin'])->middleware(['auth:api'])
         // Route::post('/node_delete', 'FollowMeWebAdminController@admin_node_delete');
         Route::post('/node_link', 'FollowMeWebAdminController@admin_node_link');
 });
+
 Route::prefix('auth')->group(function () {
     Route::post('register', 'AuthController@register');
     Route::post('login', 'AuthController@login');

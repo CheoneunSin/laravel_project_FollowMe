@@ -18,7 +18,7 @@ class FollowMeWebAdminController extends Controller
 {   
 
     public function admin_beacon_setting_main(){
-        $beacon_info = testBeacon::select('beacon_id_minor', 'uuid', 'major', 'lat', 'lng')->get();
+        $beacon_info = testBeacon::select('beacon_id_minor', 'uuid', 'major', 'lat', 'lng', "check")->get();
         return response()->json([
             'beacon_info' => $beacon_info,
         ],200);

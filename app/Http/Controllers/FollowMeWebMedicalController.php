@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\testFlow;
+use App\teatFlow;
 use App\teatNodeDistance;
 use App\teatRoom_location;
 use App\testAuth;
@@ -39,42 +39,32 @@ class FollowMeWebMedicalController extends Controller
     }
 
     public function medical_patient_search(Request $request){
-        try {
-            $patient_info = testPatient::select('patient_id','patient_name', 'resident_number', 'postal_code', 
+        $patient_list = testPatient::select('patient_id','patient_name', 'resident_number', 'postal_code', 
                             'address', 'detail_address', 'phone_number', 'notes')
-                            ->where('patient_name', $request->input('patient_name'))
-                            ->firstOrFail();
-            $patient_clinic_info = testPatient::find($patient_info->patient_id)
-                                            ->clinic->last()
-                                            ->select(   'clinic_id',
-                                                        'clinic_subject_name',
-                                                        'clinic_date',
-                                                        'first_category')
-                                            ->where(   'standby_status' , '1')
-                                            ->firstOrFail();
-        } catch (\Throwable $th) {
-            $patient_info = null;
-            $patient_clinic_info = null;
-        }                    
-                                       
-        $flow_record  = DB::table('teat_flows')->join('test_patients', 
-                                'test_patients.patient_id' , 
-                                'teat_flows.patient_id')
-                                            ->join('teat_room_locations', 
-                                'teat_room_locations.room_location_id',
-                                'teat_flows.room_location_id')
-                                ->select(   'teat_room_locations.room_name',
-                                            'teat_flows.flow_sequence')
-                                ->where('teat_flows.flow_status_check',"1")
-                                ->where('test_patients.patient_name', $request->input('patient_name'))
-                                ->get();
-
+                            ->where('patient_name', $request->input('patient_name'))->get();
         return response()->json([
-            'patient_info' => $patient_info,
-            'patient_clinic_info' =>  $patient_clinic_info,
-            'flow_record' => $flow_record->first(),            
+            'patient_list' => $patient_list,
         ],200);
     }
+
+    public function medical_patient_select(Request $request){
+        $patient = testPatient::find($request->input('patient_id'));
+        $clinic  = $patient->clinic()->where('standby_status' , '1')->orderBy("clinic_time", "DESC")->first();
+        $flows    = testPatient::find($request->input('patient_id'))->flow()->where("flow_status_check", 0)->get();
+        $flows_record = [];
+        foreach($flows as $flow){
+            $flow_record = [];
+            $flow_record["flow_id"] = $flow->flow_id;
+            $flow_record["room_name"] = teatFlow::find($flow->flow_id)->room_location->room_name;
+            array_push($flows_record, $flow_record);
+        }
+        return response()->json([
+            'patient' => $patient,
+            'clinic' => $clinic,
+            'flow'   => $flows_record
+        ],200);
+    }
+    
     public function medical_clinic_setting(Request $request){
         $clinic_info = testPatient::find($request->input('clinic_id'))
                                 ->update([
