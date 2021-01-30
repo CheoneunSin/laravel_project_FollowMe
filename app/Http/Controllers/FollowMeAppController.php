@@ -64,12 +64,14 @@ class FollowMeAppController extends Controller
                         ->count() > 0){
             $first_category = 0;  //
         }
+        $standby_number = testClinic::where('clinic_subject_name', $request->clinic_subject_name )->where("stabdby_status", 1)->count() + 1;
         $patient = testPatient::find($request->patient_id)
                                     ->clinic()
                                     ->create([
                                         'clinic_subject_name' => $request->clinic_subject_name,
                                         'clinic_date' => \Carbon\Carbon::today()->toDateString(),
                                         'first_category' => $first_category,
+                                        'standby_number' => $standby_number
                                     ]);
         $message = Config::get('constants.patient_message.clinic_ok');
         return response()->json([
@@ -78,9 +80,9 @@ class FollowMeAppController extends Controller
     }
 
     public function standby_number(Request $request){
-        $clinic_subject_name = Auth::guard('patient')->user()->clinic()->where("standby_status", 1)->first()->clinic_subject_name;
-        return testClinic::where("clinic_subject_name", $clinic_subject_name)->where("standby_status", 1)->count();
+        return Auth::guard('patient')->user()->clinic()->where("standby_status", 1)->first()->standby_number;
     }
+
     //major 값 한 자리 수 로 변경? 
     public function app_node_beacon_get(Request $request){ 
         $node = testNode::where("floor", (int)($request->major / 1000))->get();
@@ -139,9 +141,7 @@ class FollowMeAppController extends Controller
         Auth::guard('patient')->user()->flow()
                         ->where('flow_status_check', 1)
                         ->where('flow_sequence', 1)
-                        ->update([
-                            "flow_status_check" => 0
-                        ]); 
+                        ->update([ "flow_status_check" => 0 ]); 
         teatFlow::where('flow_status_check', 1)->decrement("flow_sequence");
         return response()->json([
             'message' => "ok",            

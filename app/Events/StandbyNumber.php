@@ -9,7 +9,6 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use App\testPatient;
 class StandbyNumber implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
@@ -19,10 +18,10 @@ class StandbyNumber implements ShouldBroadcast
      *
      * @return void
      */
-    public $message;
-    public function __construct(testPatient $stanby_number)
+    public $event;
+    public function __construct($event)
     {
-        $this->message  = $stanby_number;
+        $this->event  = $event;
     }
 
     /**

@@ -99,15 +99,13 @@ class FollowMeWebMedicalController extends Controller
     
     public function medical_clinic_end(Request $request){
 
-        
-        
+        // testClinic::where("stabdby_status", 1)->decrement("standby_number");
+
         // $clinic = testPatient::find($request->input('patient_id'))->clinic()->where('stabdby_status', 1)
-        //                     ->firstOrFail();
-        // $clinic->stabdby_status = 0;
-        // $clinic->save();
+        //                     ->update(["stabdby_status" => 0]);
         
         //대기순번을 인자값으로 
-        StandbyNumber::dispatch(testPatient::find($request->input('patient_id')));
+        StandbyNumber::dispatch(true);
 
         $message = Config::get('constants.medical_message.clinic_end');
         return response()->json([

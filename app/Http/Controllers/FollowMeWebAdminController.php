@@ -39,6 +39,7 @@ class FollowMeWebAdminController extends Controller
             'message' => $message,
         ],200);
     }
+    
     //범수랑 주용이랑 상의
     public function admin_beacon_defect_check(){
         $beacon_defect = testBeacon::select('beacon_id_minor', 'uuid', 'major', 'lat', 'lng', 'beacon_defect_datetime')
