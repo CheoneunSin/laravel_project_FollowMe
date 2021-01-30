@@ -6,11 +6,11 @@ namespace App;
 use Illuminate\Foundation\Auth\Patient as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
-class testPatient extends Authenticatable implements JWTSubject
+class Patient extends Authenticatable implements JWTSubject
 {
     use Notifiable;
 
-    protected $table = 'test_patients';
+    protected $table = 'patients';
     protected $guard = 'patient';
     protected $primaryKey = 'patient_id';
     
@@ -20,11 +20,11 @@ class testPatient extends Authenticatable implements JWTSubject
     ];
     public function clinic()
     {
-        return $this->hasMany('App\testClinic', 'patient_id');
+        return $this->hasMany('App\Clinic', 'patient_id');
     }
     public function flow()
     {
-        return $this->hasMany('App\teatFlow', 'patient_id');
+        return $this->hasMany('App\Flow', 'patient_id');
     }
     public function getJWTIdentifier()
     {
@@ -35,5 +35,8 @@ class testPatient extends Authenticatable implements JWTSubject
     {
         return [];
     }
+
+    public $timestamps = false;
+
 
 }

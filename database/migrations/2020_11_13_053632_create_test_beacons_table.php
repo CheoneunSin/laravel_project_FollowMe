@@ -13,17 +13,13 @@ class CreateTestBeaconsTable extends Migration
      */
     public function up()
     {
-        Schema::create('test_beacons', function (Blueprint $table) {
+        Schema::create('beacons', function (Blueprint $table) {
             $table->id('beacon_id_minor');
             $table->string('uuid');
             $table->integer('major');
             $table->double('lat');
             $table->double('lng');
-            $table->boolean('node_check');
-            $table->boolean('node_defect_check');
-            $table->dateTime('node_defect_datetime');
-            $table->bigInteger('beacon_scanner_number');
-            $table->timestamps();
+            $table->string('beacon_scanner_id')->nullable();
         });
     }
 
@@ -34,7 +30,7 @@ class CreateTestBeaconsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('test_beacons');
+        Schema::dropIfExists('beacons');
     }
 }
 

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class NodeTableStaireCheck extends Migration
+class NodeTableCreate extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,11 @@ class NodeTableStaireCheck extends Migration
      */
     public function up()
     {
-        Schema::table('test_node', function (Blueprint $table) {
+        Schema::create('nodes', function (Blueprint $table) {
+            $table->id('node_id');
+            $table->integer('floor');
+            $table->double('lat');
+            $table->double('lng');
             $table->boolean('stair_check')->default(0);
         });
     }
@@ -25,8 +29,6 @@ class NodeTableStaireCheck extends Migration
      */
     public function down()
     {
-        Schema::table('test_node', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('nodes');
     }
 }

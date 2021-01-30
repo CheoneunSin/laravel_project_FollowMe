@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Database\Seeder;
-use App\teatNodeDistance;
+use App\NodeDistance;
 
 class NodeDistanceTableSeeder extends Seeder
 {
@@ -119,7 +119,7 @@ class NodeDistanceTableSeeder extends Seeder
             ['5', '2020', '3033'],
         ];
         foreach($distances as $distance){
-            teatNodeDistance::create([
+            NodeDistance::create([
                 'distance' => $distance[0],
                 'node_A'   => $distance[1],
                 'node_B'   => $distance[2],

@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Database\Seeder;
-use App\testBeacon;
+use App\Beacon;
 use Illuminate\Support\Str;
 class BeaconTableSeeder extends Seeder
 {
@@ -35,7 +35,7 @@ class BeaconTableSeeder extends Seeder
         foreach($beacons as $beacon){
             if($beacon[0] == 15010)
                 $major = 40001;
-            testBeacon::create([
+            Beacon::create([
                 'beacon_id_minor'   => $beacon[0],
                 'uuid'              => Str::uuid(),
                 'lat'               => $beacon[1],

@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Database\Seeder;
-use App\teatRoom_location;
+use App\RoomLocation;
 
 class RoomLocationsSeeder extends Seeder
 {
@@ -40,7 +40,7 @@ class RoomLocationsSeeder extends Seeder
             ['221', '2017'],
         ];
         foreach($roomLocations as $roomLocation){
-            teatRoom_location::create([
+            RoomLocation::create([
                 'room_name' => $roomLocation[0],
                 'room_node' => $roomLocation[1],
             ]);

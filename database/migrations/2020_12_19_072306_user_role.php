@@ -16,7 +16,9 @@ class UserRole extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->integer('role')->default(2);
             $table->string('name')->nullable()->change();
-            $table->dropColumn('api_token');
+            $table->unsignedBigInteger('unique_number')->nullable();
+            $table->string('phone_number')->nullable();
+
         });
     }
 

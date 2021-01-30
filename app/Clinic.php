@@ -4,10 +4,10 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class testClinic extends Model
+class Clinic extends Model
 {
 
-    protected $table = 'test_clinics';
+    protected $table = 'clinics';
 
     protected $primaryKey = 'clinic_id';
     
@@ -23,6 +23,9 @@ class testClinic extends Model
 
     public function patient()
     {
-        return $this->belongsTo('App\testPatient', 'patient_id');
+        return $this->belongsTo('App\Patient', 'patient_id');
     }
+    public $timestamps = false;
+
+    
 }

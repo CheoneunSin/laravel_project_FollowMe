@@ -13,7 +13,7 @@ class CreateTestClinicsTable extends Migration
      */
     public function up()
     {
-        Schema::create('test_clinics', function (Blueprint $table) {
+        Schema::create('clinics', function (Blueprint $table) {
             $table->id('clinic_id');
             $table->unsignedBigInteger('patient_id');
             $table->string('clinic_subject_name');
@@ -21,13 +21,12 @@ class CreateTestClinicsTable extends Migration
             $table->string('doctor_name', '100')->nullable();;
             $table->date('clinic_date');
             $table->time('clinic_time')->nullable();;
-            $table->boolean('first_category');
-            $table->integer('storage');
-            $table->boolean('storge_check');
+            $table->boolean('first_category')->default(1);
+            $table->integer('storage')->nullable();
+            $table->boolean('storge_check')->default(0);
             $table->integer('standby_number');
-            $table->boolean('standby_status');
-            $table->timestamps();
-            $table->foreign('patient_id')->references('patient_id')->on('test_patients');
+            $table->boolean('standby_status')->default(1);
+            $table->foreign('patient_id')->references('patient_id')->on('patients');
 
         });
     }
@@ -39,6 +38,6 @@ class CreateTestClinicsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('test_clinics');
+        Schema::dropIfExists('clinics');
     }
 }

@@ -2,39 +2,18 @@
 
 namespace App\Services;
 
-/**
- * @author    Greg Roach <greg@subaqua.co.uk>
- * @copyright (c) 2015 Greg Roach <greg@subaqua.co.uk>
- * @license   GPL-3.0+
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-
-/**
- * Class Dijkstra - Use Dijkstra's algorithm to calculate the shortest path
- * through a weighted, directed graph.
- */
 class Dijkstra
 {
-    /** @var integer[][] The graph, where $graph[node1][node2]=cost */
+    // $graph[node1][node2] 연결 된 노드를 2차원 배열 키값으로 사용
     protected $graph;
 
-    /** @var int[] Distances from the source node to each other node */
+    //노드에서 다른 노드까지의 거리
     protected $distance;
 
-    /** @var string[][] The previous node(s) in the path to the current node */
+    //현재 노드의 경로에 있는 이전 노드
     protected $previous;
 
-    /** @var int[] Nodes which have yet to be processed */
+    //아직 처리되지 않은 노드
     protected $queue;
 
     /**
@@ -45,13 +24,6 @@ class Dijkstra
         $this->graph = $graph;
     }
 
-    /**
-     * Process the next (i.e. closest) entry in the queue.
-     *
-     * @param string[] $exclude A list of nodes to exclude - for calculating next-shortest paths.
-     *
-     * @return void
-     */
     protected function processNextNodeInQueue(array $exclude)
     {
         //가장 가까운 정점 처리
@@ -75,11 +47,11 @@ class Dijkstra
         unset($this->queue[$closest]);
     }
     /**
-     * Extract all the paths from $source to $target as arrays of nodes.
+     * $source에서 $target까지의 모든 경로를 노드 배열로 추출
      *
-     * @param string $target The starting node (working backwards)
+     * @param string $target 시작 노드
      *
-     * @return string[][] One or more shortest paths, each represented by a list of nodes
+     * @return string[][] 각각 노드 목록으로 표시되는 하나 이상의 최단 경로
      */
     protected function extractPaths($target)
     {
@@ -101,13 +73,13 @@ class Dijkstra
     }
 
     /**
-     * Calculate the shortest path through a a graph, from $source to $target.
+     * $source에서 $target까지 그래프를 통해 최단 경로를 계산
      *
-     * @param string   $source  The starting node
-     * @param string   $target  The ending node
-     * @param string[] $exclude A list of nodes to exclude - for calculating next-shortest paths.
+     * @param string   $source  시작 노드
+     * @param string   $target  끝 노드
+     * @param string[] $exclude 제외 할 노드 목록 - 다음으로 가장 짧은 경로를 계산
      *
-     * @return string[][] Zero or more shortest paths, each represented by a list of nodes
+     * @return string[][] 0 개 이상의 최단 경로 (각각 노드 목록으로 표시됨)
      */
     public function shortestPaths($source, $target, array $exclude = array())
     {

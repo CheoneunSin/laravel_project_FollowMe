@@ -4,14 +4,17 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class testNode extends Model {
-    protected $table = 'test_node';
+class Node extends Model {
+    protected $table = 'nodes';
 
     protected $primaryKey = 'node_id';
     
     protected $guarded = []; 
 
     public function room_location() {
-        return $this->hasMany('App\teatRoom_location', 'room_node');
+        return $this->hasMany('App\RoomLocation', 'room_node');
     } 
+
+    public $timestamps = false;
+
 }

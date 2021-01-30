@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Database\Seeder;
-use App\testNode;
+use App\Node;
 
 class NodeTableSeeder extends Seeder
 {
@@ -144,14 +144,14 @@ class NodeTableSeeder extends Seeder
         for($i = 0; $i < 53; $i++) {
             if($node_id[$i] == '3001')
                 $f = 1;
-            testNode::create([
+            Node::create([
                 'node_id' => $node_id[$i],
                 'floor'   => $floor[$f],
                 'lat'     => $lat[$i],
                 'lng'     => $lng[$i],
             ]);
         }
-        $stairNode = testNode::find(2020);
+        $stairNode = Node::find(2020);
         $stairNode->stair_check = 1;
         $stairNode->save();
     }

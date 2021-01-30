@@ -4,12 +4,14 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class testBeacon extends Model
+class Beacon extends Model
 {
-    protected $table = 'test_beacons';
+    protected $table = 'beacons';
 
     protected $primaryKey = 'beacon_id_minor';
     
     protected $guarded = [];
+
+    public $timestamps = false;
 
 }

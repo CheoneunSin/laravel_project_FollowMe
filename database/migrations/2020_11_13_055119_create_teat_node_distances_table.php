@@ -13,14 +13,13 @@ class CreateTeatNodeDistancesTable extends Migration
      */
     public function up()
     {
-        Schema::create('teat_node_distances', function (Blueprint $table) {
+        Schema::create('node_distances', function (Blueprint $table) {
             $table->id('distance_id');
-            $table->unsignedBigInteger('nodeA');
+            $table->unsignedBigInteger('node_A');
+            $table->unsignedBigInteger('node_B');
             $table->integer('distance');
-            $table->unsignedBigInteger('nodeB');
-            $table->timestamps();
-            $table->foreign('nodeA')->references('beacon_id_minor')->on('test_beacons');
-            $table->foreign('nodeB')->references('beacon_id_minor')->on('test_beacons');
+            $table->foreign('node_A')->references('node_id')->on('nodes');
+            $table->foreign('node_B')->references('node_id')->on('nodes');
         });
     }
 
@@ -31,6 +30,6 @@ class CreateTeatNodeDistancesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('teat_node_distances');
+        Schema::dropIfExists('node_distances');
     }
 }

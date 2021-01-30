@@ -13,13 +13,11 @@ class CreateTeatRoomLocationsTable extends Migration
      */
     public function up()
     {
-        Schema::create('teat_room_locations', function (Blueprint $table) {
+        Schema::create('room_locations', function (Blueprint $table) {
             $table->id('room_location_id');
             $table->unsignedBigInteger('room_node');
             $table->string('room_name'); 
-            $table->timestamps();
-            $table->foreign('room_node')->references('beacon_id_minor')->on('test_beacons');
-
+            $table->foreign('room_node')->references('node_id')->on('nodes');
         });
     }
 
@@ -30,6 +28,6 @@ class CreateTeatRoomLocationsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('teat_room_locations');
+        Schema::dropIfExists('room_locations');
     }
 }

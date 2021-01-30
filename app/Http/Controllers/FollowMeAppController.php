@@ -7,13 +7,13 @@ use Illuminate\Support\Str;
 use App\Services\Dijkstra;                  
 use Illuminate\Support\Facades\Config;
 
-use App\teatFlow;               
-use App\teatNodeDistance;
-use App\teatRoom_location;
-use App\testBeacon;
-use App\testClinic;
-use App\testPatient;
-use App\testNode;
+use App\Flow;               
+use App\NodeDistance;
+use App\RoomLocation;
+use App\Beacon;
+use App\Clinic;
+use App\Patient;
+use App\Node;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
@@ -43,17 +43,17 @@ class FollowMeAppController extends Controller
             ], 422);
         }
         //환자가 병원에 방문한 적이 있을 경우 체크  
-        foreach (testPatient::select('resident_number')->cursor() as $resident_number) {
+        foreach (Patient::select('resident_number')->cursor() as $resident_number) {
             if($resident_number['resident_number'] === $request->resident_number )
             {
                 //방문한 적이 있으면 기존 환자 데이터에 회원가입 정보 업데이트 
-                testPatient::where('resident_number',$request->resident_number)
+                Patient::where('resident_number',$request->resident_number)
                             ->update($request->except('password_confirmation'));
                 return response()->json(['message'=> "update"],200);
             }
         }
         //환자가 병원에 방문한 적이 없을 경우 환자 데이터 생성
-        testPatient::create($request->except('password_confirmation'));
+        Patient::create($request->except('password_confirmation'));
         // $message = Config::get('constants.patient_message.signup_ok');
         return response()->json(['message'=> "create"],200);
     }
@@ -70,16 +70,16 @@ class FollowMeAppController extends Controller
         $first_category = 1;  //초진 환자
         
         //초진환자가 아닐 경우 
-        if(testClinic::where('clinic_subject_name', $request->clinic_subject_name )
+        if(Clinic::where('clinic_subject_name', $request->clinic_subject_name )
                         ->where('patient_id',$request->patient_id )
                         ->count() > 0){
             $first_category = 0;  //
         }
         //현 진료실 대기 인원 수(대기 순번)   
-        $standby_number = testClinic::where('clinic_subject_name', $request->clinic_subject_name )
+        $standby_number = Clinic::where('clinic_subject_name', $request->clinic_subject_name )
                                     ->where("standby_status", 1)->count() + 1;
         //진료 접수
-        testPatient::find($request->patient_id)
+        Patient::find($request->patient_id)
                     ->clinic()
                     ->create([
                         'clinic_subject_name'   => $request->clinic_subject_name,           //진료실 이름
@@ -102,8 +102,8 @@ class FollowMeAppController extends Controller
 
     //진료 동선 안내를 위한 셋팅(전체 비콘 정보, 현 층의 노드 정보) 
     public function app_node_beacon_get(Request $request){ 
-        $node = testNode::where("floor", (int)($request->major / 1000))->get();  
-        $beacon = testBeacon::select('beacon_id_minor', 'uuid', 'major', 'lat', 'lng')->get();
+        $node = Node::where("floor", (int)($request->major / 1000))->get();  
+        $beacon = Beacon::select('beacon_id_minor', 'uuid', 'major', 'lat', 'lng')->get();
         return response()->json([
             'beacon'=>$beacon,
             'node'  =>$node
@@ -114,9 +114,9 @@ class FollowMeAppController extends Controller
     public function app_flow(Request $request){
         //DB에 저장된 노드 정보(노드 간 연결 거리)를 배열에 저장
         $graph = []; 
-        foreach (testNode::select('node_id')->cursor() as $node) {
+        foreach (Node::select('node_id')->cursor() as $node) {
             $graph["$node->node_id"] = [];
-            foreach (teatNodeDistance::select('node_A', 'distance' ,"node_B")->cursor() as $distance) {
+            foreach (NodeDistance::select('node_A', 'distance' ,"node_B")->cursor() as $distance) {
                 //노드 간 거리 저장
                 if($distance->node_A == $node->node_id){
                     $graph["$node->node_id"]["$distance->node_B"] = $distance->distance;
@@ -148,7 +148,7 @@ class FollowMeAppController extends Controller
         //최단 경로에 있는 노드들에 대한 정보를 DB에서 가져와서 nodeFlow 배열에 저장 
         $nodeFlows = [];
         for($i = 0 ; $i < count($paths) ; $i++){
-            $nodeFlow = testNode::select('node_id', 'floor', 'lat', 'lng', 'stair_check')
+            $nodeFlow = Node::select('node_id', 'floor', 'lat', 'lng', 'stair_check')
                             ->whereIn('node_id', $paths[$i][0])->get();
             array_push($nodeFlows, $nodeFlow);
         }
@@ -165,7 +165,7 @@ class FollowMeAppController extends Controller
                         ->where('flow_sequence', 1)
                         ->update([ "flow_status_check" => 0 ]); 
         //진료 동선 순서 -1씩
-        teatFlow::where('flow_status_check', 1)->decrement("flow_sequence");
+        Flow::where('flow_status_check', 1)->decrement("flow_sequence");
         return response()->json([
             'message' => "ok",            
         ],200);
@@ -179,18 +179,18 @@ class FollowMeAppController extends Controller
         }
         //검색으로 출발지를 지정했을 시 
         else{
-            $start_loaction = teatRoom_location::select('room_node')
+            $start_loaction = RoomLocation::select('room_node')
                                         ->where('room_name', $request->input('start_room'))->first();
         }
         //도착지
-        $end_room_location = teatRoom_location::select('room_node')
+        $end_room_location = RoomLocation::select('room_node')
                                         ->where('room_name',$request->input('end_room'))->first();
         
         //DB에 저장된 노드 정보(노드 간 연결 거리)를 배열에 저장                                  
         $graph = []; 
-        foreach (testNode::select('node_id')->cursor() as $node) {
+        foreach (Node::select('node_id')->cursor() as $node) {
             $graph["$node->node_id"] = [];
-            foreach (teatNodeDistance::select('node_A', 'distance' ,"node_B")->cursor() as $distance) {
+            foreach (NodeDistance::select('node_A', 'distance' ,"node_B")->cursor() as $distance) {
                 //노드 간 거리 저장
                 if($distance->node_A == $node->node_id){
                     $graph["$node->node_id"]["$distance->node_B"] = $distance->distance;
@@ -202,7 +202,7 @@ class FollowMeAppController extends Controller
         //출발점 노드와 도착점 노드 사이의 최단 경로 가져오기 
         $path = $algorithm->shortestPaths($start_loaction->room_node, $end_room_location->room_node); 
         //최단 경로에 있는 노드들에 대한 정보를 DB에서 가져와서 nodeFlow 배열에 저장 
-        $nodeFlow = testNode::select('node_id', 'floor', 'lat', 'lng', 'stair_check')
+        $nodeFlow = Node::select('node_id', 'floor', 'lat', 'lng', 'stair_check')
                         ->whereIn('node_id', $path[0])->get();
 
         //최단 경로 반환         
@@ -213,14 +213,14 @@ class FollowMeAppController extends Controller
 
     //미결제 진료비 내역 
     public function app_storage(Request $request){
-        $storage = testClinic::storage(Auth::guard('patient')->user()->patient_id, '0')->get();
+        $storage = Clinic::storage(Auth::guard('patient')->user()->patient_id, '0')->get();
         return response()->json([
             'storage' => $storage,
         ],200);
     }
     //결제 내역
     public function app_storage_record(Request $request){
-        $storage_record = testClinic::storage(Auth::guard('patient')->user()->patient_id, '1')->get();
+        $storage_record = Clinic::storage(Auth::guard('patient')->user()->patient_id, '1')->get();
         return response()->json([
             'storage_record' => $storage_record,
         ],200);

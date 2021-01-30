@@ -63,8 +63,8 @@ class Kernel extends HttpKernel
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-        'isAdmin' => \App\Http\Middleware\CheckIsAdmin::class,
-        'isMedical' => \App\Http\Middleware\CheckIsMedical::class,
-        'cors' => \App\Http\Middleware\cors::class,
+        'isAdmin' => \App\Http\Middleware\CheckIsAdmin::class,         //관리자인지 체크 
+        'isMedical' => \App\Http\Middleware\CheckIsMedical::class,     //의료진인지 체크
+        'cors' => \App\Http\Middleware\cors::class,     
     ];
 }

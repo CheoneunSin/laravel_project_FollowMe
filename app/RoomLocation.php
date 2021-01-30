@@ -4,9 +4,9 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class teatRoom_location extends Model
+class RoomLocation extends Model
 {
-    protected $table = 'teat_room_locations';
+    protected $table = 'room_locations';
 
     protected $primaryKey = 'room_location_id';
     
@@ -14,11 +14,14 @@ class teatRoom_location extends Model
 
     public function room_node()
     {
-        return $this->belongsTo('App\testNode', 'room_id');
+        return $this->belongsTo('App\Node', 'room_id');
     } 
 
     public function flow()
     {
-        return $this->hasMany('App\teatFlow', 'room_location_id');
+        return $this->hasMany('App\Flow', 'room_location_id');
     } 
+
+    public $timestamps = false;
+
 }

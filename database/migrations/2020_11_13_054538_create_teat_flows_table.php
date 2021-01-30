@@ -13,18 +13,15 @@ class CreateTeatFlowsTable extends Migration
      */
     public function up()
     {
-        Schema::create('teat_flows', function (Blueprint $table) {
+        Schema::create('flows', function (Blueprint $table) {
             $table->id('flow_id');
             $table->unsignedBigInteger('patient_id');
             $table->unsignedBigInteger('room_location_id');
             $table->integer('flow_sequence');
             $table->boolean('flow_status_check');
             $table->dateTime('flow_create_date');
-            $table->timestamps();
-
-            $table->foreign('patient_id')->references('patient_id')->on('test_patients');
-            $table->foreign('room_location_id')->references('room_location_id')->on('teat_room_locations');
-
+            $table->foreign('patient_id')->references('patient_id')->on('patients');
+            $table->foreign('room_location_id')->references('room_location_id')->on('room_locations');
         });
     }
 
@@ -35,6 +32,6 @@ class CreateTeatFlowsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('teat_flows');
+        Schema::dropIfExists('flows');
     }
 }

@@ -4,9 +4,12 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class teatNodeDistance extends Model
+class NodeDistance extends Model
 {
-    protected $table = 'teat_node_distances';
+    protected $table = 'node_distances';
     protected $primaryKey = 'distance_id';
     protected $guarded = [];
+
+    public $timestamps = false;
+
 }

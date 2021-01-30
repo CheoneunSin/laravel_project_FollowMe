@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Database\Seeder;
-use App\testPatient;
+use App\Patient;
 
 class PatientTableSeeder extends Seeder
 {
@@ -36,7 +36,7 @@ class PatientTableSeeder extends Seeder
         ];
         $faker = Faker\Factory::create('ko_kr');
         for($i = 0; $i < 5; $i++){
-            testPatient::create([
+            Patient::create([
                 'patient_name' => $faker->name,
                 'login_id' => $faker->email,
                 'password' => 1234,
