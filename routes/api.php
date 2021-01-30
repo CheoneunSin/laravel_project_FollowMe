@@ -23,7 +23,7 @@ Route::prefix('patient')->group(function () {
 
         Route::post('/navigation', 'FollowMeAppController@app_navigation');
         
-        Route::get('/standby_number', 'FollowMeAppController@standby_number');
+        Route::post('/standby_number', 'FollowMeAppController@standby_number');
 
         Route::post('/storage', 'FollowMeAppController@app_storage');
         Route::post('/storage_record', 'FollowMeAppController@app_storage_record');
@@ -31,8 +31,9 @@ Route::prefix('patient')->group(function () {
     });
 });
     
-Route::middleware(['isMedical'])->middleware(['auth:api'])
-    ->prefix('medical')->group(function () {
+// Route::middleware(['isMedical'])->middleware(['auth:api'])
+//     ->prefix('medical')->group(function () {
+Route::prefix('medical')->group(function () {
         Route::post('/patient_create', 'FollowMeWebMedicalController@medical_patient_create');
         Route::post('/patient_search', 'FollowMeWebMedicalController@medical_patient_search');
         Route::post('/patient_select', 'FollowMeWebMedicalController@medical_patient_select');
@@ -42,8 +43,9 @@ Route::middleware(['isMedical'])->middleware(['auth:api'])
         Route::post('/flow_setting', 'FollowMeWebMedicalController@medical_flow_setting');
 });
 
-Route::middleware(['isAdmin'])->middleware(['auth:api'])
-    ->prefix('admin')->group(function () {
+// Route::middleware(['isAdmin'])->middleware(['auth:api'])
+//     ->prefix('admin')->group(function () {
+Route::prefix('admin')->group(function () {
         Route::get('/beacon_setting_main', 'FollowMeWebAdminController@admin_beacon_setting_main');
         Route::post('/beacon_update', 'FollowMeWebAdminController@admin_beacon_update');
         Route::get('/beacon_defect_check', 'FollowMeWebAdminController@admin_beacon_defect_check');

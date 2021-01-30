@@ -16,31 +16,27 @@ use Illuminate\Support\Facades\Config;
 
 class FollowMeWebAdminController extends Controller
 {   
-
+    //비콘 정보 가져오기
     public function admin_beacon_setting_main(){
         $beacon_info = testBeacon::select('beacon_id_minor', 'uuid', 'major', 'lat', 'lng', "check")->get();
         return response()->json([
             'beacon_info' => $beacon_info,
         ],200);
     }
-    public function admin_beacon_update(Request $request){
-        $beacon_delete_data = [];
+    //비콘 정보 업데이트 (추가 , 삭제)
+    public function admin_beacon_update(Request $request){ 
+        testBeacon::query()->delete();   
         foreach($request->input('beacon') as $beacon){
-            if($beacon['check'] === "delete")
-                array_push($beacon_delete_data, $beacon['beacon_id_minor']);
-            else if($beacon['check'] === "create"){
-                unset($beacon['check']);
-                testBeacon::create($beacon);
-            }
+            unset($beacon['check']);    //변경 필요
+            testBeacon::create($beacon);
         }
-        testBeacon::destroy($beacon_delete_data);
-        $message = Config::get('constants.admin_message.setting_ok');
         return response()->json([
-            'message' => $message,
+            'message' => "ok",
         ],200);
     }
     
-    //범수랑 주용이랑 상의
+    //비콘 불량 체크
+    //존재유무 확인(범수, 주용에게 물어보기)
     public function admin_beacon_defect_check(){
         $beacon_defect = testBeacon::select('beacon_id_minor', 'uuid', 'major', 'lat', 'lng', 'beacon_defect_datetime')
                                     ->where('node_defect_check', 1)
@@ -49,7 +45,8 @@ class FollowMeWebAdminController extends Controller
             'beacon_defect' => $beacon_defect,
         ],200);
     }
-
+    
+    //minor값으로 비콘 검색
     public function admin_beacon_search(Request $request){
         $beacon_info = testBeacon::select('beacon_id_minor', 'uuid', 'major', 'lat', 'lng', 'node_defect_datetime')
                                     ->where('beacon_id_minor', "LIKE" ,"%{$request->input('beacon_id_minor')}%")
@@ -58,36 +55,43 @@ class FollowMeWebAdminController extends Controller
             'beacon_info' => $beacon_info,
         ],200);
     }
+
+    //노드 정보 가져오기
     public function admin_node_setting_main(){
         $node_info = testNode::select('node_id', 'lat', 'lng','floor')->get();
         return response()->json([
             'beacon_info' => $node_info,
         ],200);
     }
+
+    //노드 정보 업데이트 (추가, 삭제)
     public function admin_node_update(Request $request){
-        $node_delete_data = [];
+        $node_delete_data = []; //삭제할 노드들 id 값 저장
         foreach($request->input('node') as $node){
+            //노드와 연결된 진료실 및 검사실 저장
             if($node['room'] != null){
                 testNode::find($node['node_id'])->room_location()->create([
                     'room_name' =>  $node['room']
                 ]);
             }
             unset($node['room']);
+             //삭제할 노드일 경우 배열 저장
             if($node['check'] === "delete")
                 array_push($node_delete_data, $node['node_id']);
+            //추가할 비콘일 경우 DB저장
             else if($node['check'] === "create"){
-                unset($node['check']);
                 unset($node['check']);
                 testNode::create($node);
             }
         }
+        //노드 id값으로 삭제
         testNode::destroy($node_delete_data);
         $message = Config::get('constants.admin_message.setting_ok');
         return response()->json([
             'message' => $message,
         ],200);
     }
-
+    //노드 연결(미구현)
     public function admin_node_link(Request $request){
         $message = Config::get('constants.admin_message.setting_ok');
         return response()->json([

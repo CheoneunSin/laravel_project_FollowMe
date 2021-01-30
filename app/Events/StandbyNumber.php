@@ -14,7 +14,7 @@ class StandbyNumber implements ShouldBroadcast
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
-     * Create a new event instance.
+     * 대기 순번 변경 이벤트 발생 
      *
      * @return void
      */
@@ -25,10 +25,12 @@ class StandbyNumber implements ShouldBroadcast
     }
 
     /**
-     * Get the channels the event should broadcast on.
+     * event 이름 : FollowMe_standby_number
+     * event가 브로드캐스트 할 채널을 가져옴
      *
      * @return \Illuminate\Broadcasting\Channel|array
      */
+    // 
     public function broadcastOn()
     {
         return ['FollowMe_standby_number'];
