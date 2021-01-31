@@ -18,7 +18,7 @@ class CreateTeatFlowsTable extends Migration
             $table->unsignedBigInteger('patient_id');
             $table->unsignedBigInteger('room_location_id');
             $table->integer('flow_sequence');
-            $table->boolean('flow_status_check');
+            $table->boolean('flow_status_check')->default(0);
             $table->dateTime('flow_create_date');
             $table->foreign('patient_id')->references('patient_id')->on('patients');
             $table->foreign('room_location_id')->references('room_location_id')->on('room_locations');

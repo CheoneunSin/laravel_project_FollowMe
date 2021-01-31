@@ -42,21 +42,41 @@
 - 환자 진료 동선 설정 
 
 
-
-# 라라벨 auth
-
-- composer require laravel/ui
-
-- php artisan ui:auth
-
 # 이미지 업로드 
 
 extension=php_fileinfo.dll
 
-
 # JWT 인증 서비스 
+- composer require tymon/jwt-auth
+- php artisan vendor:publish --provider="Tymon\JWTAuth\Providers\LaravelServiceProvider"\
+<br>
+config/jwt.php 생김 
 
+- php artisan jwt:secret
+- .env에 파일 업데이트 -> JWT_SECRET=foobar
+
+- 모델 업데이트 
+use Tymon\JWTAuth\Contracts\JWTSubject;<br>
+use Illuminate\Notifications\Notifiable;<br>
+use Illuminate\Foundation\Auth\User as Authenticatable;<br>
+
+public function getJWTIdentifier()
+{
+    return $this->getKey();
+}
+
+/**
+    * Return a key value array, containing any custom claims to be added to the JWT.
+    *
+    * @return array
+    */
+public function getJWTCustomClaims()
+{
+    return [];
+}
 # 2개의 테이블 Auth
+
+# Pusher 사용 방법 
 
 
 
