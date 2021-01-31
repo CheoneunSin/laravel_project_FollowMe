@@ -9,6 +9,7 @@ use App\Beacon;
 use App\Clinic;
 use App\Patient;
 use App\Node;
+
 //파사드
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Config;
