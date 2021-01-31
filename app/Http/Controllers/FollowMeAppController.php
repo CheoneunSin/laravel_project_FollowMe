@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-
 // 모델
 use App\Flow;               
 use App\NodeDistance;

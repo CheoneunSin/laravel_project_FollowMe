@@ -7,6 +7,7 @@ use App\Beacon;
 use App\Clinic;
 use App\Patient;
 use App\Node;
+use App\NodeDistance;
 
 //파사드
 use Illuminate\Support\Facades\DB;
@@ -44,34 +45,29 @@ class FollowMeWebAdminController extends Controller
 
     //노드 정보 가져오기
     public function admin_node_setting_main(){
-        $node_info = Node::all();
+        $node_info      = Node::all();
+        $node_distance  = NodeDistance::with('node_a_info')->with('node_b_info')->get(); 
         return response()->json([
-            'beacon_info' => $node_info,
+            'beacon_info'   => $node_info,
+            'node_distance' => $node_distance
         ],200);
     }
 
     //노드 정보 업데이트 (추가, 삭제)
     public function admin_node_update(Request $request){
+        // NodeDistance::query()->delete();  //노드 거리 정보 삭제
         Node::query()->delete();   
         foreach($request->input('node') as $node){
             //노드와 연결된 진료실 및 검사실 저장
-            if($node['room'] != null){
-                Node::find($node['node_id'])->room_location()->create([
-                    'room_name' =>  $node['room']
-                ]);
-            }
+            if($node['room'] != null)
+                Node::find($node['node_id'])->room_location()->create(['room_name' =>  $node['room'] ]);
             unset($node['room']);
             Node::create($node);
         }
-        
-        $message = Config::get('constants.admin_message.setting_ok');
-        return response()->json([
-            'message' => $message,
-        ],200);
-    }
-    //노드 연결(미구현)
-    public function admin_node_link(Request $request){
-
+        // //노드 간 거리 데이터 생성
+        // foreach($request->input('node_distance') as $node_distance){
+        //     Node::create($node);
+        // }
         $message = Config::get('constants.admin_message.setting_ok');
         return response()->json([
             'message' => $message,

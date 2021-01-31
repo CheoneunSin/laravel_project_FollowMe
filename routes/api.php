@@ -51,7 +51,7 @@ Route::prefix('admin')->group(function () {
 
         Route::get('/node_setting_main', 'FollowMeWebAdminController@admin_node_setting_main');
         Route::post('/node_update', 'FollowMeWebAdminController@admin_node_update');
-        Route::post('/node_link', 'FollowMeWebAdminController@admin_node_link');
+        // Route::get('/node_link_get', 'FollowMeWebAdminController@admin_node_link_get');
 });
 
 Route::prefix('auth')->group(function () {

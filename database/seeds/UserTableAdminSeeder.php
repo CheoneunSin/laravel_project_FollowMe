@@ -15,7 +15,7 @@ class UserTableAdminSeeder extends Seeder
             'name' => 'Admin',
             'email' => 'followme@gmail.com',
             'password' => bcrypt('followme'),
-            'role' => 2
+            'role' => 1
         ]);
     }
 }
