@@ -2,11 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use App\Services\Dijkstra;                  
-use Illuminate\Support\Facades\Config;
 
+// 모델
 use App\Flow;               
 use App\NodeDistance;
 use App\RoomLocation;
@@ -14,11 +11,20 @@ use App\Beacon;
 use App\Clinic;
 use App\Patient;
 use App\Node;
+
+//파사드
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Config;
 
+//pusher 이벤트
 use App\Events\StandbyNumber;
 
+//다익스트라 알고리즘
+use App\Services\Dijkstra;                          
+
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
 
 class FollowMeAppController extends Controller
 {    
@@ -103,7 +109,7 @@ class FollowMeAppController extends Controller
     //진료 동선 안내를 위한 셋팅(전체 비콘 정보, 현 층의 노드 정보) 
     public function app_node_beacon_get(Request $request){ 
         $node = Node::where("floor", (int)($request->major / 1000))->get();  
-        $beacon = Beacon::select('beacon_id_minor', 'uuid', 'major', 'lat', 'lng')->get();
+        $beacon = Beacon::all();
         return response()->json([
             'beacon'=>$beacon,
             'node'  =>$node
@@ -116,7 +122,7 @@ class FollowMeAppController extends Controller
         $graph = []; 
         foreach (Node::select('node_id')->cursor() as $node) {
             $graph["$node->node_id"] = [];
-            foreach (NodeDistance::select('node_A', 'distance' ,"node_B")->cursor() as $distance) {
+            foreach (NodeDistance::cursor() as $distance) {
                 //노드 간 거리 저장
                 if($distance->node_A == $node->node_id){
                     $graph["$node->node_id"]["$distance->node_B"] = $distance->distance;
@@ -148,8 +154,7 @@ class FollowMeAppController extends Controller
         //최단 경로에 있는 노드들에 대한 정보를 DB에서 가져와서 nodeFlow 배열에 저장 
         $nodeFlows = [];
         for($i = 0 ; $i < count($paths) ; $i++){
-            $nodeFlow = Node::select('node_id', 'floor', 'lat', 'lng', 'stair_check')
-                            ->whereIn('node_id', $paths[$i][0])->get();
+            $nodeFlow = Node::whereIn('node_id', $paths[$i][0])->get();
             array_push($nodeFlows, $nodeFlow);
         }
         //전체 진료 동선의 최단 경로 반환         
@@ -190,7 +195,7 @@ class FollowMeAppController extends Controller
         $graph = []; 
         foreach (Node::select('node_id')->cursor() as $node) {
             $graph["$node->node_id"] = [];
-            foreach (NodeDistance::select('node_A', 'distance' ,"node_B")->cursor() as $distance) {
+            foreach (NodeDistance::cursor() as $distance) {
                 //노드 간 거리 저장
                 if($distance->node_A == $node->node_id){
                     $graph["$node->node_id"]["$distance->node_B"] = $distance->distance;
@@ -202,8 +207,7 @@ class FollowMeAppController extends Controller
         //출발점 노드와 도착점 노드 사이의 최단 경로 가져오기 
         $path = $algorithm->shortestPaths($start_loaction->room_node, $end_room_location->room_node); 
         //최단 경로에 있는 노드들에 대한 정보를 DB에서 가져와서 nodeFlow 배열에 저장 
-        $nodeFlow = Node::select('node_id', 'floor', 'lat', 'lng', 'stair_check')
-                        ->whereIn('node_id', $path[0])->get();
+        $nodeFlow = Node::whereIn('node_id', $path[0])->get();
 
         //최단 경로 반환         
         return response()->json([

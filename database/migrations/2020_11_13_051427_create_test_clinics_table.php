@@ -23,7 +23,7 @@ class CreateTestClinicsTable extends Migration
             $table->time('clinic_time')->nullable();;
             $table->boolean('first_category')->default(1);
             $table->integer('storage')->nullable();
-            $table->boolean('storge_check')->default(0);
+            $table->boolean('storage_check')->default(0);
             $table->integer('standby_number');
             $table->boolean('standby_status')->default(1);
             $table->foreign('patient_id')->references('patient_id')->on('patients');

@@ -7,7 +7,6 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-
 Route::prefix('patient')->group(function () {
     Route::post('/login', 'FollowMeAppController@app_login');
     Route::post('/signup', 'FollowMeAppController@app_signup');
@@ -48,13 +47,10 @@ Route::prefix('medical')->group(function () {
 Route::prefix('admin')->group(function () {
         Route::get('/beacon_setting_main', 'FollowMeWebAdminController@admin_beacon_setting_main');
         Route::post('/beacon_update', 'FollowMeWebAdminController@admin_beacon_update');
-        Route::get('/beacon_defect_check', 'FollowMeWebAdminController@admin_beacon_defect_check');
         Route::post('/beacon_search', 'FollowMeWebAdminController@admin_beacon_search');
 
         Route::get('/node_setting_main', 'FollowMeWebAdminController@admin_node_setting_main');
         Route::post('/node_update', 'FollowMeWebAdminController@admin_node_update');
-        // Route::post('/node_create', 'FollowMeWebAdminController@admin_node_create');
-        // Route::post('/node_delete', 'FollowMeWebAdminController@admin_node_delete');
         Route::post('/node_link', 'FollowMeWebAdminController@admin_node_link');
 });
 

@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+//모델
 use App\Flow;
 use App\NodeDistance;
 use App\RoomLocation;
@@ -8,13 +9,15 @@ use App\Beacon;
 use App\Clinic;
 use App\Patient;
 use App\Node;
-
+//파사드
 use Illuminate\Support\Facades\DB;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
+use Illuminate\Http\Request;
+
+//pusher 이벤트
 use App\Events\StandbyNumber;
 
 
@@ -40,9 +43,7 @@ class FollowMeWebMedicalController extends Controller
     //환자 이름 검색 
     public function medical_patient_search(Request $request){
         //동명이인 전체 목록 조회
-        $patient_list = Patient::select('patient_id','patient_name', 'resident_number', 'postal_code', 
-                            'address', 'detail_address', 'phone_number', 'notes')
-                            ->where('patient_name', $request->input('patient_name'))->get();
+        $patient_list = Patient::where('patient_name', $request->input('patient_name'))->get();
         return response()->json([
             'patient_list' => $patient_list,
         ],200);

@@ -78,7 +78,7 @@ return [
         
         'patient' => [
             'driver' => 'eloquent',
-            'model' => App\testPatient::class,
+            'model' => App\Patient::class,
         ], 
         // 'users' => [
         //     'driver' => 'database',

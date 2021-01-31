@@ -10,6 +10,10 @@ class NodeDistance extends Model
     protected $primaryKey = 'distance_id';
     protected $guarded = [];
 
+    public function node_distance() {
+        return $this->belongsTo('App\Node', 'node_id');
+    }
+    
     public $timestamps = false;
 
 }
