@@ -56,35 +56,370 @@ config/jwt.php 생김
 - .env에 파일 업데이트 -> JWT_SECRET=foobar
 
 - 모델 업데이트 
-use Tymon\JWTAuth\Contracts\JWTSubject;<br>
-use Illuminate\Notifications\Notifiable;<br>
-use Illuminate\Foundation\Auth\User as Authenticatable;<br>
+```php
+use Tymon\JWTAuth\Contracts\JWTSubject;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
 public function getJWTIdentifier()
 {
     return $this->getKey();
 }
 
-/**
-    * Return a key value array, containing any custom claims to be added to the JWT.
-    *
-    * @return array
-    */
 public function getJWTCustomClaims()
 {
     return [];
 }
+```
+- config/auth.php
+```php
+'defaults' => [ 
+    'guard' => 'api',
+    'passwords' => 'users',
+],
+
+...
+
+'guards' => [
+    'api' => [
+        'driver' => 'jwt',
+        'provider' => 'users',
+    ],
+],
+Route::group([
+
+    'middleware' => 'api',
+    'prefix' => 'auth'
+
+], 
+```
+- routes/api.php
+```php
+
+function ($router) {
+
+    Route::post('login', 'AuthController@login');
+    Route::post('logout', 'AuthController@logout');
+    Route::post('refresh', 'AuthController@refresh');
+    Route::post('me', 'AuthController@me');
+
+});
+```
+- AuthController
+```php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Controller;
+
+class AuthController extends Controller
+{
+    /**
+     * Create a new AuthController instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('auth:api', ['except' => ['login']]);
+    }
+
+    /**
+     * Get a JWT via given credentials.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function login()
+    {
+        $credentials = request(['email', 'password']);
+
+        if (! $token = auth()->attempt($credentials)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        return $this->respondWithToken($token);
+    }
+
+    /**
+     * Get the authenticated User.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function me()
+    {
+        return response()->json(auth()->user());
+    }
+
+    /**
+     * Log the user out (Invalidate the token).
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function logout()
+    {
+        auth()->logout();
+
+        return response()->json(['message' => 'Successfully logged out']);
+    }
+
+    /**
+     * Refresh a token.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function refresh()
+    {
+        return $this->respondWithToken(auth()->refresh());
+    }
+
+    /**
+     * Get the token array structure.
+     *
+     * @param  string $token
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    protected function respondWithToken($token)
+    {
+        return response()->json([
+            'access_token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => auth()->factory()->getTTL() * 60
+        ]);
+    }
+}
+```
+- 승인된 헤더 
+<br>Authorization: Bearer eyJhbGciOiJIUzI1NiI..
+
+- config/jwt.php 
+<br> 'secret' => env('JWT_SECRET'),
+
+- composer require fruitcake / laravel-cors
+- Kerner.php 
+```php 
+protected $middleware = [
+        \Fruitcake\Cors\HandleCors::class,
+    ];
+```
+- jwt.php 변경 
+```php
+        // 'jwt' => Tymon\JWTAuth\Providers\JWT\Lcobucci::class,
+        'jwt' => Tymon\JWTAuth\Providers\JWT\Namshi::class,
+```
+[참고자료](https://www.youtube.com/watch?v=iQv2mdktmzE)
+[참고자료2] (https://medium.com/@ripoche.b/create-a-spa-with-role-based-authentication-with-laravel-and-vue-js-ac4b260b882f)
+
+
 # 2개의 테이블 Auth
+- Illuminate\Foundation\Auth 
+```php
+namespace Illuminate\Foundation\Auth;
+use Illuminate\Auth\Authenticatable;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Auth\Passwords\CanResetPassword;
+use Illuminate\Foundation\Auth\Access\Authorizable;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
+use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+
+    class Admin extends Model implements
+        AuthenticatableContract,
+        AuthorizableContract,
+        CanResetPasswordContract
+    {
+        use Authenticatable, Authorizable, CanResetPassword;
+    } 
+```
+- Authenticatable 확장 -> Admin 모델 
+```php 
+namespace App;
+use Illuminate\Foundation\Auth\Admin as Authenticatable;
+
+class Admin extends Authenticatable
+{
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'name', 'email', 'password',
+    ];
+
+    /**
+     * The attributes that should be hidden for arrays.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'password', 'remember_token',
+    ];
+}
+
+```
+- config/auth.php -> providers  변경 
+```php 
+'admins' => [
+            'driver' => 'eloquent',
+            'model' => App\Admin::class,
+        ], 
+```
+- config/auth.php guards 변경 
+```php 
+ 'user' => [
+            'driver' => 'session',
+            'provider' => 'users',
+        ],
+ 'admin' => [
+            'driver' => 'session',
+            'provider' => 'admins',
+        ],
+```
+
+- 컨트롤러 
+```php 
+#user
+if (Auth::guard('user')->attempt(['email' => $email, 'password' => $password])) {
+    $details = Auth::guard('user')->user();
+    $user = $details['original'];
+    return $user;
+} else {
+    return 'auth fail';
+}
+
+#admin
+if (Auth::guard('admin')->attempt(['email' => $email, 'password' => $password])) {
+    $details = Auth::guard('admin')->user();
+    $user = $details['original'];
+    return $user;
+} else {
+    return 'auth fail';
+    }
+```
 
 # Pusher 사용 방법 
 
+- composer require pusher/pusher-php-server "~4.0"
+- pusher 홈페이지 create app 
+- bootstrap.js 
+```javascript
+import Echo from 'laravel-echo';
+
+window.Pusher = require('pusher-js');
+
+window.Echo = new Echo({
+    broadcaster: 'pusher',
+    key: process.env.MIX_PUSHER_APP_KEY,
+    cluster: process.env.MIX_PUSHER_APP_CLUSTER,
+    forceTLS: true
+});
+```
+
+- env 
+```php 
+PUSHER_APP_ID=1145876
+PUSHER_APP_KEY=7ed3a4ce8ebfe9741f98
+PUSHER_APP_SECRET=a42171617fb6bbb4204c
+PUSHER_APP_CLUSTER=ap3
 
 
+BROADCAST_DRIVER=pusher
+
+```
+- config/broadcasting.php
+
+```php
+'pusher' => [
+            'driver' => 'pusher',
+            'key' => env('PUSHER_APP_KEY'),
+            'secret' => env('PUSHER_APP_SECRET'),
+            'app_id' => env('PUSHER_APP_ID'),
+            'options' => [
+                'cluster' => "ap3",
+                'useTLS' => false,  //https - true 
+            ],
+        ], 
+```
+- config\app.php 
+```php
+    #주석 풀어주기 
+    App\Providers\BroadcastServiceProvider::class,
+```
+
+- Providers\BroadcastServiceProvider.php 
+```php
+    public function boot()
+    {
+        Broadcast::routes();
+
+        require base_path('routes/channels.php');
+    }
+
+    
+```
+- php artisan config:clear 
+
+- php artisan make:event MessageSent 
+```php
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+
+class MyEvent implements ShouldBroadcast
+{
+  use Dispatchable, InteractsWithSockets, SerializesModels;
+
+  public $message;
+
+  public function __construct($message)
+  {
+      $this->message = $message;
+  }
+//채널 이름
+  public function broadcastOn()
+  {
+      return ['my-channel'];
+  }
+//이벤트 이름
+  public function broadcastAs()
+  {
+      return 'my-event';
+  }
+}
+```
+- 컨트롤러 -> MessageSent::dispatch() 인자값으로 메시지 보내기 (use 반드시)
+
+# AWS VS code 연동 
+- VSCode의 extension항목에서 ftp-simple을 검색 후 install 클릭
+- f1키 눌러주고 ftp-simple : Config - FTP connection setting을 찾아서 클릭
+- json파일이 보이는데 이 json파일을 수정해 줘야함
+- 위과 같이 수정
+<br>name: name
+<br>host: AWS public IP주소 또는 DNS
+<br>port: ssh 이므로 sftp다. 따라서 22번 포트가 default( ftp는 21 )
+<br>type: ssh 이므로 sftp
+<br>username: aws 접속시 username
+<br>password: 없으면 공란
+<br>path: 접속 성공시 default경로
+<br>privateKeyPath: aws pem키 로컬 경로
+<br>
+- F1키 눌러서 ftp-simple : Remote directory open to workspace 선택 -> “privateKeyPath”가 아니라 “privateKey” 다
+- f1눌러서 enter누르다보면 /home/ubuntu
+- 권한도 변경해줘야함
 
 
+# AWS 연동 
+- GRANT ALL PRIVILEGES ON *.* TO 'phpmyadmin'@'localhost' WITH GRANT OPTION;
+- FLUSH PRIVILEGES;
+- SELECT User, Host, plugin FROM mysql.user;   
+- sudo vi config-db.php
+- cd phpmyadmin/
+- DB 주소보기 (env 파일)
 
-
-
+[출처] (https://velog.io/@wimes/AWS-%EA%B0%9C%EB%B0%9C%ED%99%98%EA%B2%BD-%EC%84%A4%EC%A0%95-3-92k28oayef)
 
 
 
