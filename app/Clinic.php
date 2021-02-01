@@ -11,7 +11,7 @@ class Clinic extends Model
 
     protected $primaryKey = 'clinic_id';
     
-    protected $guarded = [];
+    protected $guarded = ["clinic_id"];
 
     public function scopeStorage($query, $patient_id, $check)  //$check -> 1 : 수납 완료, 0 -> 미수납 
     {

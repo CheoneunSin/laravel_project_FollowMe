@@ -43,7 +43,7 @@ class FollowMeAppController extends Controller
             if($resident_number['resident_number'] === $request->resident_number )
             {
                 //방문한 적이 있으면 기존 환자 데이터에 회원가입 정보 업데이트 
-                Patient::where('resident_number',$request->resident_number)
+                Patient::whereResident_number($request->resident_number)
                             ->update($request->except('password_confirmation'));
                 return response()->json(['message'=> "update"],200);
             }
@@ -69,7 +69,7 @@ class FollowMeAppController extends Controller
         
         //초진환자가 아닐 경우 
         if(Clinic::where('clinic_subject_name', $request->clinic_subject_name )
-                        ->where('patient_id',$request->patient_id )
+                        ->wherePatient_id($request->patient_id )
                         ->count() > 0){
             $first_category = 0;  //재진환자
         }
@@ -94,7 +94,7 @@ class FollowMeAppController extends Controller
     //현 진료실의 대기 순번 가져오기 (pusher 이벤트가 발생할 때) 
     public function standby_number(Request $request){
         return response()->json([
-            'standby_number'=>Auth::guard('patient')->user()->clinic()->where("standby_status", 1)->latest()->first()->standby_number,
+            'standby_number'=>Auth::guard('patient')->user()->clinic()->whereStandby_status(1)->latest()->first()->standby_number,
         ],200);
     }
 
@@ -111,7 +111,7 @@ class FollowMeAppController extends Controller
     //진료 동선 안내 ( + 다익스트라 알고리즘)
     public function app_flow(Request $request){
          //환자가 가야하는 동선 가져오기  (flow_status_check : 1 -> 아직 완료되지 않은 동선 , 0 -> 완료된 동선)
-        $flow_list = Auth::guard('patient')->user()->flow()->with('room_location')->where("flow_status_check", 1)->get();
+        $flow_list = Auth::guard('patient')->user()->flow()->with('room_location')->whereFlow_status_check(1)->get();
         return response()->json([
             'flow_list' => $flow_list,
         ],200);
@@ -143,15 +143,14 @@ class FollowMeAppController extends Controller
         ],200);
     }
 
-
     // 도착지점에 도착했을 때 도착한 진료 동선 제거 
     public function app_flow_end(){
         Auth::guard('patient')->user()->flow()
-                        ->where('flow_status_check', 1)
-                        ->where('flow_sequence', 1)
+                        ->whereFlow_status_check(1)
+                        ->whereFlow_sequence(1)
                         ->update([ "flow_status_check" => 0 ]); 
         //진료 동선 순서 -1씩
-        Flow::where('flow_status_check', 1)->decrement("flow_sequence");
+        Flow::whereFlow_status_check(1)->decrement("flow_sequence");
         return response()->json([
             'message' => "ok",            
         ],200);
@@ -166,11 +165,14 @@ class FollowMeAppController extends Controller
         //검색으로 출발지를 지정했을 시 
         else{
             $start_loaction = RoomLocation::select('room_node')
-                                        ->where('room_name', $request->input('start_room'))->first();
+                                        ->whereRoom_name($request->input('start_room'))->first();
         }
+        
+
+
         //도착지
         $end_room_location = RoomLocation::select('room_node')
-                                        ->where('room_name',$request->input('end_room'))->first();
+                                        ->whereRoom_name($request->input('end_room'))->first();
         
         //DB에 저장된 노드 정보(노드 간 연결 거리)를 배열에 저장                                  
         $graph = []; 
@@ -212,7 +214,7 @@ class FollowMeAppController extends Controller
     }
     //종료 된 진료 동선 내역
     public function app_flow_record(Request $request){
-        $flows = Auth::guard('patient')->user()->flow()->with('room_location')->where('flow_status_check','0')->get();
+        $flows = Auth::guard('patient')->user()->flow()->with('room_location')->whereFlow_status_check(0)->get();
         return response()->json([
             'flow_record' => $flows,            
         ],200);

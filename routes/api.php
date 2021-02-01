@@ -7,7 +7,6 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('patient/flow_node', 'FollowMeAppController@app_flow_node');
 
 Route::prefix('patient')->group(function () {
     Route::post('/login', 'FollowMeAppController@app_login');       
@@ -20,6 +19,7 @@ Route::prefix('patient')->group(function () {
         Route::post('/app_node_beacon_get', 'FollowMeAppController@app_node_beacon_get');
 
         Route::post('/flow', 'FollowMeAppController@app_flow');                     //진료동선 안내
+        Route::post('flow_node', 'FollowMeAppController@app_flow_node');
         Route::get('/flow_end', 'FollowMeAppController@app_flow_end');          //목적지 도착시
         Route::post('/navigation', 'FollowMeAppController@app_navigation');         //검색 내비게이션
         //대기 번호 (pusher이벤트가 발생 시)

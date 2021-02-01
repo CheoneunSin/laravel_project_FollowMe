@@ -30,7 +30,7 @@ class FollowMeWebMedicalController extends Controller
             //앱으로 회원 정보가 있을 경우 Update (주민등록번호로 비교)
             if($resident_number['resident_number'] === $request->resident_number ){
                 Patient::where('resident_number',$request->resident_number)
-                ->update($request->all());
+                        ->update($request->all());
                 return response()->json(['message'=> "Already Exists"],200);
             }
         }
@@ -44,7 +44,7 @@ class FollowMeWebMedicalController extends Controller
     //환자 이름 검색 
     public function medical_patient_search(Request $request){
         //동명이인 전체 목록 조회
-        $patient_list = Patient::where('patient_name', $request->input('patient_name'))->get();
+        $patient_list = Patient::wherePatient_name($request->input('patient_name'))->get();
         return response()->json([
             'patient_list' => $patient_list,
         ],200);
@@ -52,7 +52,7 @@ class FollowMeWebMedicalController extends Controller
     //검색 된 환자 목록 중에서 선택된 환자
     public function medical_patient_select(Request $request){
         $patient = Patient::findOrFail($request->input('patient_id'));     //환자 데이터
-        $clinic  = $patient->clinic()->where('standby_status' , '1')     //환자의 현 진료 데이터
+        $clinic  = $patient->clinic()->whereStandby_status(1)     //환자의 현 진료 데이터
                             ->orderBy("clinic_time", "desc")->first();   
         $flows    = Patient::findOrFail($request->input('patient_id'))     //환자의 현 동선 데이터
                             ->flow()->with('room_location')
@@ -80,7 +80,7 @@ class FollowMeWebMedicalController extends Controller
     }
     //해당 날짜 진료 기록 
     public function medical_clinic_record(Request $request){
-        $clinic_record  = Clinic::with('patient')->where('clinic_date',$request->input('clinic_date'))->get();
+        $clinic_record  = Clinic::with('patient')->whereClinic_date($request->input('clinic_date'))->get();
         return response()->json([
             'clinic_record' => $clinic_record,            
         ],200);
@@ -90,12 +90,12 @@ class FollowMeWebMedicalController extends Controller
         //동선을 다시 수정 시, 삭제 후 다시 생성
         if($request->has("update")){
             //아직 가지 않은 동선 전체 삭제
-            Patient::findOrFail($request->flow[0]['patient_id'])->flow()->where("flow_status_check", 1)->delete();
+            Patient::findOrFail($request->flow[0]['patient_id'])->flow()->whereFlow_status_check(1)->delete();
         }
         //동선 저장
         foreach($request->input('flow') as $flow){
             //진료실 및 검사실 이름과 맞는 도착지를 동선에 저장
-            $room_location = RoomLocation::where('room_name', $flow['room_name'])->firstOrFail();
+            $room_location = RoomLocation::whereRoom_name($flow['room_name'])->firstOrFail();
             $room_location->flow()->create([
                 'patient_id'        => $flow['patient_id'],
                 'flow_sequence'     => $flow['flow_sequence'],
@@ -113,7 +113,7 @@ class FollowMeWebMedicalController extends Controller
         Clinic::where("standby_status", 1)->decrement("standby_number");
         
         //진료가 완료된 환자 정보 처리
-        $clinic = Patient::findOrFail($request->input('patient_id'))->clinic()->where('standby_status', 1)
+        $clinic = Patient::findOrFail($request->input('patient_id'))->clinic()->whereStandby_status(1)
                             ->update(["standby_status" => 0]);
         
         //대기순번을 인자값으로 

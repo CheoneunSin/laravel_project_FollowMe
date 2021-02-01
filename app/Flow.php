@@ -10,7 +10,7 @@ class Flow extends Model
 
     protected $primaryKey = 'flow_id';
     
-    protected $guarded = [];
+    protected $guarded = ["flow_id"];
     
     public function room_location()
     {
