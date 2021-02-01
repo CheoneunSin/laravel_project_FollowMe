@@ -53,6 +53,7 @@ class FollowMeAppController extends Controller
         // $message = Config::get('constants.patient_message.signup_ok');
         return response()->json(['message'=> "create"],200);
     }
+
     //환자 앱 로그아웃
     public function app_logout(Request $request){
         Auth::guard('patient')->logout();
@@ -61,6 +62,7 @@ class FollowMeAppController extends Controller
             'message' => $message
         ], 200);
     }
+    
     //의료진 앱에서 QR코드 인식 후 진료 접수
     public function app_clinic(Request $request){
         $first_category = 1;  //초진 환자

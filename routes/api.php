@@ -47,8 +47,9 @@ Route::middleware(['isAdmin'])->middleware(['auth:api'])
     ->prefix('admin')->group(function () {
         Route::get('/beacon_setting_main', 'FollowMeWebAdminController@admin_beacon_setting_main');
         Route::post('/beacon_update', 'FollowMeWebAdminController@admin_beacon_update');
-        Route::post('/beacon_search', 'FollowMeWebAdminController@admin_beacon_search');
+        Route::get('/beacon_defect_check_main', 'FollowMeWebAdminController@admin_beacon_defect_check_main');
 
+        Route::post('/beacon_search', 'FollowMeWebAdminController@admin_beacon_search');
         Route::get('/node_setting_main', 'FollowMeWebAdminController@admin_node_setting_main');
         Route::post('/node_update', 'FollowMeWebAdminController@admin_node_update');
 });

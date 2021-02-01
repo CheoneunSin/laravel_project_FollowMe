@@ -34,7 +34,12 @@ class FollowMeWebAdminController extends Controller
             'message' => "ok",
         ],200);
     }
-
+    public function admin_beacon_defect_check_main(Request $request){ 
+        $beacon_info = Beacon::all();
+        return response()->json([
+            'beacon_info' => $beacon_info,
+        ],200);
+    }
     //minor값으로 비콘 검색
     public function admin_beacon_search(Request $request){
         $beacon_info = Beacon::where('beacon_id_minor', "LIKE" ,"%{$request->input('beacon_id_minor')}%")->get();
