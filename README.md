@@ -1,14 +1,16 @@
 # 해야할 일 
+- 의료진 회원가입 => 고유키값에서 회원가입 권한이 있는 의료진 번호 설정 
+- 환자 login_id 체크  
 - 유효성 검사 (request 클래스)
 - erd 수정 
 - AWS 올리기 (jwt? git?) < - 통채로
-- 다익스트라 알고리즘 공부 
 - 중복 배제- 코드 model로 이동 
 - 메시지 변경 
-- 단일 원칙 (함수, 클래스)
 - Node js 공부
+- 다익스트라 알고리즘 공부 
+- 단일 원칙 (함수, 클래스)
 
-# APT 종류
+# API 종류
 ## App
 - 환자 로그인 
 - 환자 회원가입 
@@ -41,7 +43,76 @@
 - 해당 환자 진료 종료 버튼 클릭 시 대기순번에 반영
 - 환자 진료 동선 설정 
 
+# eloquent 
+- [참고사이트](https://silnex.github.io/blog/laravel-eloquent-tips-tricks/)
 
+# 전체 진료 동선 
+```php
+//진료 동선 안내 ( + 다익스트라 알고리즘)
+public function app_flow(Request $request){
+    //DB에 저장된 노드 정보(노드 간 연결 거리)를 배열에 저장
+    $graph = []; 
+    foreach (Node::select('node_id')->cursor() as $node) {
+        $graph["$node->node_id"] = [];
+        foreach (NodeDistance::cursor() as $distance) {
+            //노드 간 거리 저장
+            if($distance->node_A == $node->node_id){
+                $graph["$node->node_id"]["$distance->node_B"] = $distance->distance;
+            }
+        }
+    }
+    $algorithm = new Dijkstra($graph);  //다익스타라 알고리즘 적용 
+    //환자가 가야하는 동선 가져오기 
+    $flows      = Auth::guard('patient')->user()->flow()->with('room_location')->where("flow_status_check", 1)->get();
+    $start_node = [];
+    $end_node   = [];
+    $i          = 0;
+    //전체 동선의 출발점 , 도착점 저장 
+    foreach($flows as $flow){
+        array_push($start_node, $flow->room_location->room_node);
+        if($i === 0){
+            $i = 1;
+            continue;
+        }
+        array_push($end_node, $flow->room_location->room_node);
+    }
+    // return response()->json([
+    //     'start_node' => $start_node,
+    //     'end_node' => $end_node
+    // ],200);
+    //출발점 노드와 도착점 노드 사이의 최단 경로 가져오기 
+    $paths = [];
+    for($i = 0 ; $i < count($end_node) ; $i++){
+        $path = $algorithm->shortestPaths($start_node[$i], $end_node[$i]); 
+        array_push($paths, $path);
+    }
+    //최단 경로에 있는 노드들에 대한 정보를 DB에서 가져와서 nodeFlow 배열에 저장 
+    $nodeFlows = [];
+    for($i = 0 ; $i < count($paths) ; $i++){
+        $path = implode(',', $paths[$i][0]); //WhereIn은 자동 sort되므로 implode 후 FIELD 해야함
+        $nodeFlow = Node::whereIn('node_id', $paths[$i][0])->orderByRaw(DB::raw("FIELD(node_id, $path)"))->get();
+        
+        // $nodeFlow = Node::whereIn('node_id', $paths[$i][0])->get();
+        array_push($nodeFlows, $nodeFlow);
+    }
+    //전체 진료 동선의 최단 경로 반환         
+    return response()->json([
+        'nodeFlow' => $nodeFlows,
+    ],200);
+    // [], JSON_PRETTY_PRINT
+}
+```
+
+
+# WhereIn 정렬문제 
+```php 
+$temp = [22, 26, 20, 24];
+$tempStr = implode(',', $temp);
+$robjeks = DB::table('objek')
+    ->whereIn('id', $temp)
+    ->orderByRaw(DB::raw("FIELD(id, $tempStr)"))
+    ->get();
+```
 # 이미지 업로드 
 
 extension=php_fileinfo.dll

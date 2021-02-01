@@ -15,6 +15,7 @@ class Patient extends Authenticatable implements JWTSubject
     protected $primaryKey = 'patient_id';
     
     protected $guarded = []; 
+    
     protected $hidden = [
         'password', 'patient_token',
     ];

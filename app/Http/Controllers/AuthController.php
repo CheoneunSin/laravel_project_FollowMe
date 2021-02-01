@@ -16,7 +16,7 @@ class AuthController extends Controller
             'email'             => 'required|email|unique:users',
             'password'          => 'required|min:3|confirmed',
             'phone_number'      => 'required',
-            'unique_number'     => 'required',
+            'unique_number'     => 'required|unique:users',
             'name'              => 'required',
         ]);
         if ($v->fails())
@@ -27,6 +27,8 @@ class AuthController extends Controller
             ], 422);
         }
         User::create($request->except('password_confirmation'));
+        // User::firstOrCreate($request->except('password_confirmation'));
+        
         return response()->json(['status' => 'success'], 200);
     }
     

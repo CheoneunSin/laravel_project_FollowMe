@@ -15,6 +15,7 @@ use App\Node;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
 
 //pusher 이벤트
 use App\Events\StandbyNumber;
@@ -37,16 +38,6 @@ class FollowMeAppController extends Controller
     }
     //환자 회원 가입 
     public function app_signup(Request $request){
-        $v = Validator::make($request->all(), [
-            'patient_name' => 'required',
-        ]);
-        if ($v->fails())
-        {
-            return response()->json([
-                'message'   => 'error',
-                'errors'    => $v->errors()
-            ], 422);
-        }
         //환자가 병원에 방문한 적이 있을 경우 체크  
         foreach (Patient::select('resident_number')->cursor() as $resident_number) {
             if($resident_number['resident_number'] === $request->resident_number )
@@ -57,7 +48,7 @@ class FollowMeAppController extends Controller
                 return response()->json(['message'=> "update"],200);
             }
         }
-        //환자가 병원에 방문한 적이 없을 경우 환자 데이터 생성
+        //환자가 병원에 방문한 적이 없을 경우 환자 데이터 생성 -> 예외 발생 X 수정 필요
         Patient::create($request->except('password_confirmation'));
         // $message = Config::get('constants.patient_message.signup_ok');
         return response()->json(['message'=> "create"],200);
@@ -78,13 +69,13 @@ class FollowMeAppController extends Controller
         if(Clinic::where('clinic_subject_name', $request->clinic_subject_name )
                         ->where('patient_id',$request->patient_id )
                         ->count() > 0){
-            $first_category = 0;  //
+            $first_category = 0;  //재진환자
         }
         //현 진료실 대기 인원 수(대기 순번)   
         $standby_number = Clinic::where('clinic_subject_name', $request->clinic_subject_name )
                                     ->where("standby_status", 1)->count() + 1;
         //진료 접수
-        Patient::find($request->patient_id)
+        Patient::findOrFail($request->patient_id)
                     ->clinic()
                     ->create([
                         'clinic_subject_name'   => $request->clinic_subject_name,           //진료실 이름
@@ -117,51 +108,40 @@ class FollowMeAppController extends Controller
 
     //진료 동선 안내 ( + 다익스트라 알고리즘)
     public function app_flow(Request $request){
-        //DB에 저장된 노드 정보(노드 간 연결 거리)를 배열에 저장
-        $graph = []; 
-        foreach (Node::select('node_id')->cursor() as $node) {
-            $graph["$node->node_id"] = [];
-            foreach (NodeDistance::cursor() as $distance) {
-                //노드 간 거리 저장
-                if($distance->node_A == $node->node_id){
-                    $graph["$node->node_id"]["$distance->node_B"] = $distance->distance;
-                }
-            }
-        }
-        $algorithm = new Dijkstra($graph);  //다익스타라 알고리즘 적용 
-        //환자가 가야하는 동선 가져오기 
-        $flows      = Auth::guard('patient')->user()->flow()->with('room_location')->where("flow_status_check", 1)->get();
-        $start_node = [];
-        $end_node   = [];
-        $i          = 0;
-        //전체 동선의 출발점 , 도착점 저장 
-        foreach($flows as $flow){
-            array_push($start_node, $flow->room_location->room_node);
-            if($i === 0){
-                $i = 1;
-                continue;
-            }
-            array_push($end_node, $flow->room_location->room_node);
-        }
-        //출발점 노드와 도착점 노드 사이의 최단 경로 가져오기 
-        $paths = [];
-        for($i = 0 ; $i < count($end_node) ; $i++){
-            $path = $algorithm->shortestPaths($start_node[$i], $end_node[$i]); 
-            array_push($paths, $path);
-        }
-
-        //최단 경로에 있는 노드들에 대한 정보를 DB에서 가져와서 nodeFlow 배열에 저장 
-        $nodeFlows = [];
-        for($i = 0 ; $i < count($paths) ; $i++){
-            $nodeFlow = Node::whereIn('node_id', $paths[$i][0])->get();
-            array_push($nodeFlows, $nodeFlow);
-        }
-        //전체 진료 동선의 최단 경로 반환         
+         //환자가 가야하는 동선 가져오기  (flow_status_check : 1 -> 아직 완료되지 않은 동선 , 0 -> 완료된 동선)
+        $flow_list = Auth::guard('patient')->user()->flow()->with('room_location')->where("flow_status_check", 1)->get();
         return response()->json([
-            'nodeFlow' => $nodeFlows,
+            'flow_list' => $flow_list,
         ],200);
-        // [], JSON_PRETTY_PRINT
     }
+
+    public function app_flow_node(Request $request){
+         //DB에 저장된 노드 정보(노드 간 연결 거리)를 배열에 저장
+         $graph = []; 
+         foreach (Node::select('node_id')->cursor() as $node) {
+             $graph["$node->node_id"] = [];
+             foreach (NodeDistance::cursor() as $distance) {
+                 //노드 간 거리 저장
+                 if($distance->node_A == $node->node_id){
+                     $graph["$node->node_id"]["$distance->node_B"] = $distance->distance;
+                 }
+             }
+         }
+        $algorithm = new Dijkstra($graph);  //다익스타라 알고리즘 적용 
+        //출발점 노드와 도착점 노드 사이의 최단 경로 가져오기 
+        $start_loaction_node = Flow::findOrFail($request->input("start_flow_id"))->room_location->room_node;
+        $end_loaction_node = Flow::findOrFail($request->input("end_flow_id"))->room_location->room_node;
+
+        $path = $algorithm->shortestPaths($start_loaction_node, $end_loaction_node); 
+        //최단 경로에 있는 노드들에 대한 정보를 DB에서 가져와서 nodeFlow 배열에 저장 
+        $pathStr = implode(',', $path[0]);      //WhereIn은 자동 sort되므로 implode 후 FIELD 해야함
+        $nodeFlow = Node::whereIn('node_id', $path[0])->orderByRaw(DB::raw("FIELD(node_id, $pathStr)"))->get();
+        return response()->json([
+            'nodeFlow' => $nodeFlow,            
+        ],200);
+    }
+
+
     // 도착지점에 도착했을 때 도착한 진료 동선 제거 
     public function app_flow_end(){
         Auth::guard('patient')->user()->flow()
@@ -206,8 +186,8 @@ class FollowMeAppController extends Controller
         //출발점 노드와 도착점 노드 사이의 최단 경로 가져오기 
         $path = $algorithm->shortestPaths($start_loaction->room_node, $end_room_location->room_node); 
         //최단 경로에 있는 노드들에 대한 정보를 DB에서 가져와서 nodeFlow 배열에 저장 
-        $nodeFlow = Node::whereIn('node_id', $path[0])->get();
-
+        $pathStr = implode(',', $path[0]);      //WhereIn은 자동 sort되므로 implode 후 FIELD 해야함
+        $nodeFlow = Node::whereIn('node_id', $path[0])->orderByRaw(DB::raw("FIELD(node_id, $pathStr)"))->get();
         //최단 경로 반환         
         return response()->json([
             'nodeFlow' => $nodeFlow,

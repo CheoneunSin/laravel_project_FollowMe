@@ -51,10 +51,10 @@ class FollowMeWebMedicalController extends Controller
     }
     //검색 된 환자 목록 중에서 선택된 환자
     public function medical_patient_select(Request $request){
-        $patient = Patient::find($request->input('patient_id'));     //환자 데이터
+        $patient = Patient::findOrFail($request->input('patient_id'));     //환자 데이터
         $clinic  = $patient->clinic()->where('standby_status' , '1')     //환자의 현 진료 데이터
                             ->orderBy("clinic_time", "desc")->first();   
-        $flows    = Patient::find($request->input('patient_id'))     //환자의 현 동선 데이터
+        $flows    = Patient::findOrFail($request->input('patient_id'))     //환자의 현 동선 데이터
                             ->flow()->with('room_location')
                             ->where("flow_status_check", 0)->get();
         return response()->json([
@@ -66,7 +66,7 @@ class FollowMeWebMedicalController extends Controller
     
     //진료 데이터 업데이트(QR코드로 못얻는 정보)
     public function medical_clinic_setting(Request $request){
-        $clinic_info = Patient::find($request->input('clinic_id'))
+        $clinic_info = Patient::findOrFail($request->input('clinic_id'))
                                 ->update([
                                     'room_name'     => $request->input('room_name'),     //진료실 이름(진료과 이름X)
                                     'doctor_name'   => $request->input('doctor_name'),   //의사 이름
@@ -90,7 +90,7 @@ class FollowMeWebMedicalController extends Controller
         //동선을 다시 수정 시, 삭제 후 다시 생성
         if($request->has("update")){
             //아직 가지 않은 동선 전체 삭제
-            Patient::find($request->flow[0]['patient_id'])->flow()->where("flow_status_check", 1)->delete();
+            Patient::findOrFail($request->flow[0]['patient_id'])->flow()->where("flow_status_check", 1)->delete();
         }
         //동선 저장
         foreach($request->input('flow') as $flow){
@@ -113,7 +113,7 @@ class FollowMeWebMedicalController extends Controller
         Clinic::where("standby_status", 1)->decrement("standby_number");
         
         //진료가 완료된 환자 정보 처리
-        $clinic = Patient::find($request->input('patient_id'))->clinic()->where('standby_status', 1)
+        $clinic = Patient::findOrFail($request->input('patient_id'))->clinic()->where('standby_status', 1)
                             ->update(["standby_status" => 0]);
         
         //대기순번을 인자값으로 

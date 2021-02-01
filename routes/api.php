@@ -7,6 +7,8 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::post('patient/flow_node', 'FollowMeAppController@app_flow_node');
+
 Route::prefix('patient')->group(function () {
     Route::post('/login', 'FollowMeAppController@app_login');       
     Route::post('/signup', 'FollowMeAppController@app_signup');
@@ -18,7 +20,7 @@ Route::prefix('patient')->group(function () {
         Route::post('/app_node_beacon_get', 'FollowMeAppController@app_node_beacon_get');
 
         Route::post('/flow', 'FollowMeAppController@app_flow');                     //진료동선 안내
-        Route::get('/app_flow_end', 'FollowMeAppController@app_flow_end');          //목적지 도착시
+        Route::get('/flow_end', 'FollowMeAppController@app_flow_end');          //목적지 도착시
         Route::post('/navigation', 'FollowMeAppController@app_navigation');         //검색 내비게이션
         //대기 번호 (pusher이벤트가 발생 시)
         Route::post('/standby_number', 'FollowMeAppController@standby_number'); 
@@ -29,9 +31,9 @@ Route::prefix('patient')->group(function () {
     });
 });
     
-// Route::middleware(['isMedical'])->middleware(['auth:api'])
-//     ->prefix('medical')->group(function () {
-Route::prefix('medical')->group(function () {
+Route::middleware(['isMedical'])->middleware(['auth:api'])
+    ->prefix('medical')->group(function () {
+// Route::prefix('medical')->group(function () {
         Route::post('/patient_create', 'FollowMeWebMedicalController@medical_patient_create');
         Route::post('/patient_search', 'FollowMeWebMedicalController@medical_patient_search');
         Route::post('/patient_select', 'FollowMeWebMedicalController@medical_patient_select');
@@ -41,9 +43,8 @@ Route::prefix('medical')->group(function () {
         Route::post('/flow_setting', 'FollowMeWebMedicalController@medical_flow_setting');
 });
 
-// Route::middleware(['isAdmin'])->middleware(['auth:api'])
-//     ->prefix('admin')->group(function () {
-Route::prefix('admin')->group(function () {
+Route::middleware(['isAdmin'])->middleware(['auth:api'])
+    ->prefix('admin')->group(function () {
         Route::get('/beacon_setting_main', 'FollowMeWebAdminController@admin_beacon_setting_main');
         Route::post('/beacon_update', 'FollowMeWebAdminController@admin_beacon_update');
         Route::post('/beacon_search', 'FollowMeWebAdminController@admin_beacon_search');

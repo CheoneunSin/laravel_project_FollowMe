@@ -60,7 +60,7 @@ class FollowMeWebAdminController extends Controller
         foreach($request->input('node') as $node){
             //노드와 연결된 진료실 및 검사실 저장
             if($node['room'] != null)
-                Node::find($node['node_id'])->room_location()->create(['room_name' =>  $node['room'] ]);
+                Node::findOrFail($node['node_id'])->room_location()->create(['room_name' =>  $node['room'] ]);
             unset($node['room']);
             Node::create($node);
         }
