@@ -28,18 +28,20 @@ use Illuminate\Http\Request;
 
 // validation
 use App\Http\Requests\PatientRegister;
-
+use App\Http\Requests\PatientLogin;
 
 class FollowMeAppController extends Controller
 {    
     //환자 앱 로그인 
-    public function app_login(Request $request){
+    public function app_login(PatientLogin $request){
+        $request->validated();
         if ($token = Auth::guard('patient')->attempt(['login_id' => $request->login_id, 'password' => $request->password])) {
             $patient =  Auth::guard('patient')->user();
             return response()->json(['status' => 'success', 'patient_info' => $patient, 'token' =>  $token,], 200);
         }
         return response()->json(['error' => 'login_error'], 401) ;
     }
+    
     //환자 회원 가입 
     public function app_signup(PatientRegister $request){
         $request->validated();
@@ -73,16 +75,16 @@ class FollowMeAppController extends Controller
         $first_category = 1;  //초진 환자
         
         //초진환자가 아닐 경우 
-        if(Clinic::where('clinic_subject_name', $request->clinic_subject_name )
-                        ->wherePatient_id($request->patient_id )
+        if(Clinic::where('clinic_subject_name', $request->clinic_subject_name)
+                        ->wherePatient_id($request->patient_id)
                         ->count() > 0){
             $first_category = 0;  //재진환자
         }
         //현 진료실 대기 인원 수(대기 순번)   
         $standby_number = Clinic::where('clinic_subject_name', $request->clinic_subject_name )
-                                    ->where("standby_status", 1)->count() + 1;
+                                    ->whereStandby_status(1)->count() + 1;
         //진료 접수
-        Patient::findOrFail($request->patient_id)
+        $patient = Patient::findOrFail($request->patient_id)
                     ->clinic()
                     ->create([
                         'clinic_subject_name'   => $request->clinic_subject_name,           //진료실 이름
@@ -90,7 +92,10 @@ class FollowMeAppController extends Controller
                         'first_category'        => $first_category,                         //초진, 재진 구분      
                         'standby_number'        => $standby_number                          //대기 순번
                     ]);
+                    
         StandbyNumber::dispatch(true);
+        NewPatientInfo::dispatch($patient);
+
         $message = Config::get('constants.patient_message.clinic_ok');
         return response()->json([
             'message'=>$message,
@@ -136,8 +141,8 @@ class FollowMeAppController extends Controller
          }
         $algorithm = new Dijkstra($graph);  //다익스타라 알고리즘 적용 
         //출발점 노드와 도착점 노드 사이의 최단 경로 가져오기 
-        $start_loaction_node = Flow::findOrFail($request->input("start_flow_id"))->room_location->room_node;
-        $end_loaction_node = Flow::findOrFail($request->input("end_flow_id"))->room_location->room_node;
+        $start_loaction_node = Flow::findOrFail($request->start_flow_id)->room_location->room_node;
+        $end_loaction_node = Flow::findOrFail($request->end_flow_id)->room_location->room_node;
 
         $path = $algorithm->shortestPaths($start_loaction_node, $end_loaction_node); 
         //최단 경로에 있는 노드들에 대한 정보를 DB에서 가져와서 nodeFlow 배열에 저장 
@@ -165,15 +170,15 @@ class FollowMeAppController extends Controller
     public function app_navigation(Request $request){
         //현 위치를 출발지로 지정했을 시
         $start_loaction = RoomLocation::select('room_node')
-                                        ->whereRoom_name($request->input('start_room'))->first();
+                                        ->whereRoom_name($request->start_room)->first();
         //검색으로 출발지를 지정했을 시 
         if($request->has('current_location')){
-            $start_loaction = $request->input('current_node');
+            $start_loaction = $request->current_node;
         }
 
         //도착지
         $end_room_location = RoomLocation::select('room_node')
-                                        ->whereRoom_name($request->input('end_room'))->first();
+                                        ->whereRoom_name($request->end_room)->first();
         
         //DB에 저장된 노드 정보(노드 간 연결 거리)를 배열에 저장                                  
         $graph = []; 

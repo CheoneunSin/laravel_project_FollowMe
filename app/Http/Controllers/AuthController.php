@@ -4,29 +4,27 @@ namespace App\Http\Controllers;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-// use Illuminate\Support\Facades\Validator;
+//Validator
 use App\Http\Requests\MedicalRegister;
+use App\Http\Requests\MedicalLogin;
 
 class AuthController extends Controller
 {   
     //의료진 회원가입 
-    public function register(MedicalRegister $request)
-    {   
+    public function register(MedicalRegister $request) {   
         //유효성 검사 (request 클래스 변경)
-        $request->validated() ;
-
-        User::create($request->except('password_confirmation'));
-        
+        $request->validated();
+        User::create($request->except('password_confirmation'));    
         return response()->json(['sstatus' => 'success'], 200);
     }
     
     //의료진 및 관리자 로그인 (role : 1 => 관리자, 2 => 의료진)
-    public function login(Request $request)
-    {  
+    public function login(MedicalLogin $request) {  
+        $request->validated();
         $credentials = $request->only('email', 'password');    
         if ($token = auth()->guard()->attempt($credentials)) {
             $user = Auth::user();
-            // token header response 변경 ?  
+            // token header response 변경?  
             return response()->json(['status' => 'success', 'token' =>  $token, 'role' => $user->role ], 200);
             // ->header('Authorization', $token);
         }
@@ -34,8 +32,7 @@ class AuthController extends Controller
         return response()->json(['error' => 'login_error'], 401) ;
     }
 
-    public function logout()
-    {
+    public function logout() {
         $this->guard()->logout();
         return response()->json([
             'status' => 'success',
@@ -43,8 +40,7 @@ class AuthController extends Controller
         ], 200);
     }
 
-    private function guard()
-    {
+    private function guard() {
         return Auth::guard();
     }
 }

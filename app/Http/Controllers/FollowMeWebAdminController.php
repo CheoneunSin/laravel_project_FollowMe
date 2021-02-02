@@ -27,7 +27,7 @@ class FollowMeWebAdminController extends Controller
     //비콘 정보 업데이트 (추가 , 삭제)
     public function admin_beacon_update(Request $request){ 
         Beacon::query()->delete();   
-        foreach($request->input('beacon') as $beacon){
+        foreach($request->beacon as $beacon){
             Beacon::create($beacon);
         }
         return response()->json([
@@ -42,7 +42,7 @@ class FollowMeWebAdminController extends Controller
     }
     //minor값으로 비콘 검색
     public function admin_beacon_search(Request $request){
-        $beacon_info = Beacon::where('beacon_id_minor', "LIKE" ,"%{$request->input('beacon_id_minor')}%")->get();
+        $beacon_info = Beacon::where('beacon_id_minor', "LIKE" ,"%{$request->beacon_id_minor}%")->get();
         return response()->json([
             'beacon_info' => $beacon_info,
         ],200);
@@ -62,7 +62,7 @@ class FollowMeWebAdminController extends Controller
     public function admin_node_update(Request $request){
         // NodeDistance::query()->delete();  //노드 거리 정보 삭제
         Node::query()->delete();   
-        foreach($request->input('node') as $node){
+        foreach($request->node as $node){
             //노드와 연결된 진료실 및 검사실 저장
             if($node['room'] != null)
                 Node::findOrFail($node['node_id'])->room_location()->create(['room_name' =>  $node['room'] ]);
@@ -70,7 +70,7 @@ class FollowMeWebAdminController extends Controller
             Node::create($node);
         }
         // //노드 간 거리 데이터 생성
-        // foreach($request->input('node_distance') as $node_distance){
+        // foreach($request->node_distance') as $node_distance){
         //     Node::create($node);
         // }
         $message = Config::get('constants.admin_message.setting_ok');
