@@ -26,6 +26,10 @@ use App\Services\Dijkstra;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 
+// validation
+use App\Http\Requests\PatientRegister;
+
+
 class FollowMeAppController extends Controller
 {    
     //환자 앱 로그인 
@@ -37,7 +41,8 @@ class FollowMeAppController extends Controller
         return response()->json(['error' => 'login_error'], 401) ;
     }
     //환자 회원 가입 
-    public function app_signup(Request $request){
+    public function app_signup(PatientRegister $request){
+        $request->validated();
         //환자가 병원에 방문한 적이 있을 경우 체크  
         foreach (Patient::select('resident_number')->cursor() as $resident_number) {
             if($resident_number['resident_number'] === $request->resident_number )

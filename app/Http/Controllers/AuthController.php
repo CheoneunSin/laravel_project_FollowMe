@@ -4,32 +4,20 @@ namespace App\Http\Controllers;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
+// use Illuminate\Support\Facades\Validator;
+use App\Http\Requests\MedicalRegister;
 
 class AuthController extends Controller
 {   
     //의료진 회원가입 
-    public function register(Request $request)
+    public function register(MedicalRegister $request)
     {   
         //유효성 검사 (request 클래스 변경)
-        $v = Validator::make($request->all(), [
-            'email'             => 'required|email|unique:users',
-            'password'          => 'required|min:3|confirmed',
-            'phone_number'      => 'required',
-            'unique_number'     => 'required|unique:users',
-            'name'              => 'required',
-        ]);
-        if ($v->fails())
-        {
-            return response()->json([
-                'status' => 'error',
-                'errors' => $v->errors()
-            ], 422);
-        }
+        $request->validated() ;
+
         User::create($request->except('password_confirmation'));
-        // User::firstOrCreate($request->except('password_confirmation'));
         
-        return response()->json(['status' => 'success'], 200);
+        return response()->json(['sstatus' => 'success'], 200);
     }
     
     //의료진 및 관리자 로그인 (role : 1 => 관리자, 2 => 의료진)

@@ -41,6 +41,7 @@ class FollowMeWebMedicalController extends Controller
             'message' => $message,
         ],200);
     }
+    
     //환자 이름 검색 
     public function medical_patient_search(Request $request){
         //동명이인 전체 목록 조회
@@ -110,7 +111,7 @@ class FollowMeWebMedicalController extends Controller
     //환자 진료 완료 시
     public function medical_clinic_end(Request $request){
         //환자 전체 대기순번 -1씩
-        Clinic::where("standby_status", 1)->decrement("standby_number");
+        Clinic::whereStandby_status(1)->decrement("standby_number");
         
         //진료가 완료된 환자 정보 처리
         $clinic = Patient::findOrFail($request->input('patient_id'))->clinic()->whereStandby_status(1)

@@ -18,7 +18,7 @@ use Illuminate\Http\Request;
 class FollowMeWebAdminController extends Controller
 {   
     //비콘 정보 가져오기
-    public function admin_beacon_setting_main(){
+    public function admin_beacon_setting_main(Request $request){
         $beacon_info = Beacon::all();
         return response()->json([
             'beacon_info' => $beacon_info,

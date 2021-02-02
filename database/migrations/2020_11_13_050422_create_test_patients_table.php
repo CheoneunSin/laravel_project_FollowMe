@@ -17,7 +17,7 @@ class CreateTestPatientsTable extends Migration
             $table->id('patient_id');
             $table->string('patient_name', '100');
             $table->string('login_id')->nullable();
-            $table->string('password');
+            $table->string('password')->nullable();
             $table->string('resident_number');
             $table->integer('postal_code')->nullable();
             $table->string('address')->nullable();

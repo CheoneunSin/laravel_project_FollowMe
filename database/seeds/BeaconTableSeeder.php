@@ -35,7 +35,7 @@ class BeaconTableSeeder extends Seeder
         ];
         foreach($beacons as $beacon){
             $major = 1;
-            if($beacon[0] >= 15004 && $beacon[0] <= 150012) 
+            if($beacon[0] >= 15004 && $beacon[0] <= 15012) 
                 $major = 2;
             Beacon::create([
                 'beacon_id_minor'   => $beacon[0],
