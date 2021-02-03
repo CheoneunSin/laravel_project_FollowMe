@@ -25,7 +25,7 @@ use App\Services\Dijkstra;
 
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
-
+use Carbon\Carbon;
 // validation
 use App\Http\Requests\PatientRegister;
 use App\Http\Requests\PatientLogin;
@@ -94,7 +94,6 @@ class FollowMeAppController extends Controller
                     ]);
                     
         StandbyNumber::dispatch(true);
-        NewPatientInfo::dispatch($patient);
 
         $message = Config::get('constants.patient_message.clinic_ok');
         return response()->json([
@@ -104,13 +103,13 @@ class FollowMeAppController extends Controller
     //현 진료실의 대기 순번 가져오기 (pusher 이벤트가 발생할 때) 
     public function standby_number(Request $request){
         return response()->json([
-            'standby_number'=>Auth::guard('patient')->user()->clinic()->whereStandby_status(1)->latest()->first()->standby_number,
+            'standby_number'=>Auth::guard('patient')->user()->clinic()->whereStandby_status(1)->first()->standby_number,
         ],200);
     }
 
     //진료 동선 안내를 위한 셋팅(전체 비콘 정보, 현 층의 노드 정보) 
     public function app_node_beacon_get(Request $request){ 
-        $node = Node::where("floor", (int)($request->major / 1000))->get();  
+        $node   = Node::whereFloor($request->major)->get();   
         $beacon = Beacon::all();
         return response()->json([
             'beacon'=>$beacon,
@@ -213,14 +212,24 @@ class FollowMeAppController extends Controller
     }
     //결제 내역
     public function app_storage_record(Request $request){
-        $storage_record = Clinic::storage(Auth::guard('patient')->user()->patient_id, '1')->get();
+        $storage_record = Clinic::storage(Auth::guard('patient')->user()->patient_id, '1')
+                            ->whereBetween(
+                                'clinic_date', [ $request->input('start_date', Carbon::now()->subMonth()), 
+                                $request->input('end_date', Carbon::now())]
+                            )->get();
         return response()->json([
             'storage_record' => $storage_record,
         ],200);
     }
     //종료 된 진료 동선 내역
     public function app_flow_record(Request $request){
-        $flows = Auth::guard('patient')->user()->flow()->with('room_location')->whereFlow_status_check(0)->get();
+        $flows = Auth::guard('patient')->user()->flow()->with('room_location')
+                        ->whereFlow_status_check(0)
+                        ->whereBetween(
+                            'flow_create_date', [ $request->input('start_date', Carbon::now()->subMonth()), 
+                            $request->input('end_date', Carbon::now())]
+                        )->get();
+                        //input('', '') 두번째 인자 defualt 값
         return response()->json([
             'flow_record' => $flows,            
         ],200);

@@ -18,7 +18,7 @@ class Clinic extends Model
         return $query->select('clinic_subject_name','storage','clinic_date','clinic_time')
                         ->where('patient_id', $patient_id)
                         ->where('storage_check', $check)
-                        ->where('storage', '!=' , null);
+                        ->whereNotNull('storage');
     }
 
     public function patient()

@@ -23,7 +23,7 @@ Route::prefix('patient')->group(function () {
         Route::get('/flow_end', 'FollowMeAppController@app_flow_end');          //목적지 도착시
         Route::post('/navigation', 'FollowMeAppController@app_navigation');         //검색 내비게이션
         //대기 번호 (pusher이벤트가 발생 시)
-        Route::post('/standby_number', 'FollowMeAppController@standby_number'); 
+        Route::get('/standby_number', 'FollowMeAppController@standby_number'); 
 
         Route::post('/storage', 'FollowMeAppController@app_storage');               //현 결제 내역
         Route::post('/storage_record', 'FollowMeAppController@app_storage_record'); //과거 결제 내역
@@ -56,7 +56,7 @@ Route::middleware(['isAdmin'])->middleware(['auth:api'])
 
 //인증 라우트
 Route::prefix('auth')->group(function () {
-    Route::post('register', 'AuthController@register');
+    Route::post('register', 'AuthController@register')->middleware('isMedicalRegister');
     Route::post('login', 'AuthController@login');
     Route::get('refresh', 'AuthController@refresh');
     Route::group(['middleware' => 'auth:api'], function(){

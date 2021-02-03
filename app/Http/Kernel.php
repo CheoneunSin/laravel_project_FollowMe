@@ -65,6 +65,7 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'isAdmin' => \App\Http\Middleware\CheckIsAdmin::class,         //관리자인지 체크 
         'isMedical' => \App\Http\Middleware\CheckIsMedical::class,     //의료진인지 체크
+        'isMedicalRegister' => \App\Http\Middleware\CheckMedicalRegisterPermit::class,     //의료진인지 체크
         'cors' => \App\Http\Middleware\cors::class,     
     ];
 }

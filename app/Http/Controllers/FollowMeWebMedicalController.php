@@ -50,9 +50,18 @@ class FollowMeWebMedicalController extends Controller
     public function medical_patient_search(PatientSearch $request){
         $request->validated();
         //동명이인 전체 목록 조회
-        $patient_list = Patient::where("patient_name", $request->patient_name)->get();
+        $patients = Patient::where("patient_name", $request->patient_name)->get();
+        $patients_list = [];
+        foreach($patients as $patient){
+            $pateint_list = [];
+            $pateint_list['patient_id']   = $patient->patient_id;
+            $pateint_list['patient_name'] =  $patient->patient_name;
+            $pateint_list['resident_number'] = explode("-", $patient->resident_number)[0];  //생년월일
+            $pateint_list['phone_number'] = $patient->phone_number;
+            array_push($patients_list, $pateint_list);
+        }
         return response()->json([
-            'patient_list' => $patient_list,
+            'patient_list' => $patients_list,
         ],200);
     }
     //검색 된 환자 목록 중에서 선택된 환자
