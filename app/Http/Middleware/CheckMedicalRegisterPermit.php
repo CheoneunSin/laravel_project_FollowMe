@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Illuminate\Support\Facades\Auth;
 
 class CheckMedicalRegisterPermit
 {
@@ -15,7 +16,7 @@ class CheckMedicalRegisterPermit
      */
     public function handle($request, Closure $next)
     {
-        if(Auth::user()->unique_number === 1) {
+        if(Auth::user()['unique_number'] == 1) {
             return $next($request);
         }
         else {

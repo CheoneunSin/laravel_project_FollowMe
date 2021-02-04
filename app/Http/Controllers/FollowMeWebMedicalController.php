@@ -81,8 +81,8 @@ class FollowMeWebMedicalController extends Controller
     
     //진료 데이터 업데이트(QR코드로 못얻는 정보)
     public function medical_clinic_setting(Request $request){
-        $clinic_info = Patient::findOrFail($request->clinic_id)
-                                ->update($request->all());    
+        $clinic_info = Clinic::findOrFail($request->clinic_id)
+                                ->update($request->except('clinic_id'));    
         $message = Config::get('constants.medical_message.clinic_setting_ok');
         return response()->json([
             'message' => $message,            
@@ -121,7 +121,6 @@ class FollowMeWebMedicalController extends Controller
     public function medical_clinic_end(Request $request){
         //환자 전체 대기순번 -1씩
         Clinic::whereStandby_status(1)->decrement("standby_number");
-        
         //진료가 완료된 환자 정보 처리
         $clinic = Patient::findOrFail($request->patient_id)->clinic()->whereStandby_status(1)
                             ->update(["standby_status" => 0]);
@@ -131,7 +130,7 @@ class FollowMeWebMedicalController extends Controller
 
         $message = Config::get('constants.medical_message.clinic_end');
         return response()->json([
-            'message' => $message,            
+            'message' => "진료가 종료되었습니다.",            
         ],200);
     }
 }

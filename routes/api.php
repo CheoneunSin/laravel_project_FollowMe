@@ -33,7 +33,6 @@ Route::prefix('patient')->group(function () {
     
 Route::middleware(['isMedical'])->middleware(['auth:api'])
     ->prefix('medical')->group(function () {
-// Route::prefix('medical')->group(function () {
         Route::post('/patient_create', 'FollowMeWebMedicalController@medical_patient_create');
         Route::post('/patient_search', 'FollowMeWebMedicalController@medical_patient_search');
         Route::post('/patient_select', 'FollowMeWebMedicalController@medical_patient_select');
@@ -50,7 +49,7 @@ Route::middleware(['isAdmin'])->middleware(['auth:api'])
         Route::get('/beacon_defect_check_main', 'FollowMeWebAdminController@admin_beacon_defect_check_main');
 
         Route::post('/beacon_search', 'FollowMeWebAdminController@admin_beacon_search');
-        Route::get('/node_setting_main', 'FollowMeWebAdminController@admin_node_setting_main');
+        // Route::get('/node_setting_main', 'FollowMeWebAdminController@admin_node_setting_main');
         Route::post('/node_update', 'FollowMeWebAdminController@admin_node_update');
 });
 

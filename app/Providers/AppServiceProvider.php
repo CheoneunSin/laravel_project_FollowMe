@@ -24,7 +24,8 @@ class AppServiceProvider extends ServiceProvider
      * @return void
      */
     public function boot()
-    {
+    {   
+        //환자 생성시 password 및 주민등록번호 암호화
         Patient::saving(function($user){
             if(!empty($user->password)){
                 $user->password = bcrypt($user->password);
@@ -33,12 +34,13 @@ class AppServiceProvider extends ServiceProvider
                 $user->resident_number = encrypt($user->resident_number);
             }
         });
+        //의료진 회원가입 시 password 암호화
         User::saving(function($user){
             if(!empty($user->password)){
                 $user->password = bcrypt($user->password);
             }
         });
-        // //사용자 비밀번호 전부 암호화 후 사용
+        // //환자 값 가져올 시 주민등록번호 복호화 
         Patient::retrieved(function($user){     
             if(!empty($user->resident_number)){
                 $user->resident_number = decrypt($user->resident_number);

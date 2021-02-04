@@ -160,11 +160,13 @@ class FollowMeAppController extends Controller
     //검색을 통한 실내 내비게이션 
     public function app_navigation(Request $request){
         //현 위치를 출발지로 지정했을 시
-        $start_room_loaction = RoomLocation::select('room_node')
-                                        ->whereRoom_name($request->start_room)->first();
-        //검색으로 출발지를 지정했을 시 
         if($request->has('current_location')){
             $start_room_loaction = $request->current_node;
+        }
+        //검색으로 출발지를 지정했을 시 
+        else {
+            $start_room_loaction = RoomLocation::select('room_node')
+                                            ->whereRoom_name($request->start_room)->first();
         }
         //도착지
         $end_room_location = RoomLocation::select('room_node')
