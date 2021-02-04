@@ -15,7 +15,7 @@ class AppServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->bind('Dijkstra', Dijkstra::class);
-        //
+        $this->app->bind('ShortestPath', ShortestPath::class);        
     }
 
     /**

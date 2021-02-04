@@ -22,6 +22,7 @@ use App\Events\StandbyNumber;
 
 //다익스트라 알고리즘
 use App\Services\Dijkstra;                          
+use App\Services\ShortestPath;
 
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -88,12 +89,12 @@ class FollowMeAppController extends Controller
                     ->clinic()
                     ->create([
                         'clinic_subject_name'   => $request->clinic_subject_name,           //진료실 이름
-                        'clinic_date'           => \Carbon\Carbon::today()->toDateString(), //진료 시 날짜
+                        'clinic_date'           => Carbon::today()->toDateString(), //진료 시 날짜
                         'first_category'        => $first_category,                         //초진, 재진 구분      
                         'standby_number'        => $standby_number                          //대기 순번
                     ]);
                     
-        StandbyNumber::dispatch(true);
+        StandbyNumber::dispatch(true);  //대기 순번 이벤트
 
         $message = Config::get('constants.patient_message.clinic_ok');
         return response()->json([
@@ -121,32 +122,23 @@ class FollowMeAppController extends Controller
     public function app_flow(Request $request){
          //환자가 가야하는 동선 가져오기  (flow_status_check : 1 -> 아직 완료되지 않은 동선 , 0 -> 완료된 동선)
         $flow_list = Auth::guard('patient')->user()->flow()->with('room_location')->whereFlow_status_check(1)->get();
-        return response()->json([
+        $nodeFlow  = null;
+        //진료동선이 하나 이상 있을 때 (출발지와 목적지가 필요)
+        if(count($flow_list) > 1){
+            $shortes_path = new ShortestPath(); // 최단경로 
+            $shortes_path->flow_shortest_path_set($flow_list[1]->flow_id, $flow_list[2]->flow_id); //동선 설정 
+            $nodeFlow     = $shortes_path->shortest_path_node(); //최단 경로 노드 
+        }
+    return response()->json([
             'flow_list' => $flow_list,
+            'nodeFlow'  => $nodeFlow,            
         ],200);
     }
 
     public function app_flow_node(Request $request){
-         //DB에 저장된 노드 정보(노드 간 연결 거리)를 배열에 저장
-         $graph = []; 
-         foreach (Node::select('node_id')->cursor() as $node) {
-             $graph["$node->node_id"] = [];
-             foreach (NodeDistance::cursor() as $distance) {
-                 //노드 간 거리 저장
-                 if($distance->node_A == $node->node_id){
-                     $graph["$node->node_id"]["$distance->node_B"] = $distance->distance;
-                 }
-             }
-         }
-        $algorithm = new Dijkstra($graph);  //다익스타라 알고리즘 적용 
-        //출발점 노드와 도착점 노드 사이의 최단 경로 가져오기 
-        $start_loaction_node = Flow::findOrFail($request->start_flow_id)->room_location->room_node;
-        $end_loaction_node = Flow::findOrFail($request->end_flow_id)->room_location->room_node;
-
-        $path = $algorithm->shortestPaths($start_loaction_node, $end_loaction_node); 
-        //최단 경로에 있는 노드들에 대한 정보를 DB에서 가져와서 nodeFlow 배열에 저장 
-        $pathStr = implode(',', $path[0]);      //WhereIn은 자동 sort되므로 implode 후 FIELD 해야함
-        $nodeFlow = Node::whereIn('node_id', $path[0])->orderByRaw(DB::raw("FIELD(node_id, $pathStr)"))->get();
+        $shortes_path = new ShortestPath(); // 최단경로 
+        $shortes_path->flow_shortest_path_set($request->start_flow_id, $request->end_flow_id); //동선 설정 
+        $nodeFlow     = $shortes_path->shortest_path_node(); //최단 경로 노드 
         return response()->json([
             'nodeFlow' => $nodeFlow,            
         ],200);
@@ -157,7 +149,7 @@ class FollowMeAppController extends Controller
         Auth::guard('patient')->user()->flow()
                         ->whereFlow_status_check(1)
                         ->whereFlow_sequence(1)
-                        ->update([ "flow_status_check" => 0 ]); 
+                        ->update([ "flow_status_check" => 0 ]);   //동선 종료 
         //진료 동선 순서 -1씩
         Flow::whereFlow_status_check(1)->decrement("flow_sequence");
         return response()->json([
@@ -168,35 +160,19 @@ class FollowMeAppController extends Controller
     //검색을 통한 실내 내비게이션 
     public function app_navigation(Request $request){
         //현 위치를 출발지로 지정했을 시
-        $start_loaction = RoomLocation::select('room_node')
+        $start_room_loaction = RoomLocation::select('room_node')
                                         ->whereRoom_name($request->start_room)->first();
         //검색으로 출발지를 지정했을 시 
         if($request->has('current_location')){
-            $start_loaction = $request->current_node;
+            $start_room_loaction = $request->current_node;
         }
-
         //도착지
         $end_room_location = RoomLocation::select('room_node')
                                         ->whereRoom_name($request->end_room)->first();
-        
-        //DB에 저장된 노드 정보(노드 간 연결 거리)를 배열에 저장                                  
-        $graph = []; 
-        foreach (Node::select('node_id')->cursor() as $node) {
-            $graph["$node->node_id"] = [];
-            foreach (NodeDistance::cursor() as $distance) {
-                //노드 간 거리 저장
-                if($distance->node_A == $node->node_id){
-                    $graph["$node->node_id"]["$distance->node_B"] = $distance->distance;
-                }
-            } 
-        }
-        $algorithm = new Dijkstra($graph);    //다익스타라 알고리즘 적용
-
-        //출발점 노드와 도착점 노드 사이의 최단 경로 가져오기 
-        $path = $algorithm->shortestPaths($start_loaction->room_node, $end_room_location->room_node); 
-        //최단 경로에 있는 노드들에 대한 정보를 DB에서 가져와서 nodeFlow 배열에 저장 
-        $pathStr = implode(',', $path[0]);      //WhereIn은 자동 sort되므로 implode 후 FIELD 해야함
-        $nodeFlow = Node::whereIn('node_id', $path[0])->orderByRaw(DB::raw("FIELD(node_id, $pathStr)"))->get();
+        $shortes_path = new ShortestPath(); // 최단경로 
+        $shortes_path->node_shortest_path_set($start_room_loaction->room_node, $end_room_location->room_node);  //동선 설정
+        $nodeFlow     = $shortes_path->shortest_path_node();  //최단 경로 노드 
+ 
         //최단 경로 반환         
         return response()->json([
             'nodeFlow' => $nodeFlow,
@@ -229,7 +205,6 @@ class FollowMeAppController extends Controller
                             'flow_create_date', [ $request->input('start_date', Carbon::now()->subMonth()), 
                             $request->input('end_date', Carbon::now())]
                         )->get();
-                        //input('', '') 두번째 인자 defualt 값
         return response()->json([
             'flow_record' => $flows,            
         ],200);
