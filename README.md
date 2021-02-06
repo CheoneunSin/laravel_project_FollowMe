@@ -40,6 +40,20 @@
 - 해당 환자 진료 종료 버튼 클릭 시 대기순번에 반영
 - 환자 진료 동선 설정 
 
+# git 제외 파일
+/node_modules
+/public/hot
+/public/storage
+/storage/*.key
+/vendor
+.env
+.env.backup
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+npm-debug.log
+yarn-error.log
+
 # eloquent 
 - [참고사이트](https://silnex.github.io/blog/laravel-eloquent-tips-tricks/)
 
