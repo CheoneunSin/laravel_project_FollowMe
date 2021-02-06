@@ -11,7 +11,7 @@ class PatientLogin extends FormRequest
     public function rules()
     {
         return [
-            'login_id'      => 'required|exists:patients',
+            'login_id'      => 'required',
             'password'      => 'required|min:3',
         ];
     }

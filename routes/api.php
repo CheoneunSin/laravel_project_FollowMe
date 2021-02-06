@@ -30,7 +30,7 @@ Route::prefix('patient')->group(function () {
         Route::post('/flow_record', 'FollowMeAppController@app_flow_record');       
     });
 });
-    
+
 Route::middleware(['isMedical'])->middleware(['auth:api'])
     ->prefix('medical')->group(function () {
         Route::post('/patient_create', 'FollowMeWebMedicalController@medical_patient_create');
@@ -39,6 +39,8 @@ Route::middleware(['isMedical'])->middleware(['auth:api'])
         Route::post('/clinic_setting', 'FollowMeWebMedicalController@medical_clinic_setting');
         Route::post('/clinic_record', 'FollowMeWebMedicalController@medical_clinic_record');
         Route::post('/clinic_end', 'FollowMeWebMedicalController@medical_clinic_end');
+
+        Route::get('/room_info', 'FollowMeWebMedicalController@medical_room_info');
         Route::post('/flow_setting', 'FollowMeWebMedicalController@medical_flow_setting');
 });
 

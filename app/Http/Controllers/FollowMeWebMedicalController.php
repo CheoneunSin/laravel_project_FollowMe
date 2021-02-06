@@ -105,9 +105,9 @@ class FollowMeWebMedicalController extends Controller
         //동선 저장
         foreach($request->flow as $flow){
             //진료실 및 검사실 이름과 맞는 도착지를 동선에 저장
-            $room_location = RoomLocation::whereRoom_name($flow['room_name'])->firstOrFail();
+            $room_location = RoomLocation::findOrFail($flow['room_location_id']);
             $room_location->flow()->create([
-                'patient_id'        => $flow['patient_id'],
+                'patient_id'        => $request->patient_id,
                 'flow_sequence'     => $flow['flow_sequence'],
                 'flow_create_date'  => \Carbon\Carbon::now()   //현 날짜 데이터 저장
             ]);    
@@ -131,6 +131,12 @@ class FollowMeWebMedicalController extends Controller
         $message = Config::get('constants.medical_message.clinic_end');
         return response()->json([
             'message' => "진료가 종료되었습니다.",            
+        ],200);
+    }
+
+    public function medical_room_info(){
+        return response()->json([
+            'room_list' => RoomLocation::all(),            
         ],200);
     }
 }
