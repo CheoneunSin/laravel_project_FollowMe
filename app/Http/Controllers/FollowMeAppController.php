@@ -74,7 +74,6 @@ class FollowMeAppController extends Controller
     //의료진 앱에서 QR코드 인식 후 진료 접수
     public function app_clinic(Request $request){
         $first_category = 1;  //초진 환자
-        
         //초진환자가 아닐 경우 
         if(Clinic::where('clinic_subject_name', $request->clinic_subject_name)
                         ->wherePatient_id($request->patient_id)
@@ -89,7 +88,7 @@ class FollowMeAppController extends Controller
                     ->clinic()
                     ->create([
                         'clinic_subject_name'   => $request->clinic_subject_name,           //진료실 이름
-                        'clinic_date'           => Carbon::today()->toDateString(), //진료 시 날짜
+                        'clinic_date'           => Carbon::now(), //진료 시 날짜
                         'first_category'        => $first_category,                         //초진, 재진 구분      
                         'standby_number'        => $standby_number                          //대기 순번
                     ]);
@@ -124,9 +123,14 @@ class FollowMeAppController extends Controller
         $flow_list = Auth::guard('patient')->user()->flow()->with('room_location')->whereFlow_status_check(1)->get();
         $nodeFlow  = null;
         //진료동선이 하나 이상 있을 때 (출발지와 목적지가 필요)
-        if(count($flow_list) > 1){
-            $shortes_path = new ShortestPath(); // 최단경로 
-            $shortes_path->flow_shortest_path_set($flow_list[1]->flow_id, $flow_list[2]->flow_id); //동선 설정 
+        if(count($flow_list) >= 1){
+            //가장 가까운 거리 
+            $node = DB::select(DB::raw("SELECT *, 111.045 * DEGREES(ACOS(COS(RADIANS({$request->lat})) 
+                                * COS(RADIANS(`lat`)) * COS(RADIANS(`lng`) - RADIANS({$request->lat})) 
+                                + SIN(RADIANS({$request->lng})) * SIN(RADIANS(`lat`)))) AS distance 
+                                FROM nodes Where floor = {$request->major} ORDER BY distance ASC LIMIT 0,1"));             
+            $shortes_path = new ShortestPath(); // 최단경로
+            $shortes_path->node_flow_shortest_path_set($node[0]->node_id, $flow_list[0]->flow_id); //동선 설정 
             $nodeFlow     = $shortes_path->shortest_path_node(); //최단 경로 노드 
         }
     return response()->json([

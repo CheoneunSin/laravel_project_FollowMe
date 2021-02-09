@@ -11,6 +11,11 @@ class ShortestPath
 {   
     protected $start_node;  
     protected $end_node; 
+    public function node_flow_shortest_path_set($start_node, $end_flow){
+        $this->start_node   = $start_node;
+        $this->end_node     = Flow::findOrFail($end_flow)->room_location->room_node;
+    }
+    
     //진료 동선 안내 API 출발지 도착지 설정 
     public function flow_shortest_path_set($start_flow, $end_flow)
     {

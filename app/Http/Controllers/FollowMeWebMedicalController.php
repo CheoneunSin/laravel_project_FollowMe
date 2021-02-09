@@ -20,6 +20,7 @@ use Illuminate\Http\Request;
 
 //pusher 이벤트
 use App\Events\StandbyNumber;
+use Carbon\Carbon;
 
 // Validator
 use App\Http\Requests\PatientSearch;
@@ -100,6 +101,7 @@ class FollowMeWebMedicalController extends Controller
                         'room_name'             => $request->room_name,
                         'doctor_name'           => $request->doctor_name,
                         'storage'               => $request->storage,
+                        'clinic_date'           => Carbon::now(),
                         'clinic_time'           => $request->clinic_time,
                         'first_category'        => $first_category,                         //초진, 재진 구분      
                         'standby_number'        => $standby_number                          //대기 순번
@@ -129,7 +131,7 @@ class FollowMeWebMedicalController extends Controller
             $room_location->flow()->create([
                 'patient_id'        => $request->patient_id,
                 'flow_sequence'     => $flow['flow_sequence'],
-                'flow_create_date'  => \Carbon\Carbon::now()   //현 날짜 데이터 저장
+                'flow_create_date'  => Carbon::now()   //현 날짜 데이터 저장
             ]);    
         }
         $message = Config::get('constants.medical_message.flow_setting');
