@@ -116,7 +116,6 @@ class FollowMeAppController extends Controller
             'node'  =>$node
         ],200);
     }
-
     //진료 동선 안내 ( + 다익스트라 알고리즘)
     public function app_flow(Request $request){
          //환자가 가야하는 동선 가져오기  (flow_status_check : 1 -> 아직 완료되지 않은 동선 , 0 -> 완료된 동선)

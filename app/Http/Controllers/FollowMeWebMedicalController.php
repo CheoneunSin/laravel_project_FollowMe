@@ -94,6 +94,7 @@ class FollowMeWebMedicalController extends Controller
         $standby_number = Clinic::where('clinic_subject_name', $request->clinic_subject_name )
                                     ->whereStandby_status(1)->count() + 1;
         //진료 접수
+        //QR코드 접수시 변경
         $clinic = Patient::findOrFail($request->patient_id)
                     ->clinic()
                     ->create([
