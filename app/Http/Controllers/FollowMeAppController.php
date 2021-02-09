@@ -119,7 +119,10 @@ class FollowMeAppController extends Controller
     //진료 동선 안내 ( + 다익스트라 알고리즘)
     public function app_flow(Request $request){
          //환자가 가야하는 동선 가져오기  (flow_status_check : 1 -> 아직 완료되지 않은 동선 , 0 -> 완료된 동선)
-        $flow_list = Auth::guard('patient')->user()->flow()->with('room_location')->whereFlow_status_check(1)->get();
+        $flow_list = Auth::guard('patient')->user()->flow()->with('room_location')
+                                           ->whereFlow_status_check(1)
+                                           ->orderBy("flow_sequence")
+                                           ->get();
         $nodeFlow  = null;
         //진료동선이 하나 이상 있을 때 (출발지와 목적지가 필요)
         if(count($flow_list) >= 1){
@@ -149,12 +152,12 @@ class FollowMeAppController extends Controller
 
     // 도착지점에 도착했을 때 도착한 진료 동선 제거 
     public function app_flow_end(){
-        Auth::guard('patient')->user()->flow()
-                        ->whereFlow_status_check(1)
-                        ->whereFlow_sequence(1)
-                        ->update([ "flow_status_check" => 0 ]);   //동선 종료 
-        //진료 동선 순서 -1씩
-        Flow::whereFlow_status_check(1)->decrement("flow_sequence");
+        // Auth::guard('patient')->user()->flow()
+        //                 ->whereFlow_status_check(1)
+        //                 ->whereFlow_sequence(1)
+        //                 ->update([ "flow_status_check" => 0 ]);   //동선 종료 
+        // //진료 동선 순서 -1씩
+        // Flow::whereFlow_status_check(1)->decrement("flow_sequence");
         return response()->json([
             'message' => "ok",            
         ],200);
