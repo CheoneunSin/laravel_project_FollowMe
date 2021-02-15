@@ -130,20 +130,40 @@ class FollowMeAppController extends Controller
             $node = DB::select(DB::raw("SELECT *, 111.045 * DEGREES(ACOS(COS(RADIANS({$request->lat})) 
                                 * COS(RADIANS(`lat`)) * COS(RADIANS(`lng`) - RADIANS({$request->lat})) 
                                 + SIN(RADIANS({$request->lng})) * SIN(RADIANS(`lat`)))) AS distance 
-                                FROM nodes Where floor = {$request->major} ORDER BY distance ASC LIMIT 0,1"));             
+                                FROM nodes Where floor = {$request->major} ORDER BY distance ASC LIMIT 0,1"));
+            $current =  [ "room_location" => Node::find($node[0]->node_id)->room_location[0]];
+
             $shortes_path = new ShortestPath(); // 최단경로
             $shortes_path->node_flow_shortest_path_set($node[0]->node_id, $flow_list[0]->flow_id); //동선 설정 
             $nodeFlow     = $shortes_path->shortest_path_node(); //최단 경로 노드 
+
+            $flow_array = $flow_list->toArray();
+            array_unshift($flow_array, $current);
         }
-    return response()->json([
-            'flow_list' => $flow_list,
-            'nodeFlow'  => $nodeFlow,            
+        
+        return response()->json([
+            'flow_list'     => $flow_array,
+            'nodeFlow'      => $nodeFlow,
         ],200);
     }
 
+    public function app_current_flow(Request $request){
+        $node = DB::select(DB::raw("SELECT *, 111.045 * DEGREES(ACOS(COS(RADIANS({$request->lat})) 
+                            * COS(RADIANS(`lat`)) * COS(RADIANS(`lng`) - RADIANS({$request->lat})) 
+                            + SIN(RADIANS({$request->lng})) * SIN(RADIANS(`lat`)))) AS distance 
+                            FROM nodes Where floor = {$request->major} ORDER BY distance ASC LIMIT 0,1"));
+        $shortes_path = new ShortestPath(); // 최단경로
+        $shortes_path->node_shortest_path_set($node[0]->node_id, $request->end_room_node); //동선 설정 
+        $nodeFlow     = $shortes_path->shortest_path_node(); //최단 경로 노드 
+        return response()->json([
+            'nodeFlow' => $nodeFlow,            
+        ],200);
+    }
+
+
     public function app_flow_node(Request $request){
         $shortes_path = new ShortestPath(); // 최단경로 
-        $shortes_path->flow_shortest_path_set($request->start_flow_id, $request->end_flow_id); //동선 설정 
+        $shortes_path->node_shortest_path_set($request->start_room_node, $request->end_room_node); //동선 설정 
         $nodeFlow     = $shortes_path->shortest_path_node(); //최단 경로 노드 
         return response()->json([
             'nodeFlow' => $nodeFlow,            

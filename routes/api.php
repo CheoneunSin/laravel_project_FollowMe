@@ -19,8 +19,12 @@ Route::prefix('patient')->group(function () {
         Route::post('/app_node_beacon_get', 'FollowMeAppController@app_node_beacon_get');
 
         Route::post('/flow', 'FollowMeAppController@app_flow');                     //진료동선 안내
+        //현위치와 다음 동선 
+        Route::post('current_flow', 'FollowMeAppController@app_current_flow');
+        //선택된 동선
         Route::post('flow_node', 'FollowMeAppController@app_flow_node');
         Route::get('/flow_end', 'FollowMeAppController@app_flow_end');          //목적지 도착시
+        
         Route::post('/navigation', 'FollowMeAppController@app_navigation');         //검색 내비게이션
         //대기 번호 (pusher이벤트가 발생 시)
         Route::get('/standby_number', 'FollowMeAppController@standby_number'); 
