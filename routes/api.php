@@ -7,13 +7,14 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-
 Route::prefix('patient')->group(function () {
     Route::post('/login', 'FollowMeAppController@app_login');       
     Route::post('/signup', 'FollowMeAppController@app_signup');
-    //의료진 앱 QR코드 인증
-    Route::post('/clinic', 'FollowMeAppController@app_clinic');
+
     Route::group(['middleware' => 'auth:patient'], function(){
+            //의료진 앱 QR코드 인증
+        Route::post('/clinic', 'FollowMeAppController@app_clinic');
+        
         Route::post('/logout', 'FollowMeAppController@app_logout');
         //삼변측량에 필요한 정보
         Route::post('/app_node_beacon_get', 'FollowMeAppController@app_node_beacon_get');
@@ -46,7 +47,8 @@ Route::middleware(['isMedical'])->middleware(['auth:api'])
 
         Route::get('/room_info', 'FollowMeWebMedicalController@medical_room_info');
         Route::post('/flow_setting', 'FollowMeWebMedicalController@medical_flow_setting');
-});
+        Route::post('/flow_list', 'FollowMeWebMedicalController@medical_flow_list');  //현재 동선 목록
+});  
 
 Route::middleware(['isAdmin'])->middleware(['auth:api'])
     ->prefix('admin')->group(function () {
@@ -55,8 +57,10 @@ Route::middleware(['isAdmin'])->middleware(['auth:api'])
         Route::get('/beacon_defect_check_main', 'FollowMeWebAdminController@admin_beacon_defect_check_main');
 
         Route::post('/beacon_search', 'FollowMeWebAdminController@admin_beacon_search');
-        // Route::get('/node_setting_main', 'FollowMeWebAdminController@admin_node_setting_main');
+        Route::get('/node_setting_main', 'FollowMeWebAdminController@admin_node_setting_main');
         Route::post('/node_update', 'FollowMeWebAdminController@admin_node_update');
+        Route::post('/node_update', 'FollowMeWebAdminController@admin_node_update');
+        
 });
 
 //인증 라우트

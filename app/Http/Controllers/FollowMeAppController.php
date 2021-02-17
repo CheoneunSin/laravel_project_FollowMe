@@ -27,6 +27,7 @@ use App\Services\ShortestPath;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+
 // validation
 use App\Http\Requests\PatientRegister;
 use App\Http\Requests\PatientLogin;
@@ -75,16 +76,19 @@ class FollowMeAppController extends Controller
     public function app_clinic(Request $request){
         $first_category = 1;  //초진 환자
         //초진환자가 아닐 경우 
-        if(Clinic::where('clinic_subject_name', $request->clinic_subject_name)
-                        ->wherePatient_id($request->patient_id)
-                        ->count() > 0){
+        // if(Clinic::where('clinic_subject_name', $request->clinic_subject_name)
+        //                 ->wherePatient_id($request->patient_id)
+        //                 ->count() > 0){
+        if(Auth::guard('patient')->user()->clinic()
+                ->where('clinic_subject_name', $request->clinic_subject_name)
+                ->count() > 0){
             $first_category = 0;  //재진환자
         }
         //현 진료실 대기 인원 수(대기 순번)   
         $standby_number = Clinic::where('clinic_subject_name', $request->clinic_subject_name )
                                     ->whereStandby_status(1)->count() + 1;
         //진료 접수
-        $patient = Patient::findOrFail($request->patient_id)
+        $clinic = Patient::findOrFail(Auth::guard('patient')->user()->patient_id)
                     ->clinic()
                     ->create([
                         'clinic_subject_name'   => $request->clinic_subject_name,           //진료실 이름
@@ -92,8 +96,11 @@ class FollowMeAppController extends Controller
                         'first_category'        => $first_category,                         //초진, 재진 구분      
                         'standby_number'        => $standby_number                          //대기 순번
                     ]);
-                    
-        StandbyNumber::dispatch(true);  //대기 순번 이벤트
+        $patient_clinic_list = [];
+        array_push($patient_clinic_list,  Auth::guard('patient')->user());
+        array_push($patient_clinic_list, $clinic);
+        
+        StandbyNumber::dispatch($patient_clinic_list);  //대기 순번 이벤트
 
         $message = Config::get('constants.patient_message.clinic_ok');
         return response()->json([
@@ -103,7 +110,7 @@ class FollowMeAppController extends Controller
     //현 진료실의 대기 순번 가져오기 (pusher 이벤트가 발생할 때) 
     public function standby_number(Request $request){
         return response()->json([
-            'standby_number'=>Auth::guard('patient')->user()->clinic()->whereStandby_status(1)->first()->standby_number,
+            'standby_number'=>Auth::guard('patient')->user()->clinic()->whereStandby_status(1)->latest('standby_number')->first()->standby_number,
         ],200);
     }
 
@@ -209,7 +216,7 @@ class FollowMeAppController extends Controller
 
     //미결제 진료비 내역 
     public function app_storage(Request $request){
-        $storage = Clinic::storage(Auth::guard('patient')->user()->patient_id, '0')->get();
+        $storage = Clinic::storage(Auth::guard('patient')->user()->patient_id, 0)->get();
         return response()->json([
             'storage' => $storage,
         ],200);

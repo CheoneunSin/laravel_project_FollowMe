@@ -43,7 +43,12 @@ class FollowMeWebAdminController extends Controller
             'beacon_info' => $beacon_info,
         ],200);
     }
-
+    public function admin_beacon_defect_check_main(){
+        $beacon_info = Beacon::all();
+        return response()->json([
+            'beacon_info' => $beacon_info,
+        ],200);
+    }
     //노드 정보 가져오기
     public function admin_node_setting_main(){
         $node_info      = Node::all();

@@ -69,14 +69,10 @@ class FollowMeWebMedicalController extends Controller
     public function medical_patient_select(Request $request){
         $patient = Patient::findOrFail($request->patient_id);     //환자 데이터
         $clinic  = $patient->clinic()->whereStandby_status(1)     //환자의 현 진료 데이터
-                            ->orderBy("clinic_time", "desc")->first();   
-        $flow    = Patient::find($request->patient_id)     //환자의 현 동선 데이터
-                            ->flow()->with('room_location')
-                            ->whereFlow_status_check(0)->get();
+                            ->orderBy("clinic_time", "desc")->first();  
         return response()->json([
             'patient' => $patient,
             'clinic'  => $clinic,
-            'flow'    => $flow
         ],200);
     }
     
@@ -121,10 +117,8 @@ class FollowMeWebMedicalController extends Controller
     //환자 진료 동선 설정
     public function medical_flow_setting(Request $request){
         //동선을 다시 수정 시, 삭제 후 다시 생성
-        if($request->has("update")){
-            //아직 가지 않은 동선 전체 삭제
-            Patient::findOrFail($request->flow[0]['patient_id'])->flow()->whereFlow_status_check(1)->delete();
-        }
+       
+        Patient::findOrFail($request->patient_id)->flow()->whereFlow_status_check(1)->delete();
         //동선 저장
         foreach($request->flow as $flow){
             //진료실 및 검사실 이름과 맞는 도착지를 동선에 저장
@@ -140,23 +134,33 @@ class FollowMeWebMedicalController extends Controller
             'message' => $message,            
         ],200);
     }
+
+    //환자 진료 동선 목록 
+    public function medical_flow_list(Request $request){
+         //환자의 현 동선 데이터
+        $flow    = Patient::find($request->patient_id)->flow()->with('room_location')
+                                                      ->whereFlow_status_check(1)->get();
+        return response()->json([
+            'flow' => $flow,            
+        ],200);
+    }
     //환자 진료 완료 시
     public function medical_clinic_end(Request $request){
         //환자 전체 대기순번 -1씩
-        // Clinic::whereStandby_status(1)->decrement("standby_number");
-        //진료가 완료된 환자 정보 처리
-        // $clinic = Patient::findOrFail($request->patient_id)->clinic()->whereStandby_status(1)
-        //                     ->update(["standby_status" => 0]);
-        
+        Clinic::whereStandby_status(1)->whereClinic_subject_name($request->clinic_subject_name)->decrement("standby_number");
+        Clinic::find($request->clinic_id)->update(["standby_status" => 0]);
         //대기순번을 인자값으로 
-        // StandbyNumber::dispatch(true);
+        StandbyNumber::dispatch(true);
 
-        $message = Config::get('constants.medical_message.clinic_end');
+        $clinic_record  = Clinic::with('patient')->whereClinic_date($request->clinic_date)->get();
         return response()->json([
-            'message' => "진료가 종료되었습니다.",            
+            'clinic_record' => $clinic_record,            
         ],200);
     }
-
+    //진료가 완료된 환자 정보 처리
+    // $clinic = Patient::findOrFail($request->patient_id)->clinic()->whereStandby_status(1)
+    //                     ->update(["standby_status" => 0]);
+    
     public function medical_room_info(){
         return response()->json([
             'room_list' => RoomLocation::all(),            

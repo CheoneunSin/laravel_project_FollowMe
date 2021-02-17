@@ -1,7 +1,13 @@
 # 해야할 일 
-- 중복 배제- 코드 model로 이동 
-- 메시지 변경 (Web 메시지 X , App 메시지 변경)
+- QR코드 진료 접수 API 수정 (의료진 앱 QR코드 스캔시 진료 접수)
+- QR코드 진료 접수 API 수정 (의료진 웹 페이지 진료 종료 이벤트, 진료 접수 업데이트)
+- 의료진 웹 페이지 진료 현황 정보가져오기
+- Vue.js로 진료 페이지 수정 (진료 종료 이벤트 처리, 진료 목록에서 전체-종료-진행)
+- 디스플레이 용 API 작성 
+- 내비게이션- 현재 위치 알고리즘 변경 
+- 메시지 변경 (Web 메시지 X, App 메시지 변경)
 - 다익스트라 알고리즘 공부 
+- 중복 배제- 코드 model로 이동 
 
 # API 종류
 ## App
@@ -52,6 +58,14 @@ yarn-error.log
 
 # eloquent 
 - [참고사이트](https://silnex.github.io/blog/laravel-eloquent-tips-tricks/)
+# 비콘 스캐너 SQL
+```php
+UPDATE `beacons` SET `beacon_scanner_id`= "1_S001" WHERE `beacon_id_minor` >= 15013 AND `beacon_id_minor` <= 15015;
+UPDATE `beacons` SET `beacon_scanner_id`= "1_S002" WHERE `beacon_id_minor` >= 15001  AND `beacon_id_minor` <= 15003;
+UPDATE `beacons` SET `beacon_scanner_id`= "2_S001" WHERE `beacon_id_minor` >= 15004  AND `beacon_id_minor` <= 15006;
+UPDATE `beacons` SET `beacon_scanner_id`= "2_S002" WHERE `beacon_id_minor` >= 15007  AND `beacon_id_minor` <= 15009;
+UPDATE `beacons` SET `beacon_scanner_id`= "2_S003" WHERE `beacon_id_minor` >= 15010  AND `beacon_id_minor` <= 15012;
+```
 
 # 전체 진료 동선 
 ```php
