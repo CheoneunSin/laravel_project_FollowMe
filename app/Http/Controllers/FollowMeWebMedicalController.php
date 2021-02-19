@@ -9,6 +9,7 @@ use App\Beacon;
 use App\Clinic;
 use App\Patient;
 use App\Node;
+use App\ClinicSubject;
 
 //파사드
 use Illuminate\Support\Facades\DB;
@@ -164,6 +165,12 @@ class FollowMeWebMedicalController extends Controller
     public function medical_room_info(){
         return response()->json([
             'room_list' => RoomLocation::all(),            
+        ],200);
+    }
+
+    public function medical_clinic_info(){
+        return response()->json([
+            'clinic_info' => ClinicSubject::with('doctor')->with('clinic_room')->get(),            
         ],200);
     }
 }

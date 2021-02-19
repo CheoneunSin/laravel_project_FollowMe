@@ -10,6 +10,7 @@ use App\Beacon;
 use App\Clinic;
 use App\Patient;
 use App\Node;
+use App\ClinicSubject;
 
 //파사드
 use Illuminate\Support\Facades\Auth;
@@ -71,6 +72,12 @@ class FollowMeAppController extends Controller
             'message' => $message
         ], 200);
     }
+    //QR코드 스캐너 진료과 목록 반환
+    public function app_clinic_info(){
+        return response()->json([
+            'clinic_subject_list' => ClinicSubject::all()
+        ], 200);
+    }
     
     //의료진 앱에서 QR코드 인식 후 진료 접수
     public function app_clinic(Request $request){
@@ -109,8 +116,13 @@ class FollowMeAppController extends Controller
     }
     //현 진료실의 대기 순번 가져오기 (pusher 이벤트가 발생할 때) 
     public function standby_number(Request $request){
+        $message = null;
+        $standby_number = Auth::guard('patient')->user()->clinic()->whereStandby_status(1)->latest('standby_number')->firstOrFail()->standby_number;
+        if($standby_number === 1)
+            $message = "다음 진료를 위해 잠시만 기다려주세요";
         return response()->json([
-            'standby_number'=>Auth::guard('patient')->user()->clinic()->whereStandby_status(1)->latest('standby_number')->first()->standby_number,
+            'standby_number'=> $standby_number,
+            'message' => $message
         ],200);
     }
 
@@ -134,10 +146,7 @@ class FollowMeAppController extends Controller
         //진료동선이 하나 이상 있을 때 (출발지와 목적지가 필요)
         if(count($flow_list) >= 1){
             //가장 가까운 거리 
-            $node = DB::select(DB::raw("SELECT *, 111.045 * DEGREES(ACOS(COS(RADIANS({$request->lat})) 
-                                * COS(RADIANS(`lat`)) * COS(RADIANS(`lng`) - RADIANS({$request->lat})) 
-                                + SIN(RADIANS({$request->lng})) * SIN(RADIANS(`lat`)))) AS distance 
-                                FROM nodes Where floor = {$request->major} ORDER BY distance ASC LIMIT 0,1"));
+            $node = $this->current_location_node($request);
             $current =  [ "room_location" => Node::find($node[0]->node_id)->room_location[0]];
 
             $shortes_path = new ShortestPath(); // 최단경로
@@ -153,12 +162,9 @@ class FollowMeAppController extends Controller
             'nodeFlow'      => $nodeFlow,
         ],200);
     }
-
+    //동선 목록에서 현 위치와 다음 목적지의 최단 경로 반환 
     public function app_current_flow(Request $request){
-        $node = DB::select(DB::raw("SELECT *, 111.045 * DEGREES(ACOS(COS(RADIANS({$request->lat})) 
-                            * COS(RADIANS(`lat`)) * COS(RADIANS(`lng`) - RADIANS({$request->lat})) 
-                            + SIN(RADIANS({$request->lng})) * SIN(RADIANS(`lat`)))) AS distance 
-                            FROM nodes Where floor = {$request->major} ORDER BY distance ASC LIMIT 0,1"));
+        $node = $this->current_location_node($request);
         $shortes_path = new ShortestPath(); // 최단경로
         $shortes_path->node_shortest_path_set($node[0]->node_id, $request->end_room_node); //동선 설정 
         $nodeFlow     = $shortes_path->shortest_path_node(); //최단 경로 노드 
@@ -166,8 +172,14 @@ class FollowMeAppController extends Controller
             'nodeFlow' => $nodeFlow,            
         ],200);
     }
-
-
+    //현위치와 가장 가까운 노드
+    public function current_location_node($request){
+        return DB::select(DB::raw("SELECT *, 111.045 * DEGREES(ACOS(COS(RADIANS({$request->lat})) 
+        * COS(RADIANS(`lat`)) * COS(RADIANS(`lng`) - RADIANS({$request->lat})) 
+        + SIN(RADIANS({$request->lng})) * SIN(RADIANS(`lat`)))) AS distance 
+        FROM nodes Where floor = {$request->major} ORDER BY distance ASC LIMIT 0,1"));
+    }
+    //동선 목록에서 선택시 반환
     public function app_flow_node(Request $request){
         $shortes_path = new ShortestPath(); // 최단경로 
         $shortes_path->node_shortest_path_set($request->start_room_node, $request->end_room_node); //동선 설정 
@@ -179,12 +191,12 @@ class FollowMeAppController extends Controller
 
     // 도착지점에 도착했을 때 도착한 진료 동선 제거 
     public function app_flow_end(){
-        // Auth::guard('patient')->user()->flow()
-        //                 ->whereFlow_status_check(1)
-        //                 ->whereFlow_sequence(1)
-        //                 ->update([ "flow_status_check" => 0 ]);   //동선 종료 
+        Flow::whereFlow_status_check(1)->decrement("flow_sequence");
+        Auth::guard('patient')->user()->flow()
+                        ->whereFlow_status_check(1)
+                        ->whereFlow_sequence(1)
+                        ->update([ "flow_status_check" => 0 ]);   //동선 종료 
         // //진료 동선 순서 -1씩
-        // Flow::whereFlow_status_check(1)->decrement("flow_sequence");
         return response()->json([
             'message' => "ok",            
         ],200);
