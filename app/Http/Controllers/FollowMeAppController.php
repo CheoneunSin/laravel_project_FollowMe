@@ -103,9 +103,6 @@ class FollowMeAppController extends Controller
                         'first_category'        => $first_category,                         //초진, 재진 구분      
                         'standby_number'        => $standby_number                          //대기 순번
                     ]);
-        // $patient_clinic_list = [];
-        // array_push($patient_clinic_list,  Auth::guard('patient')->user());
-        // array_push($patient_clinic_list, $clinic);
         
         StandbyNumber::dispatch(0);  //대기 순번 이벤트
 
@@ -117,9 +114,11 @@ class FollowMeAppController extends Controller
     //현 진료실의 대기 순번 가져오기 (pusher 이벤트가 발생할 때) 
     public function standby_number(Request $request){
         $message = null;
-        $standby_number = Auth::guard('patient')->user()->clinic()->whereStandby_status(1)->latest('standby_number')->firstOrFail()->standby_number;
+        $standby_number = Auth::guard('patient')->user()->clinic()->whereStandby_status(1)->count() !== 0 ?  
+                            Auth::guard('patient')->user()->clinic()->whereStandby_status(1)->latest('standby_number')->firstOrFail()->standby_number
+                            : 0;
         if($standby_number === 1)
-            $message = "다음 진료를 위해 잠시만 기다려주세요";
+            $message = "다음 진료를 위해 잠시만 기다려주세요.";
         return response()->json([
             'standby_number'=> $standby_number,
             'message' => $message
@@ -207,7 +206,7 @@ class FollowMeAppController extends Controller
     public function app_navigation(Request $request){
         //현 위치를 출발지로 지정했을 시
         if($request->has('current_location')){
-            $start_room_loaction = $request->current_node;
+            $start_room_loaction = $this->current_location_node($request);
         }
         //검색으로 출발지를 지정했을 시 
         else {
@@ -257,4 +256,13 @@ class FollowMeAppController extends Controller
             'flow_record' => $flows,            
         ],200);
     }
+    public function iamport($patient_id){
+        $patient = Patient::findOrFail($patient_id);
+        $storage = Clinic::storage($patient_id, 0)->sum('storage');
+        return view('iamport', ['patient' => $patient, 'storage' => $storage]);
+    }
+    public function iamport_end($patient_id){
+        return view('iamport_end');
+    }
+
 }

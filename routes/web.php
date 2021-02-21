@@ -22,4 +22,6 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+Route::get('patient/iamport/{patient_id}', 'FollowMeAppController@iamport');
+Route::get('patient/iamport_end/{patient_id}', 'FollowMeAppController@iamport_end');
 

@@ -96,8 +96,7 @@ class FollowMeWebMedicalController extends Controller
     
     //진료 데이터 업데이트(QR코드로 못얻는 정보)
     public function medical_clinic_setting(Request $request){
-        //진료 접수
-        //QR코드 접수시 변경
+        //진료 접수 Update
         $clinic = $clinic = Patient::findOrFail($request->patient_id)
                                     ->clinic()->whereStandby_status(1)     
                                     ->orderBy("clinic_time", "desc")
