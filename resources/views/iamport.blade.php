@@ -83,12 +83,13 @@
                 pay_method: pay_method_value,
                 merchant_uid: 'merchant_' + new Date().getTime(),
                 name: '주문명:진료비결제',
-                amount: @json($storage) ,
+                // amount: @json($storage) ,
+                amount: 10 ,
                 buyer_name: @json($patient->patient_name),
                 buyer_tel: @json($patient->phone_number),
                 buyer_addr: @json($patient->address),
                 buyer_postcode: @json($patient->postal_code),
-                m_redirect_url: 'http://34.234.79.156/index.php/patient/iamport_end/' + @json($patient->patient_id)
+                m_redirect_url: 'http://34.234.79.156/index.php/patient/iamport_end/' + @json($patient_id)
             }, function(rsp) {
                 if (rsp.success) {
                     var msg = '결제가 완료되었습니다.';

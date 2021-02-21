@@ -258,11 +258,16 @@ class FollowMeAppController extends Controller
     }
     public function iamport($patient_id){
         $patient = Patient::findOrFail($patient_id);
+        $patient_id_encrypt = encrypt($patient_id);
         $storage = Clinic::storage($patient_id, 0)->sum('storage');
-        return view('iamport', ['patient' => $patient, 'storage' => $storage]);
+        return view('iamport', ['patient' => $patient, 'patient_id' => $patient_id_encrypt,'storage' => $storage]);
     }
     public function iamport_end($patient_id){
-        return view('iamport_end');
+        $patient_id_decrypt = decrypt($patient_id);
+        $storage = Clinic::storage($patient_id_decrypt, 0)->sum('storage');
+        $patient = Patient::findOrFail($patient_id_decrypt);
+        Patient::findOrFail($patient_id_decrypt)->clinic()->where('storage_check', 0)->update(['storage_check' => 1]);
+        return view('iamport_end',  ['patient' => $patient, 'storage' => $storage]);
     }
 
 }
