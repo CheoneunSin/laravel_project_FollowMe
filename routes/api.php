@@ -48,9 +48,10 @@ Route::middleware(['isMedical'])->middleware(['auth:api'])
         Route::post('/clinic_setting', 'FollowMeWebMedicalController@medical_clinic_setting');
         Route::post('/clinic_record', 'FollowMeWebMedicalController@medical_clinic_record');
         Route::post('/clinic_end', 'FollowMeWebMedicalController@medical_clinic_end');
-
+        
         Route::get('/clinic_info', 'FollowMeWebMedicalController@medical_clinic_info');
-
+        Route::get('/clinic_subject', 'FollowMeWebMedicalController@medical_clinic_subject');
+        
         //진료 동선 서비스
         Route::get('/room_info', 'FollowMeWebMedicalController@medical_room_info');
         Route::post('/flow_setting', 'FollowMeWebMedicalController@medical_flow_setting');
@@ -67,7 +68,7 @@ Route::middleware(['isAdmin'])->middleware(['auth:api'])
         //노드 서비스
         Route::get('/node_setting_main', 'FollowMeWebAdminController@admin_node_setting_main');
         Route::post('/node_update', 'FollowMeWebAdminController@admin_node_update');
-        Route::post('/node_update', 'FollowMeWebAdminController@admin_node_update');
+        Route::post('/node_distance_update', 'FollowMeWebAdminController@admin_node_distance_update');
 });
 
 //인증 라우트

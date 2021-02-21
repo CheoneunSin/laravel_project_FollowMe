@@ -625,7 +625,10 @@ class ComposerStaticInit179c3776356b1108f51406e1469a5ffb
     public static $classMap = array (
         'App\\Beacon' => __DIR__ . '/../..' . '/app/Beacon.php',
         'App\\Clinic' => __DIR__ . '/../..' . '/app/Clinic.php',
+        'App\\ClinicRoom' => __DIR__ . '/../..' . '/app/ClinicRoom.php',
+        'App\\ClinicSubject' => __DIR__ . '/../..' . '/app/ClinicSubject.php',
         'App\\Console\\Kernel' => __DIR__ . '/../..' . '/app/Console/Kernel.php',
+        'App\\Doctor' => __DIR__ . '/../..' . '/app/Doctor.php',
         'App\\Events\\StandbyNumber' => __DIR__ . '/../..' . '/app/Events/StandbyNumber.php',
         'App\\Exceptions\\Handler' => __DIR__ . '/../..' . '/app/Exceptions/Handler.php',
         'App\\Flow' => __DIR__ . '/../..' . '/app/Flow.php',

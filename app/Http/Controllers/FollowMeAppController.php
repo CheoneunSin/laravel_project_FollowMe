@@ -103,11 +103,11 @@ class FollowMeAppController extends Controller
                         'first_category'        => $first_category,                         //초진, 재진 구분      
                         'standby_number'        => $standby_number                          //대기 순번
                     ]);
-        $patient_clinic_list = [];
-        array_push($patient_clinic_list,  Auth::guard('patient')->user());
-        array_push($patient_clinic_list, $clinic);
+        // $patient_clinic_list = [];
+        // array_push($patient_clinic_list,  Auth::guard('patient')->user());
+        // array_push($patient_clinic_list, $clinic);
         
-        StandbyNumber::dispatch($patient_clinic_list);  //대기 순번 이벤트
+        StandbyNumber::dispatch(0);  //대기 순번 이벤트
 
         $message = Config::get('constants.patient_message.clinic_ok');
         return response()->json([
@@ -143,6 +143,7 @@ class FollowMeAppController extends Controller
                                            ->orderBy("flow_sequence")
                                            ->get();
         $nodeFlow  = null;
+        $flow_array = null;
         //진료동선이 하나 이상 있을 때 (출발지와 목적지가 필요)
         if(count($flow_list) >= 1){
             //가장 가까운 거리 

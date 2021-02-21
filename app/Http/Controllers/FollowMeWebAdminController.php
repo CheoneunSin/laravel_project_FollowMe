@@ -79,4 +79,16 @@ class FollowMeWebAdminController extends Controller
             'message' => $message,
         ],200);
     }
+
+    public function admin_node_distance_update(Request $request){
+        NodeDistance::query()->delete();  //노드 거리 정보 삭제
+        // //노드 간 거리 데이터 생성
+        foreach($request->node_distance as $node_distance){
+            NodeDistance::create($node_distance);
+        }
+        $message = Config::get('constants.admin_message.setting_ok');
+        return response()->json([
+            'message' => $message,
+        ],200);
+    }
 }

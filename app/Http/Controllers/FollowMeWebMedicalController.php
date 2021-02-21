@@ -69,50 +69,58 @@ class FollowMeWebMedicalController extends Controller
     //검색 된 환자 목록 중에서 선택된 환자
     public function medical_patient_select(Request $request){
         $patient = Patient::findOrFail($request->patient_id);     //환자 데이터
+        
         $clinic  = $patient->clinic()->whereStandby_status(1)     //환자의 현 진료 데이터
                             ->orderBy("clinic_time", "desc")->first();  
+        if($clinic === null) {
+            $clinic = [
+                'clinic_id' => '',
+                'clinic_subject_name' => '',
+                'clinit_time'=>'',
+                'doctor_name'=>'' ,
+            ];
+        }
+        //진료 정보 목록(진료과, 진료실, 의사)
+        $clinic_info = ClinicSubject::all()->map(function ($info) {
+           $info['doctor'] = $info->doctor()->get()->pluck('doctor_name')->all();
+           $info['clinic_room'] = $info->clinic_room()->get()->pluck('clinic_room_name')->all();
+           return $info;
+        })->all();
+
         return response()->json([
             'patient' => $patient,
             'clinic'  => $clinic,
+            'clinic_info' => $clinic_info,  
         ],200);
     }
     
     //진료 데이터 업데이트(QR코드로 못얻는 정보)
     public function medical_clinic_setting(Request $request){
-        $first_category = 1;  //초진 환자
-        
-        //초진환자가 아닐 경우 
-        if(Clinic::where('clinic_subject_name', $request->clinic_subject_name)
-                        ->wherePatient_id($request->patient_id)
-                        ->count() > 0){
-            $first_category = 0;  //재진환자
-        }
-        //현 진료실 대기 인원 수(대기 순번)   
-        $standby_number = Clinic::where('clinic_subject_name', $request->clinic_subject_name )
-                                    ->whereStandby_status(1)->count() + 1;
         //진료 접수
         //QR코드 접수시 변경
-        $clinic = Patient::findOrFail($request->patient_id)
-                    ->clinic()
-                    ->create([
-                        'clinic_subject_name'   => $request->clinic_subject_name,           //진료실 이름
-                        'room_name'             => $request->room_name,
-                        'doctor_name'           => $request->doctor_name,
-                        'storage'               => $request->storage,
-                        'clinic_date'           => Carbon::now(),
-                        'clinic_time'           => $request->clinic_time,
-                        'first_category'        => $first_category,                         //초진, 재진 구분      
-                        'standby_number'        => $standby_number                          //대기 순번
-                    ]); 
+        $clinic = $clinic = Patient::findOrFail($request->patient_id)
+                                    ->clinic()->whereStandby_status(1)     
+                                    ->orderBy("clinic_time", "desc")
+                                    ->first()
+                                    ->update($request->except('clinic_id')); 
         return response()->json([
             'clinic' => $clinic,            
         ],200);
     }
     //해당 날짜 진료 기록 
-    public function medical_clinic_record(Request $request){
-        $clinic_record  = Clinic::with('patient')->whereClinic_date($request->clinic_date)->get();
+    public function medical_clinic_subject(Request $request){
         return response()->json([
-            'clinic_record' => $clinic_record,            
+            'clinic_subject' => ClinicSubject::all()->toArray(),   
+        ],200);
+    }
+    //해당 날짜 진료 기록 
+    public function medical_clinic_record(Request $request){
+        $clinic_record  =  !empty($request->clinic_subject_name) ? 
+                              Clinic::with('patient')->whereClinic_date($request->clinic_date)->whereClinic_subject_name($request->clinic_subject_name)->get()
+                            : Clinic::with('patient')->whereClinic_date($request->clinic_date)->get();
+
+        return response()->json([
+            'clinic_record' => $clinic_record,   
         ],200);
     }
     //환자 진료 동선 설정
@@ -151,7 +159,8 @@ class FollowMeWebMedicalController extends Controller
         Clinic::whereStandby_status(1)->whereClinic_subject_name($request->clinic_subject_name)->decrement("standby_number");
         Clinic::find($request->clinic_id)->update(["standby_status" => 0]);
         //대기순번을 인자값으로 
-        StandbyNumber::dispatch(true);
+        $patient_id = Clinic::find($request->clinic_id)->patient->patient_id;
+        StandbyNumber::dispatch($patient_id);
 
         $clinic_record  = Clinic::with('patient')->whereClinic_date($request->clinic_date)->get();
         return response()->json([
@@ -168,9 +177,9 @@ class FollowMeWebMedicalController extends Controller
         ],200);
     }
 
-    public function medical_clinic_info(){
-        return response()->json([
-            'clinic_info' => ClinicSubject::with('doctor')->with('clinic_room')->get(),            
-        ],200);
-    }
+    // public function medical_clinic_info(){
+    //     return response()->json([
+    //         'clinic_info' => ClinicSubject::with('doctor')->with('clinic_room')->get(),            
+    //     ],200);
+    // }
 }

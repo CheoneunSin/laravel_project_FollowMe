@@ -8,7 +8,10 @@ $baseDir = dirname($vendorDir);
 return array(
     'App\\Beacon' => $baseDir . '/app/Beacon.php',
     'App\\Clinic' => $baseDir . '/app/Clinic.php',
+    'App\\ClinicRoom' => $baseDir . '/app/ClinicRoom.php',
+    'App\\ClinicSubject' => $baseDir . '/app/ClinicSubject.php',
     'App\\Console\\Kernel' => $baseDir . '/app/Console/Kernel.php',
+    'App\\Doctor' => $baseDir . '/app/Doctor.php',
     'App\\Events\\StandbyNumber' => $baseDir . '/app/Events/StandbyNumber.php',
     'App\\Exceptions\\Handler' => $baseDir . '/app/Exceptions/Handler.php',
     'App\\Flow' => $baseDir . '/app/Flow.php',
