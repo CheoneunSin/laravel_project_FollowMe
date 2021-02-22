@@ -24,12 +24,13 @@
 <div id="app" class="container" style="font-family: 'Nanum Gothic', sans-serif; ">
     <div class="row justify-content-center">
         <div class="col-md-8">
+            <br><br>
             <div class="card">
                 <div class="card-header">진료내역 결제</div>
                 <div class="card-body">
                     <table class="table table-hover">
                         <tr>
-                            <th scope="col">성함</th>
+                            <th scope="col" width="30%">성함</th>
                             <td>{{ $patient->patient_name }}</td> 
                         </tr>
                         <tr>

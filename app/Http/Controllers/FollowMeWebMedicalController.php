@@ -97,11 +97,36 @@ class FollowMeWebMedicalController extends Controller
     //진료 데이터 업데이트(QR코드로 못얻는 정보)
     public function medical_clinic_setting(Request $request){
         //진료 접수 Update
-        $clinic = $clinic = Patient::findOrFail($request->patient_id)
-                                    ->clinic()->whereStandby_status(1)     
-                                    ->orderBy("clinic_time", "desc")
-                                    ->first()
-                                    ->update($request->except('clinic_id')); 
+        $first_category = 1;  //초진 환자
+
+        //초진환자가 아닐 경우 
+        if(Clinic::where('clinic_subject_name', $request->clinic_subject_name)
+                        ->wherePatient_id($request->patient_id)
+                        ->count() > 0){
+            $first_category = 0;  //재진환자
+        }
+        //현 진료실 대기 인원 수(대기 순번)   
+        $standby_number = Clinic::where('clinic_subject_name', $request->clinic_subject_name )
+                                    ->whereStandby_status(1)->count() + 1;
+        //진료 접수
+       
+        $clinic =  Patient::findOrFail($request->patient_id)->clinic()->whereStandby_status(1)->count() === 0 
+                  ?  Patient::findOrFail($request->patient_id)
+                    ->clinic()
+                    ->create([
+                        'clinic_subject_name'   => $request->clinic_subject_name,           //진료실 이름
+                        'room_name'             => $request->room_name,
+                        'doctor_name'           => $request->doctor_name,
+                        'storage'               => $request->storage,
+                        'clinic_time'           => $request->clinic_time,
+                        'first_category'        => $first_category,                         //초진, 재진 구분      
+                        'standby_number'        => $standby_number                          //대기 순번
+                    ])
+                  : Patient::findOrFail($request->patient_id)
+                                ->clinic()->whereStandby_status(1)     
+                                ->orderBy("clinic_time", "desc")
+                                ->first()
+                                ->update($request->all()); 
         return response()->json([
             'clinic' => $clinic,            
         ],200);

@@ -15,8 +15,11 @@ class Node extends Model {
         return $this->hasMany('App\RoomLocation', 'room_node');
     } 
     
-    public function node_distance() {
-        return $this->hasMany('App\NodeDistance', 'node_id');
+    public function node_A_distance() {
+        return $this->hasMany('App\NodeDistance', 'node_A');
+    }
+    public function node_B_distance() {
+        return $this->hasMany('App\NodeDistance', 'node_B');
     }
 
     public $timestamps = false;

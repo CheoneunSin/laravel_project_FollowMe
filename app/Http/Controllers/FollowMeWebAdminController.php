@@ -51,7 +51,12 @@ class FollowMeWebAdminController extends Controller
     }
     //노드 정보 가져오기
     public function admin_node_setting_main(){
-        $node_info      = Node::all();
+        // $node_info      = Node::all();
+        $node_info = Node::all()->map(function ($info) {
+            $info['room'] = $info->room_location()->get()->pluck('room_name')->first();
+            $info['room_info'] = $info->room_location()->get()->pluck('room_info')->first();
+            return $info; 
+         })->all();
         $node_distance  = NodeDistance::with('node_a_info')->with('node_b_info')->get(); 
         return response()->json([
             'node_info'     => $node_info,
@@ -61,19 +66,21 @@ class FollowMeWebAdminController extends Controller
 
     //노드 정보 업데이트 (추가, 삭제)
     public function admin_node_update(Request $request){
-        NodeDistance::query()->delete();  //노드 거리 정보 삭제
-        Node::query()->delete();   
+        if(!empty($request->node_delete)){
+            foreach ($request->node_delete as $node){
+                Node::findOrFail($node)->room_location()->delete();
+            }
+        }
+        Node::query()->delete(); 
         foreach($request->node as $node){
             //노드와 연결된 진료실 및 검사실 저장
-            if($node['room'] != null)
-                Node::findOrFail($node['node_id'])->room_location()->create(['room_name' =>  $node['room'] ]);
+            if(!empty($node['room']) && !empty($node['room_info']))
+                RoomLocation::create(['room_name' =>  $node['room'], 'room_nood' => $node['node_id'], 'room_info' => $node['room_info']]);
             unset($node['room']);
+            unset($node['room_info']);
             Node::create($node);
         }
-        // //노드 간 거리 데이터 생성
-        foreach($request->node_distance as $node_distance){
-            NodeDistance::create($node_distance);
-        }
+        // Node::findOrFail($request->delete_node)->node_distance()->delete();
         $message = Config::get('constants.admin_message.setting_ok');
         return response()->json([
             'message' => $message,

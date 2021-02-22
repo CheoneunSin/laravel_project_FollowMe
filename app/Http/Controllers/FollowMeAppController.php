@@ -83,9 +83,6 @@ class FollowMeAppController extends Controller
     public function app_clinic(Request $request){
         $first_category = 1;  //초진 환자
         //초진환자가 아닐 경우 
-        // if(Clinic::where('clinic_subject_name', $request->clinic_subject_name)
-        //                 ->wherePatient_id($request->patient_id)
-        //                 ->count() > 0){
         if(Auth::guard('patient')->user()->clinic()
                 ->where('clinic_subject_name', $request->clinic_subject_name)
                 ->count() > 0){
@@ -136,31 +133,36 @@ class FollowMeAppController extends Controller
     }
     //진료 동선 안내 ( + 다익스트라 알고리즘)
     public function app_flow(Request $request){
-         //환자가 가야하는 동선 가져오기  (flow_status_check : 1 -> 아직 완료되지 않은 동선 , 0 -> 완료된 동선)
-        $flow_list = Auth::guard('patient')->user()->flow()->with('room_location')
-                                           ->whereFlow_status_check(1)
-                                           ->orderBy("flow_sequence")
-                                           ->get();
-        $nodeFlow  = null;
-        $flow_array = null;
-        //진료동선이 하나 이상 있을 때 (출발지와 목적지가 필요)
-        if(count($flow_list) >= 1){
-            //가장 가까운 거리 
-            $node = $this->current_location_node($request);
-            $current =  [ "room_location" => Node::find($node[0]->node_id)->room_location[0]];
+        // try{
+            //환자가 가야하는 동선 가져오기  (flow_status_check : 1 -> 아직 완료되지 않은 동선 , 0 -> 완료된 동선)
+            $flow_list = Auth::guard('patient')->user()->flow()->with('room_location')
+                                                ->whereFlow_status_check(1)
+                                                ->orderBy("flow_sequence")
+                                                ->get();
+            $nodeFlow  = null;
+            $flow_array = null;
+            //진료동선이 하나 이상 있을 때 (출발지와 목적지가 필요)
+            if(count($flow_list) >= 1){
+                //가장 가까운 거리 
+                $node = $this->current_location_node($request);
+                $current =  [ "room_location" => Node::find($node[0]->node_id)->room_location[0]];
 
-            $shortes_path = new ShortestPath(); // 최단경로
-            $shortes_path->node_flow_shortest_path_set($node[0]->node_id, $flow_list[0]->flow_id); //동선 설정 
-            $nodeFlow     = $shortes_path->shortest_path_node(); //최단 경로 노드 
+                $shortes_path = new ShortestPath(); // 최단경로
+                $shortes_path->node_flow_shortest_path_set($node[0]->node_id, $flow_list[0]->flow_id); //동선 설정 
+                $nodeFlow     = $shortes_path->shortest_path_node(); //최단 경로 노드 
 
-            $flow_array = $flow_list->toArray();
-            array_unshift($flow_array, $current);
-        }
-        
-        return response()->json([
-            'flow_list'     => $flow_array,
-            'nodeFlow'      => $nodeFlow,
-        ],200);
+                $flow_array = $flow_list->toArray();
+                array_unshift($flow_array, $current);
+            }
+            return response()->json([
+                'flow_list'     => $flow_array,
+                'nodeFlow'      => $nodeFlow,
+            ],200);
+        // }catch(Exception $e){
+        //     return response()->json([
+        //         'Message'     => $e->getMessage(),
+        //     ],400);
+        // }
     }
     //동선 목록에서 현 위치와 다음 목적지의 최단 경로 반환 
     public function app_current_flow(Request $request){
@@ -191,10 +193,10 @@ class FollowMeAppController extends Controller
 
     // 도착지점에 도착했을 때 도착한 진료 동선 제거 
     public function app_flow_end(){
-        Flow::whereFlow_status_check(1)->decrement("flow_sequence");
+        Auth::guard('patient')->user()->flow()->whereFlow_status_check(1)->decrement("flow_sequence");
         Auth::guard('patient')->user()->flow()
                         ->whereFlow_status_check(1)
-                        ->whereFlow_sequence(1)
+                        ->whereFlow_sequence(0)
                         ->update([ "flow_status_check" => 0 ]);   //동선 종료 
         // //진료 동선 순서 -1씩
         return response()->json([
@@ -256,12 +258,14 @@ class FollowMeAppController extends Controller
             'flow_record' => $flows,            
         ],200);
     }
+    //결제 화면 
     public function iamport($patient_id){
         $patient = Patient::findOrFail($patient_id);
         $patient_id_encrypt = encrypt($patient_id);
         $storage = Clinic::storage($patient_id, 0)->sum('storage');
         return view('iamport', ['patient' => $patient, 'patient_id' => $patient_id_encrypt,'storage' => $storage]);
     }
+    //결제 완료 화면 
     public function iamport_end($patient_id){
         $patient_id_decrypt = decrypt($patient_id);
         $storage = Clinic::storage($patient_id_decrypt, 0)->sum('storage');

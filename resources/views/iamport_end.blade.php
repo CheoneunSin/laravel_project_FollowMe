@@ -24,6 +24,7 @@
 <div class="container" style="font-family: 'Nanum Gothic', sans-serif; ">
     <div class="row justify-content-center">
         <div class="col-md-8">
+            <br><br>
             <div class="card">
                 <div class="card-header">진료 결제 완료</div>
                 <div class="card-body">
