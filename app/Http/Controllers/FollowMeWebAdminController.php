@@ -8,10 +8,9 @@ use App\Clinic;
 use App\Patient;
 use App\Node;
 use App\NodeDistance;
-
+use App\RoomLocation;
 //파사드
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Config;
 
 use Illuminate\Http\Request;
 
@@ -31,7 +30,7 @@ class FollowMeWebAdminController extends Controller
             Beacon::create($beacon);
         }
         return response()->json([
-            'message' => "ok",
+            'status' => 'success', 
         ],200);
     }
 
@@ -52,9 +51,11 @@ class FollowMeWebAdminController extends Controller
     //노드 정보 가져오기
     public function admin_node_setting_main(){
         // $node_info      = Node::all();
+        // $node_info = Patient::all();
         $node_info = Node::all()->map(function ($info) {
-            $info['room'] = $info->room_location()->get()->pluck('room_name')->first();
-            $info['room_info'] = $info->room_location()->get()->pluck('room_info')->first();
+            $info['room_id']    =  $info->room_location()->get()->pluck('room_location_id')->first();
+            $info['room']       =  $info->room_location()->get()->pluck('room_name')->first();
+            $info['room_info']  =  $info->room_location()->get()->pluck('room_info')->first();
             return $info; 
          })->all();
         $node_distance  = NodeDistance::with('node_a_info')->with('node_b_info')->get(); 
@@ -63,27 +64,40 @@ class FollowMeWebAdminController extends Controller
             'node_distance' => $node_distance
         ],200);
     }
-
+    //노드 정보 가져오기
+    public function admin_node_distance_setting_main(){
+        // $node_info = Node::all();
+        // $node_info = Patient::all();
+        $node_info = Node::all();
+        $node_distance  = NodeDistance::with('node_a_info')->with('node_b_info')->get(); 
+        return response()->json([
+            'node_info'     => $node_info,
+            'node_distance' => $node_distance
+        ],200);
+    }
     //노드 정보 업데이트 (추가, 삭제)
     public function admin_node_update(Request $request){
         if(!empty($request->node_delete)){
             foreach ($request->node_delete as $node){
-                Node::findOrFail($node)->room_location()->delete();
+                Node::findOrFail($node)->node_A_distance()->delete();
+                Node::findOrFail($node)->node_B_distance()->delete();
             }
         }
         Node::query()->delete(); 
+        $nodes = [];
         foreach($request->node as $node){
             //노드와 연결된 진료실 및 검사실 저장
-            if(!empty($node['room']) && !empty($node['room_info']))
-                RoomLocation::create(['room_name' =>  $node['room'], 'room_nood' => $node['node_id'], 'room_info' => $node['room_info']]);
+            if(!empty($node['room_id']) && !empty($node['room']) && !empty($node['room_info']))
+                RoomLocation::findOrFail($node['room_id'])->update(['room_name' =>  $node['room'], 'room_node' => $node['node_id'], 'room_info' => $node['room_info']]);
+            unset($node['room_id']);
             unset($node['room']);
             unset($node['room_info']);
-            Node::create($node);
+            $newNode = Node::create($node);
+            array_push($nodes, $newNode);
         }
-        // Node::findOrFail($request->delete_node)->node_distance()->delete();
-        $message = Config::get('constants.admin_message.setting_ok');
+        // Node::findOrFail($request->delete_node)-> ()->delete();
         return response()->json([
-            'message' => $message,
+            'node'      => $nodes
         ],200);
     }
 
@@ -93,9 +107,8 @@ class FollowMeWebAdminController extends Controller
         foreach($request->node_distance as $node_distance){
             NodeDistance::create($node_distance);
         }
-        $message = Config::get('constants.admin_message.setting_ok');
         return response()->json([
-            'message' => $message,
+            'status' => 'success'
         ],200);
     }
 }

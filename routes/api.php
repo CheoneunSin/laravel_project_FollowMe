@@ -67,6 +67,8 @@ Route::middleware(['isAdmin'])->middleware(['auth:api'])
         Route::post('/beacon_search', 'FollowMeWebAdminController@admin_beacon_search');
         //노드 서비스
         Route::get('/node_setting_main', 'FollowMeWebAdminController@admin_node_setting_main');
+        Route::get('/node_distance_setting_main', 'FollowMeWebAdminController@admin_node_distance_setting_main');
+        
         Route::post('/node_update', 'FollowMeWebAdminController@admin_node_update');
         Route::post('/node_distance_update', 'FollowMeWebAdminController@admin_node_distance_update');
 });

@@ -21,7 +21,7 @@ class Node extends Model {
     public function node_B_distance() {
         return $this->hasMany('App\NodeDistance', 'node_B');
     }
-
+    public $incrementing = false;
     public $timestamps = false;
 
 }

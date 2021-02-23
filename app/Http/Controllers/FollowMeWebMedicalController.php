@@ -13,7 +13,6 @@ use App\ClinicSubject;
 
 //파사드
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
@@ -42,9 +41,8 @@ class FollowMeWebMedicalController extends Controller
         }
         //환자 데이터 생성
         Patient::create($request->all());
-        $message = Config::get('constants.medical_message.patient_create_ok');
         return response()->json([
-            'message' => $message,
+            'status' => 'success', 
         ],200);
     }
     
@@ -164,7 +162,7 @@ class FollowMeWebMedicalController extends Controller
         }
         $message = Config::get('constants.medical_message.flow_setting');
         return response()->json([
-            'message' => $message,            
+            'status' => 'success', 
         ],200);
     }
 
