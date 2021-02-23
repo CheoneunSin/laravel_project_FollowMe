@@ -133,36 +133,30 @@ class FollowMeAppController extends Controller
     }
     //진료 동선 안내 ( + 다익스트라 알고리즘)
     public function app_flow(Request $request){
-        // try{
-            //환자가 가야하는 동선 가져오기  (flow_status_check : 1 -> 아직 완료되지 않은 동선 , 0 -> 완료된 동선)
-            $flow_list = Auth::guard('patient')->user()->flow()->with('room_location')
-                                                ->whereFlow_status_check(1)
-                                                ->orderBy("flow_sequence")
-                                                ->get();
-            $nodeFlow  = null;
-            $flow_array = null;
-            //진료동선이 하나 이상 있을 때 (출발지와 목적지가 필요)
-            if(count($flow_list) >= 1){
-                //가장 가까운 거리 
-                $node = $this->current_location_node($request);
-                $current =  [ "room_location" => Node::find($node[0]->node_id)->room_location[0]];
+        //환자가 가야하는 동선 가져오기  (flow_status_check : 1 -> 아직 완료되지 않은 동선 , 0 -> 완료된 동선)
+        $flow_list = Auth::guard('patient')->user()->flow()->with('room_location')
+                                            ->whereFlow_status_check(1)
+                                            ->orderBy("flow_sequence")
+                                            ->get();
+        $nodeFlow  = null;
+        $flow_array = null;
+        //진료동선이 하나 이상 있을 때 (출발지와 목적지가 필요)
+        if(count($flow_list) >= 1){
+            //가장 가까운 거리 
+            $node = $this->current_location_node($request);
+            $current =  [ "room_location" => Node::find($node[0]->node_id)->room_location[0]];
 
-                $shortes_path = new ShortestPath(); // 최단경로
-                $shortes_path->node_flow_shortest_path_set($node[0]->node_id, $flow_list[0]->flow_id); //동선 설정 
-                $nodeFlow     = $shortes_path->shortest_path_node(); //최단 경로 노드 
+            $shortes_path = new ShortestPath(); // 최단경로
+            $shortes_path->node_flow_shortest_path_set($node[0]->node_id, $flow_list[0]->flow_id); //동선 설정 
+            $nodeFlow     = $shortes_path->shortest_path_node(); //최단 경로 노드 
 
-                $flow_array = $flow_list->toArray();
-                array_unshift($flow_array, $current);
-            }
-            return response()->json([
-                'flow_list'     => $flow_array,
-                'nodeFlow'      => $nodeFlow,
-            ],200);
-        // }catch(Exception $e){
-        //     return response()->json([
-        //         'Message'     => $e->getMessage(),
-        //     ],400);
-        // }
+            $flow_array = $flow_list->toArray();
+            array_unshift($flow_array, $current);
+        }
+        return response()->json([
+            'flow_list'     => $flow_array,
+            'nodeFlow'      => $nodeFlow,
+        ],200);
     }
     //동선 목록에서 현 위치와 다음 목적지의 최단 경로 반환 
     public function app_current_flow(Request $request){
@@ -203,7 +197,11 @@ class FollowMeAppController extends Controller
             'message' => "ok",            
         ],200);
     }
-
+    public function app_navigation_room_list(){
+        return response()->json([
+            'room_list' => RoomLocation::all(),
+        ],200);
+    }
     //검색을 통한 실내 내비게이션 
     public function app_navigation(Request $request){
         //현 위치를 출발지로 지정했을 시

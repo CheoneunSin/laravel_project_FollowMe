@@ -28,6 +28,7 @@ Route::prefix('patient')->group(function () {
         Route::post('flow_node', 'FollowMeAppController@app_flow_node');
         Route::get('/flow_end', 'FollowMeAppController@app_flow_end');          //목적지 도착시
         
+        Route::get('/navigation_room_list', 'FollowMeAppController@app_navigation_room_list');    
         Route::post('/navigation', 'FollowMeAppController@app_navigation');         //검색 내비게이션
         //대기 번호 (pusher이벤트가 발생 시)
         Route::get('/standby_number', 'FollowMeAppController@standby_number'); 
@@ -68,7 +69,7 @@ Route::middleware(['isAdmin'])->middleware(['auth:api'])
         //노드 서비스
         Route::get('/node_setting_main', 'FollowMeWebAdminController@admin_node_setting_main');
         Route::get('/node_distance_setting_main', 'FollowMeWebAdminController@admin_node_distance_setting_main');
-        
+        //노드 거리 
         Route::post('/node_update', 'FollowMeWebAdminController@admin_node_update');
         Route::post('/node_distance_update', 'FollowMeWebAdminController@admin_node_distance_update');
 });

@@ -118,11 +118,17 @@ class NodeDistanceTableSeeder extends Seeder
             ['5', '3033', '2020'],
             ['5', '2020', '3033'],
         ];
-        foreach($distances as $distance){
+        $check = 0;
+        foreach($distances as $index => $distance){
+            if($index % 2 === 0)
+                $check =  1;
+            else 
+                $check =  0;
             NodeDistance::create([
                 'distance' => $distance[0],
                 'node_A'   => $distance[1],
                 'node_B'   => $distance[2],
+                'check'    => $check,
             ]);
         }
     }

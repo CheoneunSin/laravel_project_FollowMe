@@ -52,29 +52,14 @@ class FollowMeWebAdminController extends Controller
     public function admin_node_setting_main(){
         // $node_info      = Node::all();
         // $node_info = Patient::all();
-        $node_info = Node::all()->map(function ($info) {
-            $info['room_id']    =  $info->room_location()->get()->pluck('room_location_id')->first();
-            $info['room']       =  $info->room_location()->get()->pluck('room_name')->first();
-            $info['room_info']  =  $info->room_location()->get()->pluck('room_info')->first();
-            return $info; 
-         })->all();
-        $node_distance  = NodeDistance::with('node_a_info')->with('node_b_info')->get(); 
+        $node_distance  = NodeDistance::whereCheck(1)->with('node_a_info')->with('node_b_info')->get();
+        // $node_distance  = NodeDistance::with('node_a_info')->with('node_b_info')->get(); 
         return response()->json([
             'node_info'     => $node_info,
             'node_distance' => $node_distance
         ],200);
     }
-    //노드 정보 가져오기
-    public function admin_node_distance_setting_main(){
-        // $node_info = Node::all();
-        // $node_info = Patient::all();
-        $node_info = Node::all();
-        $node_distance  = NodeDistance::with('node_a_info')->with('node_b_info')->get(); 
-        return response()->json([
-            'node_info'     => $node_info,
-            'node_distance' => $node_distance
-        ],200);
-    }
+
     //노드 정보 업데이트 (추가, 삭제)
     public function admin_node_update(Request $request){
         if(!empty($request->node_delete)){
@@ -101,11 +86,31 @@ class FollowMeWebAdminController extends Controller
         ],200);
     }
 
+    //노드 정보 가져오기
+    public function admin_node_distance_setting_main(){
+        // $node_info = Node::all();
+        // $node_info = Patient::all();
+        $node_info = Node::all();
+        $node_distance_array = [];
+        // $node_distances  = NodeDistance::with('node_a_info')->with('node_b_info')->get(); 
+        $node_distance  = NodeDistance::whereCheck(1)->with('node_a_info')->with('node_b_info')->get();
+        return response()->json([
+            'node_info'     => $node_info,
+            'node_distance' => $node_distance
+        ],200);
+    }
+
     public function admin_node_distance_update(Request $request){
         NodeDistance::query()->delete();  //노드 거리 정보 삭제
         // //노드 간 거리 데이터 생성
         foreach($request->node_distance as $node_distance){
+            $node_distance['check'] = 1;
             NodeDistance::create($node_distance);
+            NodeDistance::create([
+                'node_A' => $node_distance['node_B'],
+                'node_B' => $node_distance['node_A'],
+                'distance' => $node_distance['distance'],
+            ]);
         }
         return response()->json([
             'status' => 'success'

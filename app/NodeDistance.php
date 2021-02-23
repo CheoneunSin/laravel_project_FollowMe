@@ -9,7 +9,9 @@ class NodeDistance extends Model
     protected $table = 'node_distances';
     protected $primaryKey = 'distance_id';
     protected $guarded = ["distance_id"];
-
+    protected $hidden = [
+        'distance_id', 'check',
+    ];
     public function node_a_info() {
         return $this->belongsTo('App\Node', 'node_A');
     }
