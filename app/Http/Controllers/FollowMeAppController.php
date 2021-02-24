@@ -168,12 +168,17 @@ class FollowMeAppController extends Controller
             'nodeFlow' => $nodeFlow,            
         ],200);
     }
+
     //현위치와 가장 가까운 노드
     public function current_location_node($request){
-        return DB::select(DB::raw("SELECT *, 111.045 * DEGREES(ACOS(COS(RADIANS({$request->lat})) 
-        * COS(RADIANS(`lat`)) * COS(RADIANS(`lng`) - RADIANS({$request->lat})) 
-        + SIN(RADIANS({$request->lng})) * SIN(RADIANS(`lat`)))) AS distance 
-        FROM nodes Where floor = {$request->major} ORDER BY distance ASC LIMIT 0,1"));
+        // return DB::select(DB::raw("SELECT *, 111.045 * DEGREES(ACOS(COS(RADIANS({$request->lat})) 
+        // * COS(RADIANS(`lat`)) * COS(RADIANS(`lng`) - RADIANS({$request->lat})) 
+        // + SIN(RADIANS({$request->lng})) * SIN(RADIANS(`lat`)))) AS distance 
+        // FROM nodes Where floor = {$request->major} ORDER BY distance ASC LIMIT 0,1"));\
+        return DB::select(DB::raw("SELECT *, SQRT(
+            POW(69.1 * (lat - {$request->lat}), 2) +
+            POW(69.1 * ({$request->lng} - lng) * COS(lat / 57.3), 2)) AS distance
+            FROM nodes Where floor = {$request->major} HAVING distance < 25 ORDER BY distance ASC LIMIT 0,1"));
     }
     //동선 목록에서 선택시 반환
     public function app_flow_node(Request $request){
@@ -204,15 +209,10 @@ class FollowMeAppController extends Controller
     }
     //검색을 통한 실내 내비게이션 
     public function app_navigation(Request $request){
-        //현 위치를 출발지로 지정했을 시
-        if($request->has('current_location')){
-            $start_room_loaction = $this->current_location_node($request);
-        }
+        
         //검색으로 출발지를 지정했을 시 
-        else {
-            $start_room_loaction = RoomLocation::select('room_node')
-                                            ->whereRoom_name($request->start_room)->first();
-        }
+        $start_room_loaction = RoomLocation::select('room_node')
+                                        ->whereRoom_name($request->start_room)->first();
         //도착지
         $end_room_location = RoomLocation::select('room_node')
                                         ->whereRoom_name($request->end_room)->first();
@@ -220,6 +220,20 @@ class FollowMeAppController extends Controller
         $shortes_path->node_shortest_path_set($start_room_loaction->room_node, $end_room_location->room_node);  //동선 설정
         $nodeFlow     = $shortes_path->shortest_path_node();  //최단 경로 노드 
  
+        //최단 경로 반환         
+        return response()->json([
+            'nodeFlow' => $nodeFlow,
+        ],200);
+    }
+    public function app_navigation_current(Request $request){
+        //현 위치 출발지
+        $start_node = $this->current_location_node($request);
+        //도착지
+        $end_room_location = RoomLocation::select('room_node')
+                                        ->whereRoom_name($request->end_room)->first();
+        $shortes_path = new ShortestPath(); // 최단경로 
+        $shortes_path->node_shortest_path_set($start_node[0]->node_id, $end_room_location->room_node);  //동선 설정
+        $nodeFlow     = $shortes_path->shortest_path_node();  //최단 경로 노드 
         //최단 경로 반환         
         return response()->json([
             'nodeFlow' => $nodeFlow,
@@ -253,7 +267,7 @@ class FollowMeAppController extends Controller
                             $request->input('end_date', Carbon::now())]
                         )->get();
         return response()->json([
-            'flow_record' => $flows,            
+            'flow_record' => $flows, 
         ],200);
     }
     //결제 화면 

@@ -30,6 +30,8 @@ Route::prefix('patient')->group(function () {
         
         Route::get('/navigation_room_list', 'FollowMeAppController@app_navigation_room_list');    
         Route::post('/navigation', 'FollowMeAppController@app_navigation');         //검색 내비게이션
+        Route::post('/navigation_current', 'FollowMeAppController@app_navigation_current');   //현위치 내비게이션
+        
         //대기 번호 (pusher이벤트가 발생 시)
         Route::get('/standby_number', 'FollowMeAppController@standby_number'); 
 

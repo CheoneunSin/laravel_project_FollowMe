@@ -50,7 +50,7 @@ class FollowMeWebAdminController extends Controller
     }
     //노드 정보 가져오기
     public function admin_node_setting_main(){
-        // $node_info      = Node::all();
+        $node_info      = Node::all();
         // $node_info = Patient::all();
         $node_distance  = NodeDistance::whereCheck(1)->with('node_a_info')->with('node_b_info')->get();
         // $node_distance  = NodeDistance::with('node_a_info')->with('node_b_info')->get(); 
