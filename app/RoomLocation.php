@@ -22,6 +22,11 @@ class RoomLocation extends Model
         return $this->hasMany('App\Flow', 'room_location_id');
     } 
 
+    public function scopeRoom($query, $room)  
+    {
+        return $query->select('room_node')->whereRoom_name($room)->first();
+    }
+
     public $timestamps = false;
 
 }

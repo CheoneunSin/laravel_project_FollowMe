@@ -50,14 +50,14 @@ class FollowMeWebMedicalController extends Controller
     public function medical_patient_search(PatientSearch $request){
         $request->validated();
         //동명이인 전체 목록 조회
-        $patients = Patient::where("patient_name", $request->patient_name)->get();
-        $patients_list = [];
+        $patients       = Patient::where("patient_name", $request->patient_name)->get();
+        $patients_list  = [];
         foreach($patients as $patient){
-            $pateint_list = [];
-            $pateint_list['patient_id']   = $patient->patient_id;
-            $pateint_list['patient_name'] =  $patient->patient_name;
-            $pateint_list['resident_number'] = explode("-", $patient->resident_number)[0];  //생년월일
-            $pateint_list['phone_number'] = $patient->phone_number;
+            $pateint_list                       = [];
+            $pateint_list['patient_id']         = $patient->patient_id;
+            $pateint_list['patient_name']       = $patient->patient_name;
+            $pateint_list['resident_number']    = explode("-", $patient->resident_number)[0];  //생년월일
+            $pateint_list['phone_number']       = $patient->phone_number;
             array_push($patients_list, $pateint_list);
         }
         return response()->json([
@@ -80,15 +80,15 @@ class FollowMeWebMedicalController extends Controller
         }
         //진료 정보 목록(진료과, 진료실, 의사)
         $clinic_info = ClinicSubject::all()->map(function ($info) {
-           $info['doctor'] = $info->doctor()->get()->pluck('doctor_name')->all();
+           $info['doctor']      = $info->doctor()->get()->pluck('doctor_name')->all();
            $info['clinic_room'] = $info->clinic_room()->get()->pluck('clinic_room_name')->all();
            return $info;
         })->all();
 
         return response()->json([
-            'patient' => $patient,
-            'clinic'  => $clinic,
-            'clinic_info' => $clinic_info,  
+            'patient'       => $patient,
+            'clinic'        => $clinic,
+            'clinic_info'   => $clinic_info,  
         ],200);
     }
     
@@ -190,18 +190,9 @@ class FollowMeWebMedicalController extends Controller
         ],200);
     }
     //진료가 완료된 환자 정보 처리
-    // $clinic = Patient::findOrFail($request->patient_id)->clinic()->whereStandby_status(1)
-    //                     ->update(["standby_status" => 0]);
-    
     public function medical_room_info(){
         return response()->json([
             'room_list' => RoomLocation::all(),            
         ],200);
     }
-
-    // public function medical_clinic_info(){
-    //     return response()->json([
-    //         'clinic_info' => ClinicSubject::with('doctor')->with('clinic_room')->get(),            
-    //     ],200);
-    // }
 }

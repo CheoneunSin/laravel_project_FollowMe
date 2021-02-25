@@ -51,9 +51,7 @@ class FollowMeWebAdminController extends Controller
     //노드 정보 가져오기
     public function admin_node_setting_main(){
         $node_info      = Node::all();
-        // $node_info = Patient::all();
         $node_distance  = NodeDistance::whereCheck(1)->with('node_a_info')->with('node_b_info')->get();
-        // $node_distance  = NodeDistance::with('node_a_info')->with('node_b_info')->get(); 
         return response()->json([
             'node_info'     => $node_info,
             'node_distance' => $node_distance
@@ -88,12 +86,9 @@ class FollowMeWebAdminController extends Controller
 
     //노드 정보 가져오기
     public function admin_node_distance_setting_main(){
-        // $node_info = Node::all();
-        // $node_info = Patient::all();
-        $node_info = Node::all();
-        $node_distance_array = [];
-        // $node_distances  = NodeDistance::with('node_a_info')->with('node_b_info')->get(); 
-        $node_distance  = NodeDistance::whereCheck(1)->with('node_a_info')->with('node_b_info')->get();
+        $node_info              = Node::all();
+        $node_distance_array    = [];
+        $node_distance          = NodeDistance::whereCheck(1)->with('node_a_info')->with('node_b_info')->get();
         return response()->json([
             'node_info'     => $node_info,
             'node_distance' => $node_distance
@@ -107,9 +102,9 @@ class FollowMeWebAdminController extends Controller
             $node_distance['check'] = 1;
             NodeDistance::create($node_distance);
             NodeDistance::create([
-                'node_A' => $node_distance['node_B'],
-                'node_B' => $node_distance['node_A'],
-                'distance' => $node_distance['distance'],
+                'node_A'    => $node_distance['node_B'],
+                'node_B'    => $node_distance['node_A'],
+                'distance'  => $node_distance['distance'],
             ]);
         }
         return response()->json([

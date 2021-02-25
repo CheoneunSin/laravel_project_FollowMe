@@ -67,9 +67,8 @@ class FollowMeAppController extends Controller
     //환자 앱 로그아웃
     public function app_logout(Request $request){
         Auth::guard('patient')->logout();
-        $message = Config::get('constants.patient_message.logout_ok');
         return response()->json([
-            'message' => $message
+            'message' => Config::get('constants.patient_message.logout_ok')
         ], 200);
     }
     //QR코드 스캐너 진료과 목록 반환
@@ -110,10 +109,10 @@ class FollowMeAppController extends Controller
     }
     //현 진료실의 대기 순번 가져오기 (pusher 이벤트가 발생할 때) 
     public function standby_number(Request $request){
-        $message = null;
-        $standby_number = Auth::guard('patient')->user()->clinic()->whereStandby_status(1)->count() !== 0 ?  
-                            Auth::guard('patient')->user()->clinic()->whereStandby_status(1)->latest('standby_number')->firstOrFail()->standby_number
-                            : 0;
+        $message        = null;
+        $standby_number = Auth::guard('patient')->user()->clinic()->whereStandby_status(1)->count() !== 0   
+                          ? Auth::guard('patient')->user()->clinic()->whereStandby_status(1)->latest('standby_number')->firstOrFail()->standby_number
+                          : 0;
         if($standby_number === 1)
             $message = "다음 진료를 위해 잠시만 기다려주세요.";
         return response()->json([
@@ -134,23 +133,22 @@ class FollowMeAppController extends Controller
     //진료 동선 안내 ( + 다익스트라 알고리즘)
     public function app_flow(Request $request){
         //환자가 가야하는 동선 가져오기  (flow_status_check : 1 -> 아직 완료되지 않은 동선 , 0 -> 완료된 동선)
-        $flow_list = Auth::guard('patient')->user()->flow()->with('room_location')
+        $flow_list  = Auth::guard('patient')->user()->flow()->with('room_location')
                                             ->whereFlow_status_check(1)
                                             ->orderBy("flow_sequence")
                                             ->get();
-        $nodeFlow  = null;
+        $nodeFlow   = null;
         $flow_array = null;
+        $node = $this->current_location_node($request);
         //진료동선이 하나 이상 있을 때 (출발지와 목적지가 필요)
         if(count($flow_list) >= 1){
             //가장 가까운 거리 
-            $node = $this->current_location_node($request);
-            $current =  [ "room_location" => Node::find($node[0]->node_id)->room_location[0]];
-
-            $shortes_path = new ShortestPath(); // 최단경로
+            $current        = [ "room_location" => Node::find($node[0]->node_id)];
+            $shortes_path   = new ShortestPath(); // 최단경로
             $shortes_path->node_flow_shortest_path_set($node[0]->node_id, $flow_list[0]->flow_id); //동선 설정 
-            $nodeFlow     = $shortes_path->shortest_path_node(); //최단 경로 노드 
-
-            $flow_array = $flow_list->toArray();
+            $nodeFlow       = $shortes_path->shortest_path_node(); //최단 경로 노드 
+            $flow_array     = $flow_list->toArray();
+            
             array_unshift($flow_array, $current);
         }
         return response()->json([
@@ -160,10 +158,10 @@ class FollowMeAppController extends Controller
     }
     //동선 목록에서 현 위치와 다음 목적지의 최단 경로 반환 
     public function app_current_flow(Request $request){
-        $node = $this->current_location_node($request);
-        $shortes_path = new ShortestPath(); // 최단경로
+        $node           = $this->current_location_node($request);
+        $shortes_path   = new ShortestPath(); // 최단경로
         $shortes_path->node_shortest_path_set($node[0]->node_id, $request->end_room_node); //동선 설정 
-        $nodeFlow     = $shortes_path->shortest_path_node(); //최단 경로 노드 
+        $nodeFlow       = $shortes_path->shortest_path_node(); //최단 경로 노드 
         return response()->json([
             'nodeFlow' => $nodeFlow,            
         ],200);
@@ -171,10 +169,6 @@ class FollowMeAppController extends Controller
 
     //현위치와 가장 가까운 노드
     public function current_location_node($request){
-        // return DB::select(DB::raw("SELECT *, 111.045 * DEGREES(ACOS(COS(RADIANS({$request->lat})) 
-        // * COS(RADIANS(`lat`)) * COS(RADIANS(`lng`) - RADIANS({$request->lat})) 
-        // + SIN(RADIANS({$request->lng})) * SIN(RADIANS(`lat`)))) AS distance 
-        // FROM nodes Where floor = {$request->major} ORDER BY distance ASC LIMIT 0,1"));\
         return DB::select(DB::raw("SELECT *, SQRT(
             POW(69.1 * (lat - {$request->lat}), 2) +
             POW(69.1 * ({$request->lng} - lng) * COS(lat / 57.3), 2)) AS distance
@@ -211,14 +205,12 @@ class FollowMeAppController extends Controller
     public function app_navigation(Request $request){
         
         //검색으로 출발지를 지정했을 시 
-        $start_room_loaction = RoomLocation::select('room_node')
-                                        ->whereRoom_name($request->start_room)->first();
+        $start_room_loaction = RoomLocation::room($request->start_room);
         //도착지
-        $end_room_location = RoomLocation::select('room_node')
-                                        ->whereRoom_name($request->end_room)->first();
-        $shortes_path = new ShortestPath(); // 최단경로 
+        $end_room_location   = RoomLocation::room($request->end_room);
+        $shortes_path        = new ShortestPath(); // 최단경로 
         $shortes_path->node_shortest_path_set($start_room_loaction->room_node, $end_room_location->room_node);  //동선 설정
-        $nodeFlow     = $shortes_path->shortest_path_node();  //최단 경로 노드 
+        $nodeFlow            = $shortes_path->shortest_path_node();  //최단 경로 노드 
  
         //최단 경로 반환         
         return response()->json([
@@ -227,13 +219,12 @@ class FollowMeAppController extends Controller
     }
     public function app_navigation_current(Request $request){
         //현 위치 출발지
-        $start_node = $this->current_location_node($request);
+        $start_node         = $this->current_location_node($request);
         //도착지
-        $end_room_location = RoomLocation::select('room_node')
-                                        ->whereRoom_name($request->end_room)->first();
-        $shortes_path = new ShortestPath(); // 최단경로 
+        $end_room_location  = RoomLocation::room($request->end_room);
+        $shortes_path       = new ShortestPath(); // 최단경로 
         $shortes_path->node_shortest_path_set($start_node[0]->node_id, $end_room_location->room_node);  //동선 설정
-        $nodeFlow     = $shortes_path->shortest_path_node();  //최단 경로 노드 
+        $nodeFlow           = $shortes_path->shortest_path_node();  //최단 경로 노드 
         //최단 경로 반환         
         return response()->json([
             'nodeFlow' => $nodeFlow,
@@ -272,9 +263,9 @@ class FollowMeAppController extends Controller
     }
     //결제 화면 
     public function iamport($patient_id){
-        $patient = Patient::findOrFail($patient_id);
+        $patient            = Patient::findOrFail($patient_id);
         $patient_id_encrypt = encrypt($patient_id);
-        $storage = Clinic::storage($patient_id, 0)->sum('storage');
+        $storage            = Clinic::storage($patient_id, 0)->sum('storage');
         return view('iamport', ['patient' => $patient, 'patient_id' => $patient_id_encrypt,'storage' => $storage]);
     }
     //결제 완료 화면 
