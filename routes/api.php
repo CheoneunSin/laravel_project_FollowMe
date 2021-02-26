@@ -41,7 +41,7 @@ Route::prefix('patient')->group(function () {
     });
 });
 //의료진
-Route::middleware(['isMedical'])->middleware(['auth:api'])
+Route::middleware(['isMedical'])
     ->prefix('medical')->group(function () {
         //환자 정보 서비스
         Route::post('/patient_create', 'FollowMeWebMedicalController@medical_patient_create');
@@ -61,7 +61,7 @@ Route::middleware(['isMedical'])->middleware(['auth:api'])
         Route::post('/flow_list', 'FollowMeWebMedicalController@medical_flow_list');  //현재 동선 목록
 });  
 //관리자
-Route::middleware(['isAdmin'])->middleware(['auth:api'])
+Route::middleware(['isAdmin'])
     ->prefix('admin')->group(function () {
         //비콘 서비스
         Route::get('/beacon_setting_main', 'FollowMeWebAdminController@admin_beacon_setting_main');

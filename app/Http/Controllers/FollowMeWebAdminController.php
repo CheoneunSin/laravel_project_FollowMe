@@ -11,6 +11,7 @@ use App\NodeDistance;
 use App\RoomLocation;
 //파사드
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 use Illuminate\Http\Request;
 
@@ -71,7 +72,10 @@ class FollowMeWebAdminController extends Controller
         foreach($request->node as $node){
             //노드와 연결된 진료실 및 검사실 저장
             if(!empty($node['room_id']) && !empty($node['room']) && !empty($node['room_info']))
-                RoomLocation::findOrFail($node['room_id'])->update(['room_name' =>  $node['room'], 'room_node' => $node['node_id'], 'room_info' => $node['room_info']]);
+                RoomLocation::findOrFail($node['room_id'])
+                                ->update([
+                                    'room_node' => $node['node_id'], 
+                                    'room_info' => $node['room_info']]);
             unset($node['room_id']);
             unset($node['room']);
             unset($node['room_info']);
@@ -87,7 +91,6 @@ class FollowMeWebAdminController extends Controller
     //노드 정보 가져오기
     public function admin_node_distance_setting_main(){
         $node_info              = Node::all();
-        $node_distance_array    = [];
         $node_distance          = NodeDistance::whereCheck(1)->with('node_a_info')->with('node_b_info')->get();
         return response()->json([
             'node_info'     => $node_info,

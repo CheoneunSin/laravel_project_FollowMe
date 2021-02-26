@@ -40,9 +40,9 @@ class FollowMeAppController extends Controller
         $request->validated();
         if ($token = Auth::guard('patient')->attempt(['login_id' => $request->login_id, 'password' => $request->password])) {
             $patient =  Auth::guard('patient')->user();
-            return response()->json(['status' => 'success', 'patient_info' => $patient, 'token' =>  $token,], 200);
+            return response()->json(['status' =>  Config::get('constants.patient_message.login_ok'),  'patient_info' => $patient, 'token' =>  $token,], 200);
         }
-        return response()->json(['error' => 'login_error'], 401) ;
+        return response()->json(['status' => Config::get('constants.patient_message.login_fail')], 401) ;
     }
     
     //환자 회원 가입 
@@ -96,6 +96,7 @@ class FollowMeAppController extends Controller
                     ->create([
                         'clinic_subject_name'   => $request->clinic_subject_name,           //진료실 이름
                         'clinic_date'           => Carbon::now(), //진료 시 날짜
+                        'clinic_time'           => Carbon::now(), //진료 시 날짜
                         'first_category'        => $first_category,                         //초진, 재진 구분      
                         'standby_number'        => $standby_number                          //대기 순번
                     ]);
@@ -113,11 +114,13 @@ class FollowMeAppController extends Controller
         $standby_number = Auth::guard('patient')->user()->clinic()->whereStandby_status(1)->count() !== 0   
                           ? Auth::guard('patient')->user()->clinic()->whereStandby_status(1)->latest('standby_number')->firstOrFail()->standby_number
                           : 0;
+        $clinic_info    = Auth::guard('patient')->user()->clinic()->select('clinic_subject_name','clinic_time')->whereStandby_status(1)->latest('standby_number')->first();   
         if($standby_number === 1)
             $message = "다음 진료를 위해 잠시만 기다려주세요.";
         return response()->json([
             'standby_number'=> $standby_number,
-            'message' => $message
+            'message'       => $message,
+            'clinic_info'   => $clinic_info
         ],200);
     }
 

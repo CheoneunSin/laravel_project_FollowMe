@@ -109,23 +109,23 @@ class FollowMeWebMedicalController extends Controller
         //진료 접수
        
         $clinic =  Patient::findOrFail($request->patient_id)->clinic()->whereStandby_status(1)->count() === 0 
-                  ?  Patient::findOrFail($request->patient_id)
-                    ->clinic()
-                    ->create([
-                        'clinic_subject_name'   => $request->clinic_subject_name,           //진료실 이름
-                        'room_name'             => $request->room_name,
-                        'doctor_name'           => $request->doctor_name,
-                        'storage'               => $request->storage,
-                        'clinic_date'           => Carbon::now(),
-                        'clinic_time'           => $request->clinic_time,
-                        'first_category'        => $first_category,                         //초진, 재진 구분      
-                        'standby_number'        => $standby_number                          //대기 순번
-                    ])
-                  : Patient::findOrFail($request->patient_id)
-                                ->clinic()->whereStandby_status(1)     
-                                ->orderBy("clinic_time", "desc")
-                                ->first()
-                                ->update($request->all()); 
+                   ?    Patient::findOrFail($request->patient_id)
+                        ->clinic()
+                        ->create([
+                            'clinic_subject_name'   => $request->clinic_subject_name,           //진료실 이름
+                            'room_name'             => $request->room_name,
+                            'doctor_name'           => $request->doctor_name,
+                            'storage'               => $request->storage,
+                            'clinic_date'           => Carbon::now(),
+                            'clinic_time'           => $request->clinic_time,
+                            'first_category'        => $first_category,                         //초진, 재진 구분      
+                            'standby_number'        => $standby_number                          //대기 순번
+                        ])
+                  :     Patient::findOrFail($request->patient_id)
+                            ->clinic()->whereStandby_status(1)     
+                            ->orderBy("clinic_time", "desc")
+                            ->first()
+                            ->update($request->all()); 
         return response()->json([
             'clinic' => $clinic,            
         ],200);
@@ -133,7 +133,7 @@ class FollowMeWebMedicalController extends Controller
     //해당 날짜 진료 기록 
     public function medical_clinic_subject(Request $request){
         return response()->json([
-            'clinic_subject' => ClinicSubject::all()->toArray(),   
+            'clinic_subject' => ClinicSubject::all(),   
         ],200);
     }
     //해당 날짜 진료 기록 
@@ -189,10 +189,10 @@ class FollowMeWebMedicalController extends Controller
             'clinic_record' => $clinic_record,            
         ],200);
     }
-    //진료가 완료된 환자 정보 처리
+    //진료실 검사실 목록(flow)
     public function medical_room_info(){
         return response()->json([
             'room_list' => RoomLocation::all(),            
         ],200);
     }
-}
+} 
