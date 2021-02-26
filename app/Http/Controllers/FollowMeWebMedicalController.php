@@ -50,24 +50,18 @@ class FollowMeWebMedicalController extends Controller
     public function medical_patient_search(PatientSearch $request){
         $request->validated();
         //동명이인 전체 목록 조회
-        $patients       = Patient::where("patient_name", $request->patient_name)->get();
-        $patients_list  = [];
-        foreach($patients as $patient){
-            $pateint_list                       = [];
-            $pateint_list['patient_id']         = $patient->patient_id;
-            $pateint_list['patient_name']       = $patient->patient_name;
-            $pateint_list['resident_number']    = explode("-", $patient->resident_number)[0];  //생년월일
-            $pateint_list['phone_number']       = $patient->phone_number;
-            array_push($patients_list, $pateint_list);
-        }
+        $patients = Patient::where("patient_name", $request->patient_name)->get()->map(function ($info) {
+            $info['resident_number'] = explode("-", $info->resident_number)[0];
+            return $info;
+         })->all();
         return response()->json([
-            'patient_list' => $patients_list,
+            'patient_list' => $patients,
         ],200);
     }
     //검색 된 환자 목록 중에서 선택된 환자
     public function medical_patient_select(Request $request){
         $patient = Patient::findOrFail($request->patient_id);     //환자 데이터
-        
+        $patient->resident_number = explode("-", $patient->resident_number)[0];
         $clinic  = $patient->clinic()->whereStandby_status(1)     //환자의 현 진료 데이터
                             ->orderBy("clinic_time", "desc")->first();  
         if($clinic === null) {
@@ -107,21 +101,12 @@ class FollowMeWebMedicalController extends Controller
         $standby_number = Clinic::where('clinic_subject_name', $request->clinic_subject_name )
                                     ->whereStandby_status(1)->count() + 1;
         //진료 접수
-       
+        $data = $request->all();
+        $data['clinic_date'] = Carbon::now();
         $clinic =  Patient::findOrFail($request->patient_id)->clinic()->whereStandby_status(1)->count() === 0 
                    ?    Patient::findOrFail($request->patient_id)
-                        ->clinic()
-                        ->create([
-                            'clinic_subject_name'   => $request->clinic_subject_name,           //진료실 이름
-                            'room_name'             => $request->room_name,
-                            'doctor_name'           => $request->doctor_name,
-                            'storage'               => $request->storage,
-                            'clinic_date'           => Carbon::now(),
-                            'clinic_time'           => $request->clinic_time,
-                            'first_category'        => $first_category,                         //초진, 재진 구분      
-                            'standby_number'        => $standby_number                          //대기 순번
-                        ])
-                  :     Patient::findOrFail($request->patient_id)
+                        ->clinic()->create($data)
+                   :    Patient::findOrFail($request->patient_id)
                             ->clinic()->whereStandby_status(1)     
                             ->orderBy("clinic_time", "desc")
                             ->first()

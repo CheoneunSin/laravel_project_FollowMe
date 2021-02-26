@@ -6,11 +6,11 @@ class CheckIsAdmin
 {
     public function handle($request, Closure $next)
     {
-        if(Auth::user()->role === 1) {
+        if(Auth::check() && Auth::user()->role === 1) {
             return $next($request);
         }
         else {
-            return response()->json(['error' => 'Unauthorized'], 403);
+            return response()->json(['error' => 'Unauthorized'], 200);
         }
     }
 }

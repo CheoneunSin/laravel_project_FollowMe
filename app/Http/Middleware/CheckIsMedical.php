@@ -16,11 +16,11 @@ class CheckIsMedical
      */
     public function handle($request, Closure $next)
     {
-        if(Auth::user()->role === 2) {
+        if(Auth::check() && Auth::user()->role === 2) {
             return $next($request);
         }
         else {
-            return response()->json(['error' => 'Unauthorized'], 403);
+            return response()->json(['error' => 'Unauthorized'], 200);
         }
     }
 }
