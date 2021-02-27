@@ -39,11 +39,14 @@ class RoomLocationsSeeder extends Seeder
             ['202', '2015'],
             ['221', '2017'],
         ];
+        $i = 1;
         foreach($roomLocations as $roomLocation){
             RoomLocation::create([
+                'room_location_id' => $i,
                 'room_name' => $roomLocation[0],
                 'room_node' => $roomLocation[1],
             ]);
+            $i += 1;
         }
     }
 }

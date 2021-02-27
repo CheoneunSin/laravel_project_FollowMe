@@ -87,7 +87,6 @@ class FollowMeWebAdminController extends Controller
             $newNode = Node::create($node);
             array_push($nodes, $newNode);
         }
-        // Node::findOrFail($request->delete_node)-> ()->delete();
         return response()->json([
             'node'      => $nodes
         ],200);
@@ -114,6 +113,22 @@ class FollowMeWebAdminController extends Controller
                 'node_B'    => $node_distance['node_A'],
                 'distance'  => $node_distance['distance'],
             ]);
+        }
+        return response()->json([
+            'status' => 'success'
+        ],200);
+    }
+
+    public function admin_room_info(){
+        return response()->json([
+            'room_list' => RoomLocation::all()
+        ],200);
+    }
+
+    public function admin_room_update(Request $request){
+        RoomLocation::query()->delete();
+        foreach($request->room_list as $room){
+            RoomLocation::create($room);
         }
         return response()->json([
             'status' => 'success'

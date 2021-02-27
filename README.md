@@ -1,9 +1,8 @@
 # 해야할 일 
-- 노드 페이지 API   
 - 디스플레이 용 API 작성 
+- 처방전 
 - 메시지 변경 (Web 메시지 X, App 메시지 변경)
 - 다익스트라 알고리즘 공부 
-- 중복 배제- 코드 model로 이동 
 
 # API 종류
 ## App
@@ -56,7 +55,7 @@ yarn-error.log
 - [참고사이트](https://silnex.github.io/blog/laravel-eloquent-tips-tricks/)
 # 비콘 스캐너 SQL
 ```php
-UPDATE `beacons` SET `beacon_scanner_id`= "1_S001" WHERE `beacon_id_minor` >= 15013 AND `beacon_id_minor` <= 15015;
+UPDATE `beacons` SET `beacon_scanner_id`= "1_S001" WHERE `beacon_id_minor` >= 15013  AND `beacon_id_minor` <= 15015;
 UPDATE `beacons` SET `beacon_scanner_id`= "1_S002" WHERE `beacon_id_minor` >= 15001  AND `beacon_id_minor` <= 15003;
 UPDATE `beacons` SET `beacon_scanner_id`= "2_S001" WHERE `beacon_id_minor` >= 15004  AND `beacon_id_minor` <= 15006;
 UPDATE `beacons` SET `beacon_scanner_id`= "2_S002" WHERE `beacon_id_minor` >= 15007  AND `beacon_id_minor` <= 15009;

@@ -40,6 +40,28 @@ Route::prefix('patient')->group(function () {
         Route::post('/flow_record', 'FollowMeAppController@app_flow_record');       //과거 진료 동선 내역
     });
 });
+Route::prefix('display')->group(function () {
+    Route::post('/login', 'FollowMeDisplayController@display_login');
+    Route::group(['middleware' => 'auth:patient'], function(){
+        Route::get('/logout', 'FollowMeDisplayController@display_logout');
+        //삼변측량에 필요한 정보
+        Route::post('/app_node_beacon_get', 'FollowMeAppController@app_node_beacon_get');
+        Route::post('/flow', 'FollowMeAppController@app_flow');                     //진료동선 안내
+        //현위치와 다음 동선 
+        Route::post('current_flow', 'FollowMeAppController@app_current_flow');
+        //선택된 동선
+        Route::post('flow_node', 'FollowMeAppController@app_flow_node');
+        Route::get('/flow_end', 'FollowMeAppController@app_flow_end');          //목적지 도착시
+        
+        Route::get('/navigation_room_list', 'FollowMeAppController@app_navigation_room_list');    
+        Route::post('/navigation', 'FollowMeAppController@app_navigation');         //검색 내비게이션
+        Route::post('/navigation_current', 'FollowMeAppController@app_navigation_current');   //현위치 내비게이션
+        
+        //대기 번호 (pusher이벤트가 발생 시)
+        Route::get('/standby_number', 'FollowMeAppController@standby_number'); 
+
+    });
+});
 //의료진
 Route::middleware(['isMedical'])
     ->prefix('medical')->group(function () {
@@ -74,6 +96,10 @@ Route::middleware(['isAdmin'])
         //노드 거리 
         Route::post('/node_update', 'FollowMeWebAdminController@admin_node_update');
         Route::post('/node_distance_update', 'FollowMeWebAdminController@admin_node_distance_update');
+        //방 설정 서비스
+        Route::get('/room_info', 'FollowMeWebAdminController@admin_room_info');
+        Route::post('/room_update', 'FollowMeWebAdminController@admin_room_update');
+
 });
 
 //인증 라우트
