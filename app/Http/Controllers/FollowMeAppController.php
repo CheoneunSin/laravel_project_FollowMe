@@ -95,8 +95,8 @@ class FollowMeAppController extends Controller
                     ->clinic()
                     ->create([
                         'clinic_subject_name'   => $request->clinic_subject_name,           //진료실 이름
-                        'clinic_date'           => Carbon::now(), //진료 시 날짜
-                        'clinic_time'           => Carbon::now(), //진료 시 날짜
+                        'clinic_date'           => Carbon::now()->timezone('Asia/Seoul')->timezone('UTC'), //진료 시 날짜
+                        'clinic_time'           => Carbon::now()->timezone('Asia/Seoul')->timezone('UTC'), //진료 시 날짜
                         'first_category'        => $first_category,                         //초진, 재진 구분      
                         'standby_number'        => $standby_number                          //대기 순번
                     ]);

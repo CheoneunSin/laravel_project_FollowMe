@@ -101,12 +101,14 @@ class FollowMeWebMedicalController extends Controller
         $standby_number = Clinic::where('clinic_subject_name', $request->clinic_subject_name )
                                     ->whereStandby_status(1)->count() + 1;
         //진료 접수
-        $data = $request->all();
-        $data['clinic_date'] = Carbon::now();
+        $data                   = $request->all();
+        $data['clinic_date']    = Carbon::now()->timezone('Asia/Seoul')->timezone('UTC');
+        $data['first_category'] = $first_category;  //초진, 재진 구분 
+        $data['standby_number'] = $standby_number;  //대기 순번
         $clinic =  Patient::findOrFail($request->patient_id)->clinic()->whereStandby_status(1)->count() === 0 
                    ?    Patient::findOrFail($request->patient_id)
                         ->clinic()->create($data)
-                   :    Patient::findOrFail($request->patient_id)
+                  :     Patient::findOrFail($request->patient_id)
                             ->clinic()->whereStandby_status(1)     
                             ->orderBy("clinic_time", "desc")
                             ->first()
@@ -134,7 +136,6 @@ class FollowMeWebMedicalController extends Controller
     //환자 진료 동선 설정
     public function medical_flow_setting(Request $request){
         //동선을 다시 수정 시, 삭제 후 다시 생성
-       
         Patient::findOrFail($request->patient_id)->flow()->whereFlow_status_check(1)->delete();
         //동선 저장
         foreach($request->flow as $flow){
