@@ -200,8 +200,11 @@ class FollowMeAppController extends Controller
         ],200);
     }
     public function app_navigation_room_list(){
+        $room_list = RoomLocation::all()->filter(function ($info){
+            return $info->room_node()->count() !== 0;
+        })->all();
         return response()->json([
-            'room_list' => RoomLocation::all(),
+            'room_list' => $room_list,
         ],200);
     }
     //검색을 통한 실내 내비게이션 

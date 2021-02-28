@@ -177,8 +177,11 @@ class FollowMeWebMedicalController extends Controller
     }
     //진료실 검사실 목록(flow)
     public function medical_room_info(){
+        $room_list = RoomLocation::all()->filter(function ($info){
+            return $info->room_node()->count() !== 0;
+        })->all();
         return response()->json([
-            'room_list' => RoomLocation::all(),            
+            'room_list' => $room_list,            
         ],200);
     }
 } 
