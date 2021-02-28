@@ -55,13 +55,13 @@ class FollowMeAppController extends Controller
                 //방문한 적이 있으면 기존 환자 데이터에 회원가입 정보 업데이트 
                 Patient::whereResident_number($request->resident_number)
                             ->update($request->except('password_confirmation'));
-                return response()->json(['message'=> "update"],200);
+                return response()->json(['message'=> Config::get('constants.patient_message.singup_update')],200);
             }
         }
         //환자가 병원에 방문한 적이 없을 경우 환자 데이터 생성 -> 예외 발생 X 수정 필요
         Patient::create($request->except('password_confirmation'));
         // $message = Config::get('constants.patient_message.signup_ok');
-        return response()->json(['message'=> "create"],200);
+        return response()->json(['message'=> Config::get('constants.patient_message.signup_create')],200);
     }
 
     //환자 앱 로그아웃
@@ -102,7 +102,6 @@ class FollowMeAppController extends Controller
                     ]);
         
         StandbyNumber::dispatch(0);  //대기 순번 이벤트
-
         $message = Config::get('constants.patient_message.clinic_ok');
         return response()->json([
             'message'=>$message,
@@ -110,16 +109,13 @@ class FollowMeAppController extends Controller
     }
     //현 진료실의 대기 순번 가져오기 (pusher 이벤트가 발생할 때) 
     public function standby_number(Request $request){
-        $message        = null;
         $standby_number = Auth::guard('patient')->user()->clinic()->whereStandby_status(1)->count() !== 0   
                           ? Auth::guard('patient')->user()->clinic()->whereStandby_status(1)->latest('standby_number')->firstOrFail()->standby_number
                           : 0;
         $clinic_info    = Auth::guard('patient')->user()->clinic()->select('clinic_subject_name','clinic_time')->whereStandby_status(1)->latest('standby_number')->first();   
-        if($standby_number === 1)
-            $message = "다음 진료를 위해 잠시만 기다려주세요.";
         return response()->json([
             'standby_number'=> $standby_number,
-            'message'       => $message,
+            'message'       => $standby_number === 1 ? Config::get('constants.patient_message.standby_number_one') : null,
             'clinic_info'   => $clinic_info
         ],200);
     }
@@ -196,7 +192,7 @@ class FollowMeAppController extends Controller
                         ->update([ "flow_status_check" => 0 ]);   //동선 종료 
         // //진료 동선 순서 -1씩
         return response()->json([
-            'message' => "ok",            
+            'message' => Config::get('constants.patient_message.flow_end'),            
         ],200);
     }
     public function app_navigation_room_list(){
