@@ -56,10 +56,14 @@ class FollowMeWebAdminController extends Controller
             return $info;
          })->all();
         $node_distance  = NodeDistance::whereCheck(1)->with('node_a_info')->with('node_b_info')->get();
+        $room_list      = RoomLocation::all()->map(function ($info){
+            $info['check']    =  $info->room_node()->count() !== 0 ? 1 : 0;
+            return $info;
+        })->all();
         return response()->json([
             'node_info'     => $node_info,
             'node_distance' => $node_distance,
-            'room_list'     => RoomLocation::all()
+            'room_list'     => $room_list
         ],200);
     }
 

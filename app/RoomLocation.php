@@ -14,7 +14,7 @@ class RoomLocation extends Model
 
     public function room_node()
     {
-        return $this->belongsTo('App\Node', 'room_id');
+        return $this->belongsTo('App\Node', 'room_node');
     } 
 
     public function flow()
