@@ -86,8 +86,14 @@ class FollowMeWebAdminController extends Controller
                 RoomLocation::find($node['room_id'])->update([
                     'room_node'     => $node['node_id']
                 ]);
+            }else {
+                RoomLocation::where('room_node', $node['node_id'])->update([
+                    'room_node'     => null
+                ]);
             }
             unset($node['room_id']);
+            unset($node['room']);
+            unset($node['room_info']);
             $newNode = Node::create($node);
             array_push($nodes, $newNode);
         }

@@ -120,13 +120,17 @@ class FollowMeAppController extends Controller
         ],200);
     }
 
-    //진료 동선 안내를 위한 셋팅(전체 비콘 정보, 현 층의 노드 정보) 
-    public function app_node_beacon_get(Request $request){ 
-        $node   = Node::whereFloor($request->major)->get();   
-        $beacon = Beacon::all();
+    //진료 동선 안내를 위한 셋팅(전체 비콘 정보) 
+    public function app_beacon_list(){
+        $beacon_list      = Beacon::all()->map(function ($info) {
+            $node            = $this->current_location_node($info->lat, $info->lng, $info->major);
+            $info['lat']     = $node[0]->lat;
+            $info['lng']     = $node[0]->lng;
+            return $info;
+         })->all();
+        // $beacon_list =  Beacon::select('beacon_id_minor', 'uuid', 'major', 'lat', 'lng', 'group')->get();
         return response()->json([
-            'beacon'=>$beacon,
-            'node'  =>$node
+            'beacon_list'   => $beacon_list
         ],200);
     }
     //진료 동선 안내 ( + 다익스트라 알고리즘)
@@ -136,28 +140,26 @@ class FollowMeAppController extends Controller
                                             ->whereFlow_status_check(1)
                                             ->orderBy("flow_sequence")
                                             ->get();
-        $nodeFlow   = null;
-        $flow_array = null;
-        $node = $this->current_location_node($request);
+        $node = $this->current_location_node($request->lat, $request->lng, $request->major);
         //진료동선이 하나 이상 있을 때 (출발지와 목적지가 필요)
         if(count($flow_list) >= 1){
             //가장 가까운 거리 
-            $current        = [ "room_location" => Node::find($node[0]->node_id)];
+            $current        = [ "room_location" => Node::find($node[0]->node_id)];  //현위치
             $shortes_path   = new ShortestPath(); // 최단경로
             $shortes_path->node_flow_shortest_path_set($node[0]->node_id, $flow_list[0]->flow_id); //동선 설정 
             $nodeFlow       = $shortes_path->shortest_path_node(); //최단 경로 노드 
             $flow_array     = $flow_list->toArray();
-            
+            //설정된 동선 + 현 위치
             array_unshift($flow_array, $current);
         }
         return response()->json([
-            'flow_list'     => $flow_array,
-            'nodeFlow'      => $nodeFlow,
+            'flow_list'     => !empty($flow_array) ? $flow_array : null,
+            'nodeFlow'      => !empty($nodeFlow)   ? $nodeFlow   : null,
         ],200);
     }
     //동선 목록에서 현 위치와 다음 목적지의 최단 경로 반환 
     public function app_current_flow(Request $request){
-        $node           = $this->current_location_node($request);
+        $node           = $this->current_location_node($request->lat, $request->lng, $request->major);
         $shortes_path   = new ShortestPath(); // 최단경로
         $shortes_path->node_shortest_path_set($node[0]->node_id, $request->end_room_node); //동선 설정 
         $nodeFlow       = $shortes_path->shortest_path_node(); //최단 경로 노드 
@@ -167,11 +169,11 @@ class FollowMeAppController extends Controller
     }
 
     //현위치와 가장 가까운 노드
-    public function current_location_node($request){
+    public function current_location_node($lat, $lng, $major){
         return DB::select(DB::raw("SELECT *, SQRT(
-            POW(69.1 * (lat - {$request->lat}), 2) +
-            POW(69.1 * ({$request->lng} - lng) * COS(lat / 57.3), 2)) AS distance
-            FROM nodes Where floor = {$request->major} HAVING distance < 25 ORDER BY distance ASC LIMIT 0,1"));
+            POW(69.1 * (lat - {$lat}), 2) +
+            POW(69.1 * ({$lng} - lng) * COS(lat / 57.3), 2)) AS distance
+            FROM nodes Where floor = {$major} HAVING distance < 25 ORDER BY distance ASC LIMIT 0,1"));
     }
     //동선 목록에서 선택시 반환
     public function app_flow_node(Request $request){
@@ -217,11 +219,11 @@ class FollowMeAppController extends Controller
         //최단 경로 반환         
         return response()->json([
             'nodeFlow' => $nodeFlow,
-        ],200);
+        ],200);  
     }
     public function app_navigation_current(Request $request){
         //현 위치 출발지
-        $start_node         = $this->current_location_node($request);
+        $start_node         = $this->current_location_node($request->lat, $request->lng, $request->major);
         //도착지
         $end_room_location  = RoomLocation::room($request->end_room);
         $shortes_path       = new ShortestPath(); // 최단경로 

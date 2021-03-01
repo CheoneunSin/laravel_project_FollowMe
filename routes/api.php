@@ -19,7 +19,7 @@ Route::prefix('patient')->group(function () {
         
         Route::post('/logout', 'FollowMeAppController@app_logout');
         //삼변측량에 필요한 정보
-        Route::post('/app_node_beacon_get', 'FollowMeAppController@app_node_beacon_get');
+        Route::get('/beacon_list', 'FollowMeAppController@app_beacon_list');
 
         Route::post('/flow', 'FollowMeAppController@app_flow');                     //진료동선 안내
         //현위치와 다음 동선 
