@@ -45,7 +45,7 @@ Route::prefix('display')->group(function () {
     Route::group(['middleware' => 'auth:patient'], function(){
         Route::get('/logout', 'FollowMeDisplayController@display_logout');
         //삼변측량에 필요한 정보
-        Route::post('/app_node_beacon_get', 'FollowMeAppController@app_node_beacon_get');
+        Route::post('/beacon_list', 'FollowMeAppController@app_beacon_list');
         Route::post('/flow', 'FollowMeAppController@app_flow');                     //진료동선 안내
         //현위치와 다음 동선 
         Route::post('current_flow', 'FollowMeAppController@app_current_flow');
