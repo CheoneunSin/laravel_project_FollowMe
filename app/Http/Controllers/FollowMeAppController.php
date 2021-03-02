@@ -108,7 +108,7 @@ class FollowMeAppController extends Controller
         ],200);
     }
     //현 진료실의 대기 순번 가져오기 (pusher 이벤트가 발생할 때) 
-    public function standby_number(Request $request){
+    public function standby_number(){
         $standby_number = Auth::guard('patient')->user()->clinic()->whereStandby_status(1)->count() !== 0   
                           ? Auth::guard('patient')->user()->clinic()->whereStandby_status(1)->latest('standby_number')->firstOrFail()->standby_number
                           : 0;
@@ -123,9 +123,11 @@ class FollowMeAppController extends Controller
     //진료 동선 안내를 위한 셋팅(전체 비콘 정보) 
     public function app_beacon_list(){
         $beacon_list      = Beacon::all()->map(function ($info) {
-            $node            = $this->current_location_node($info->lat, $info->lng, $info->major);
-            $info['lat']     = $node[0]->lat;
-            $info['lng']     = $node[0]->lng;
+            if($info->group == 2){
+                $node            = $this->current_location_node($info->lat, $info->lng, $info->major);
+                $info['lat']     = $node[0]->lat;
+                $info['lng']     = $node[0]->lng;
+            }
             return $info;
          })->all();
         // $beacon_list =  Beacon::select('beacon_id_minor', 'uuid', 'major', 'lat', 'lng', 'group')->get();
@@ -198,6 +200,7 @@ class FollowMeAppController extends Controller
         ],200);
     }
     public function app_navigation_room_list(){
+
         $room_list = RoomLocation::all()->filter(function ($info){
             return $info->room_node()->count() !== 0;
         })->all();

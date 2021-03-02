@@ -71,10 +71,10 @@ class FollowMeWebAdminController extends Controller
     public function admin_node_update(Request $request){
         if(!empty($request->node_delete)){
             foreach ($request->node_delete as $node){
-                if(!empty(Node::find($node)->node_A_distance())){
+                if(!empty(Node::find($node)->node_A_distance()))
                     Node::find($node)->node_A_distance()->delete();
+                if(!empty(Node::find($node)->node_B_distance()))
                     Node::find($node)->node_B_distance()->delete();
-                }
             }
         }
         Node::query()->delete(); 
@@ -106,6 +106,13 @@ class FollowMeWebAdminController extends Controller
     public function admin_node_distance_setting_main(){
         $node_info              = Node::all();
         $node_distance          = NodeDistance::orderBy("node_A")->whereCheck(1)->with('node_a_info')->with('node_b_info')->get();
+        $node_info->push([
+            "node_id"=> 2020,
+            "floor"=> 2,
+            "lat"=> 35.896658873612,
+            "lng"=> 128.62056220338,
+            "stair_check"=> 1
+        ]);
         return response()->json([
             'node_info'     => $node_info,
             'node_distance' => $node_distance
