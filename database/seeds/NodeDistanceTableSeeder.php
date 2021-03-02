@@ -12,6 +12,7 @@ class NodeDistanceTableSeeder extends Seeder
      */
     public function run()
     {
+        
         $distances = [
             ['2', '3001', '3002'],
             ['2', '3002', '3001'],
