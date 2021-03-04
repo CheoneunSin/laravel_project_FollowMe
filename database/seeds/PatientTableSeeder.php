@@ -34,17 +34,21 @@ class PatientTableSeeder extends Seeder
             '921001-5743398',
             '971010-5665191',
         ];
-        $faker = Faker\Factory::create('ko_kr');
-        for($i = 0; $i < 5; $i++){
+        $faker = \Faker\Factory::create('ja_JP');
+
+        for($i = 0; $i < count($rrm); $i++){
+            $address = explode(' ', $faker->address);
+            $phoneNumber = $faker->phoneNumber;
             Patient::create([
                 'patient_name' => $faker->name,
-                'login_id' => $faker->email,
+                'login_id' => explode("@", $faker->email)[0],
                 'password' => 1234,
                 'resident_number' => $rrm[$i],
-                'phone_number' => $faker->phoneNumber,
-                'address' => $faker->address,
+                'phone_number' => str_replace("-", "", $phoneNumber),
+                'postal_code' => $address[0],
+                'address' => $address[2],
+                'notes' => '異常なし'
             ]);
-            
         }
     }
 }
