@@ -13,14 +13,14 @@ class ClinicRoomTableSeeder extends Seeder
      */
     public function run()
     {
-        $clinic_room_name = ['진료실1', '진료실2', '진료실3', '진료실4', '진료실5'];
+        $clinic_room_name = ['診療室１', '診療室２', '診療室３', '診療室４', '診療室５'];
         $clinic_room_count =  count($clinic_room_name);
         for($i = 0 ; $i < ClinicSubject::count() ; $i++){
             if($i == 2)
                 $clinic_room_count--;
-            if($i == 4)
+            else if($i == 4)
                 $clinic_room_count--;
-            if($i == 7)
+            else if($i == 7)
                 $clinic_room_count--;
 
             for($j = 0 ; $j < $clinic_room_count; $j++){

@@ -102,7 +102,7 @@ class FollowMeWebMedicalController extends Controller
                                     ->whereStandby_status(1)->count() + 1;
         //진료 접수
         $data                   = $request->all();
-        $data['clinic_date']    = Carbon::now()->timezone('Asia/Seoul')->timezone('UTC');
+        $data['clinic_date']    = Carbon::now('Asia/Seoul');
         $data['first_category'] = $first_category;  //초진, 재진 구분 
         $data['standby_number'] = $standby_number;  //대기 순번
         $clinic =  Patient::findOrFail($request->patient_id)->clinic()->whereStandby_status(1)->count() === 0 

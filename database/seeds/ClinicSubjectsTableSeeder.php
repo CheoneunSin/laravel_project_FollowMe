@@ -12,9 +12,10 @@ class ClinicSubjectsTableSeeder extends Seeder
      */
     public function run()
     {
-        $clinic_subject_name = ['마취과', '이빈인후과', '정신과 ', '내과', '외과', '신경외과', '순환기내과', '비뇨기과', '산부인과', '성형외과', '소아과', '병리과'];
+        $clinic_subject_name = ['内科', '循環器内科', '外科','精神科', '産婦人科', '麻酔科', '整形外科', '泌尿器科', '皮膚科', '耳鼻咽喉科', '眼科', '小児科'];
         for($i = 0 ; $i < count($clinic_subject_name) ; $i++){
             $record =[
+                'clinic_subject_id' => $i + 1,
                 'clinic_subject_name' => $clinic_subject_name[$i],
             ];
             ClinicSubject::create($record);
