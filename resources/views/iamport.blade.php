@@ -26,47 +26,47 @@
         <div class="col-md-8">
             <br><br>
             <div class="card">
-                <div class="card-header">진료내역 결제</div>
+                <div class="card-header">診療内訳決済</div>
                 <div class="card-body">
                     <table class="table table-hover">
                         <tr>
-                            <th scope="col" width="30%">성함</th>
+                            <th scope="col" width="30%">お名前</th>
                             <td>{{ $patient->patient_name }}</td> 
                         </tr>
                         <tr>
-                            <th scope="col">결제수단</th>
+                            <th scope="col">決済手段</th>
                             <td>
                                 <div class="form-check form-check-inline">
                                     <input class="form-check-input" type="radio" name="pay_method" id="inlineRadio1" value="card">
-                                    <label class="form-check-label" for="inlineRadio1">신용카드</label>
+                                    <label class="form-check-label" for="inlineRadio1">クレジットカード</label>
                                 </div>
                                 <div class="form-check form-check-inline">
                                     <input class="form-check-input" type="radio" name="pay_method" id="inlineRadio2" value="trans">
-                                    <label class="form-check-label" for="inlineRadio2">실시간계좌이체</label>
+                                    <label class="form-check-label" for="inlineRadio2">リアルタイム口座振替</label>
                                 </div>
                                 <div class="form-check form-check-inline">
                                     <input class="form-check-input" type="radio" name="pay_method" id="inlineRadio2" value="vbank">
-                                    <label class="form-check-label" for="inlineRadio3">가상계좌</label>
+                                    <label class="form-check-label" for="inlineRadio3">仮想口座</label>
                                 </div>
                                 <div class="form-check form-check-inline">
                                     <input class="form-check-input" type="radio" name="pay_method" id="inlineRadio2" value="phone">
-                                    <label class="form-check-label" for="inlineRadio4">휴대폰 결제</label>
+                                    <label class="form-check-label" for="inlineRadio4">携帯決済</label>
                                 </div>
                             </td>
                         </tr>
                         <tr>
                         
-                            <th scope="col">전화번호</th>
+                            <th scope="col">電話番号</th>
                             <td>
                                {{ $patient->phone_number }}
                             </td>
                         </tr>
-                        <th scope="col" style="font-size: 18" >총 결제 금액</th>
-                        <td class="font-weight-bold" style="color: coral; text-decoration: underline; font-style: oblique; text-align:end; font-size: 18" >{{ $storage }} 원</td>
+                        <th scope="col" style="font-size: 18" >総決済金額</th>
+                        <td class="font-weight-bold" style="color: coral; text-decoration: underline; font-style: oblique; text-align:end; font-size: 18" >{{ $storage }} 円</td>
 
                     </table>
                 </div>
-                <button onclick="iamport_event()" class="btn btn-primary btn-lg">결제하기</button>
+                <button onclick="iamport_event()" class="btn btn-primary btn-lg">決済する</button>
             </div>
         </div>
     </div>
@@ -83,7 +83,7 @@
                 pg: 'inicis', // version 1.1.0부터 지원.
                 pay_method: pay_method_value,
                 merchant_uid: 'merchant_' + new Date().getTime(),
-                name: '주문명:진료비결제',
+                name: '診療費決済',
                 amount: @json($storage) ,
                 // amount: 10 ,
                 buyer_name: @json($patient->patient_name),
@@ -93,19 +93,19 @@
                 m_redirect_url: 'http://34.234.79.156/index.php/patient/iamport_end/' + @json($patient_id)
             }, function(rsp) {
                 if (rsp.success) {
-                    var msg = '결제가 완료되었습니다.';
-                    msg += '고유ID : ' + rsp.imp_uid;
-                    msg += '상점 거래ID : ' + rsp.merchant_uid;
-                    msg += '결제 금액 : ' + rsp.paid_amount;
-                    msg += '카드 승인번호 : ' + rsp.apply_num;
+                    var msg = '決済が完了しました。';
+                    msg += '固有ID : ' + rsp.imp_uid;
+                    msg += '商店取引ID : ' + rsp.merchant_uid;
+                    msg += '決済金額 : ' + rsp.paid_amount;
+                    msg += 'カード承認番号 : ' + rsp.apply_num;
                 } else {
-                    var msg = '결제에 실패하였습니다.';
-                    msg += '에러내용 : ' + rsp.error_msg;
+                    var msg = '決済に失敗しました。';
+                    msg += 'エラー内容 : ' + rsp.error_msg;
                 }
                 alert(msg);
             });
         } catch (error) {
-            alert("결제수단을 선택해주세요");
+            alert("お支払い方法を選択してください。");
         }    
     }
 </script>

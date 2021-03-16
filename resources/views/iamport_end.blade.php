@@ -26,14 +26,14 @@
         <div class="col-md-8">
             <br><br>
             <div class="card">
-                <div class="card-header">진료 결제 완료</div>
+                <div class="card-header">診療決済完了</div>
                 <div class="card-body">
                     <table class="table table-hover">
                         <tr>
-                            <th scope="col">성함</th>
+                            <th scope="col">お名前</th>
                             <td>{{ $patient->patient_name }}</td> 
                         </tr>
-                        <th scope="col" style="font-size: 18" >총 결제 금액</th>
+                        <th scope="col" style="font-size: 18" >総決済金額</th>
                         <td class="font-weight-bold" style="color: coral; text-decoration: underline; font-style: oblique; text-align:end; font-size: 18" >{{ $storage }} 원</td>
                     </table>
                 </div>
