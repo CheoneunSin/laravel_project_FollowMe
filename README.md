@@ -43,12 +43,14 @@
    > >         3. ガイド通知ウィンドウで簡単に探すことができ、もし経路を離脱した場合はパスを再検索
    > >         4. 目的地周辺に到着した場合は案内終了
    > >         5. すべての診療が終わるまで、（2 ~ 4）の過程を繰り返す
+
 > > - ### QRコード受付
     > >      - アプリでQRコードを発行して、診療を受け付けるサービス
     > >     - サービスプロセス
     > >         1. 患者はアプリに加入し、診療受付のためのQRコードを発行
     > >         2. 診療室にあるQRコードスキャナー(医療スタッフアプリ)にQRコードを認識させて診療を受付
     > >         3. 診療受付完了後、診療待機番号確認
+
 > > - ### 決済システム
     > >     - 商用決済システムを通じてアプリで決済できるサービス
 
@@ -68,13 +70,16 @@
 
 
 ---
+
 # DataBase 設計
+
 >   ### システム要求解析
 >   >  <span> <img src="https://user-images.githubusercontent.com/64718800/111406133-10bfcb80-8715-11eb-9f5b-2b71bf149dcd.JPG" width="200">
 </span>
 <span>
     <img src="https://user-images.githubusercontent.com/64718800/111406133-10bfcb80-8715-11eb-9f5b-2b71bf149dcd.JPG" width="200">
 </span>
+
 >   ### DB ERD
 >   > <p align="center"><img src="https://user-images.githubusercontent.com/64718800/111405790-78c1e200-8714-11eb-9521-96b7ff0b8750.JPG" width="1000">
 </p>
