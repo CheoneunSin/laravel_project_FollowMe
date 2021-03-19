@@ -74,7 +74,7 @@
 # DataBase 設計
 
 >   ### システム要求解析
->   >  <span> <img src="https://user-images.githubusercontent.com/64718800/111406133-10bfcb80-8715-11eb-9f5b-2b71bf149dcd.JPG" width="200">
+<span> <img src="https://user-images.githubusercontent.com/64718800/111406133-10bfcb80-8715-11eb-9f5b-2b71bf149dcd.JPG" width="200">
 </span>
 <span>
     <img src="https://user-images.githubusercontent.com/64718800/111406133-10bfcb80-8715-11eb-9f5b-2b71bf149dcd.JPG" width="200">
