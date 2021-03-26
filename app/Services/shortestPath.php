@@ -34,7 +34,7 @@ class ShortestPath
              $graph["$node->node_id"] = [];
              foreach (NodeDistance::cursor() as $distance) {
                  //노드 간 거리 저장
-                 if($distance->node_A == $node->node_id){
+                 if($node->node_id == $distance->node_A){
                      $graph["$node->node_id"]["$distance->node_B"] = $distance->distance;
                  }
              }
