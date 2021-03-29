@@ -79,7 +79,7 @@ class Dijkstra
      * @param string   $end_node   끝 노드
      * @param string[] $exclude 제외 할 노드 목록 - 다음으로 가장 짧은 경로를 계산
      *
-     * @return string[][] 0 개 이상의 최단 경로 (각각 노드 목록으로 표시됨)
+     * @return string[][] 0 개 이상의  최단 경로 (각각 노드 목록으로 표시됨)
      */
     public function shortestPaths($start_node, $end_node, array $exclude = array())
     {
