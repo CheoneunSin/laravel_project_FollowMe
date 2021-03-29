@@ -3,7 +3,7 @@
 namespace App;
 
 // use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Auth\Patient as Authenticatable;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 class Patient extends Authenticatable implements JWTSubject
