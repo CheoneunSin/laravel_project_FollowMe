@@ -13,7 +13,7 @@ Route::prefix('patient')->group(function () {
     //의료진 앱 진료과 목록
     Route::get('/clinic_info', 'FollowMeAppController@app_clinic_info');
         
-    Route::group(['middleware' => 'auth:patient'], function(){
+    // Route::group(['middleware' => 'auth:patient'], function(){
         //의료진 앱 QR코드 인증
         Route::post('/clinic', 'FollowMeAppController@app_clinic');
         
@@ -38,11 +38,11 @@ Route::prefix('patient')->group(function () {
         Route::post('/storage', 'FollowMeAppController@app_storage');               //현 결제 내역
         Route::post('/storage_record', 'FollowMeAppController@app_storage_record'); //과거 결제 내역
         Route::post('/flow_record', 'FollowMeAppController@app_flow_record');       //과거 진료 동선 내역
-    });
+    // });
 });
 Route::prefix('display')->group(function () {
     Route::post('/login', 'FollowMeDisplayController@display_login');
-    Route::group(['middleware' => 'auth:patient'], function(){
+    // Route::group(['middleware' => 'auth:patient'], function(){
         Route::get('/logout', 'FollowMeDisplayController@display_logout');
         //삼변측량에 필요한 정보
         Route::post('/beacon_list', 'FollowMeAppController@app_beacon_list');
@@ -60,11 +60,11 @@ Route::prefix('display')->group(function () {
         //대기 번호 (pusher이벤트가 발생 시)
         Route::get('/standby_number', 'FollowMeAppController@standby_number'); 
 
-    });
+    // });
 });
 //의료진
-Route::middleware(['isMedical'])
-    ->prefix('medical')->group(function () {
+// Route::middleware(['isMedical'])->prefix('medical')->group(function () {
+Route::prefix('medical')->group(function () {
         //환자 정보 서비스
         Route::post('/patient_create', 'FollowMeWebMedicalController@medical_patient_create');
         Route::post('/patient_search', 'FollowMeWebMedicalController@medical_patient_search');
@@ -83,8 +83,8 @@ Route::middleware(['isMedical'])
         Route::post('/flow_list', 'FollowMeWebMedicalController@medical_flow_list');  //현재 동선 목록
 });  
 //관리자
-Route::middleware(['isAdmin'])
-    ->prefix('admin')->group(function () {
+// Route::middleware(['isAdmin'])->prefix('admin')->group(function () {
+Route::prefix('admin')->group(function () {
         //비콘 서비스
         Route::get('/beacon_setting_main', 'FollowMeWebAdminController@admin_beacon_setting_main');
         Route::post('/beacon_update', 'FollowMeWebAdminController@admin_beacon_update');
