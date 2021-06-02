@@ -13,7 +13,7 @@ Route::prefix('patient')->group(function () {
     //의료진 앱 진료과 목록
     Route::get('/clinic_info', 'FollowMeAppController@app_clinic_info');
         
-    // Route::group(['middleware' => 'auth:patient'], function(){
+    Route::group(['middleware' => 'auth:patient'], function(){
         //의료진 앱 QR코드 인증
         Route::post('/clinic', 'FollowMeAppController@app_clinic');
         
@@ -38,11 +38,13 @@ Route::prefix('patient')->group(function () {
         Route::post('/storage', 'FollowMeAppController@app_storage');               //현 결제 내역
         Route::post('/storage_record', 'FollowMeAppController@app_storage_record'); //과거 결제 내역
         Route::post('/flow_record', 'FollowMeAppController@app_flow_record');       //과거 진료 동선 내역
-    // });
+
+        Route::post('logout', 'AuthController@logout'); //로그아웃
+    });
 });
 Route::prefix('display')->group(function () {
     Route::post('/login', 'FollowMeDisplayController@display_login');
-    // Route::group(['middleware' => 'auth:patient'], function(){
+    Route::group(['middleware' => 'auth:patient'], function(){
         Route::get('/logout', 'FollowMeDisplayController@display_logout');
         //삼변측량에 필요한 정보
         Route::post('/beacon_list', 'FollowMeAppController@app_beacon_list');
@@ -59,12 +61,13 @@ Route::prefix('display')->group(function () {
         
         //대기 번호 (pusher이벤트가 발생 시)
         Route::get('/standby_number', 'FollowMeAppController@standby_number'); 
-
-    // });
+        
+        Route::post('logout', 'AuthController@logout'); //로그아웃
+    });
 });
 //의료진
-// Route::middleware(['isMedical'])->prefix('medical')->group(function () {
-Route::prefix('medical')->group(function () {
+Route::middleware(['isMedical'])->prefix('medical')->group(function () {
+// Route::prefix('medical')->group(function () {
         //환자 정보 서비스
         Route::post('/patient_create', 'FollowMeWebMedicalController@medical_patient_create');
         Route::post('/patient_search', 'FollowMeWebMedicalController@medical_patient_search');
@@ -81,25 +84,27 @@ Route::prefix('medical')->group(function () {
         Route::get('/room_info', 'FollowMeWebMedicalController@medical_room_info');
         Route::post('/flow_setting', 'FollowMeWebMedicalController@medical_flow_setting');
         Route::post('/flow_list', 'FollowMeWebMedicalController@medical_flow_list');  //현재 동선 목록
+
+        Route::post('logout', 'AuthController@logout'); //로그아웃
 });  
 //관리자
-// Route::middleware(['isAdmin'])->prefix('admin')->group(function () {
-Route::prefix('admin')->group(function () {
-        //비콘 서비스
-        Route::get('/beacon_setting_main', 'FollowMeWebAdminController@admin_beacon_setting_main');
-        Route::post('/beacon_update', 'FollowMeWebAdminController@admin_beacon_update');
-        Route::get('/beacon_defect_check_main', 'FollowMeWebAdminController@admin_beacon_defect_check_main');
-        Route::post('/beacon_search', 'FollowMeWebAdminController@admin_beacon_search');
-        //노드 서비스
-        Route::get('/node_setting_main', 'FollowMeWebAdminController@admin_node_setting_main');
-        Route::get('/node_distance_setting_main', 'FollowMeWebAdminController@admin_node_distance_setting_main');
-        //노드 거리 
-        Route::post('/node_update', 'FollowMeWebAdminController@admin_node_update');
-        Route::post('/node_distance_update', 'FollowMeWebAdminController@admin_node_distance_update');
-        //방 설정 서비스
-        Route::get('/room_info', 'FollowMeWebAdminController@admin_room_info');
-        Route::post('/room_update', 'FollowMeWebAdminController@admin_room_update');
+Route::middleware(['isAdmin'])->prefix('admin')->group(function () {
+    //비콘 서비스
+    Route::get('/beacon_setting_main', 'FollowMeWebAdminController@admin_beacon_setting_main');
+    Route::post('/beacon_update', 'FollowMeWebAdminController@admin_beacon_update');
+    Route::get('/beacon_defect_check_main', 'FollowMeWebAdminController@admin_beacon_defect_check_main');
+    Route::post('/beacon_search', 'FollowMeWebAdminController@admin_beacon_search');
+    //노드 서비스
+    Route::get('/node_setting_main', 'FollowMeWebAdminController@admin_node_setting_main');
+    Route::get('/node_distance_setting_main', 'FollowMeWebAdminController@admin_node_distance_setting_main');
+    //노드 거리 
+    Route::post('/node_update', 'FollowMeWebAdminController@admin_node_update');
+    Route::post('/node_distance_update', 'FollowMeWebAdminController@admin_node_distance_update');
+    //방 설정 서비스
+    Route::get('/room_info', 'FollowMeWebAdminController@admin_room_info');
+    Route::post('/room_update', 'FollowMeWebAdminController@admin_room_update');
 
+    Route::post('logout', 'AuthController@logout'); //로그아웃
 });
 
 //인증 라우트
@@ -107,7 +112,4 @@ Route::prefix('auth')->group(function () {
     Route::post('register', 'AuthController@register')->middleware('isMedicalRegister');
     Route::post('login', 'AuthController@login');
     Route::get('refresh', 'AuthController@refresh');
-    Route::group(['middleware' => 'auth:api'], function(){
-        Route::post('logout', 'AuthController@logout');
-    });
 });
