@@ -13,7 +13,7 @@ Route::prefix('patient')->group(function () {
     //의료진 앱 진료과 목록
     Route::get('/clinic_info', 'FollowMeAppController@app_clinic_info');
         
-    Route::group(['middleware' => 'auth:patient'], function(){
+    // Route::group(['middleware' => 'auth:patient'], function(){
         //의료진 앱 QR코드 인증
         Route::post('/clinic', 'FollowMeAppController@app_clinic');
         
@@ -40,7 +40,7 @@ Route::prefix('patient')->group(function () {
         Route::post('/flow_record', 'FollowMeAppController@app_flow_record');       //과거 진료 동선 내역
 
         Route::post('logout', 'AuthController@logout'); //로그아웃
-    });
+    // });
 });
 Route::prefix('display')->group(function () {
     Route::post('/login', 'FollowMeDisplayController@display_login');
@@ -66,8 +66,8 @@ Route::prefix('display')->group(function () {
     });
 });
 //의료진
-Route::middleware(['isMedical'])->prefix('medical')->group(function () {
-// Route::prefix('medical')->group(function () {
+// Route::middleware(['isMedical'])->prefix('medical')->group(function () {
+Route::prefix('medical')->group(function () {
         //환자 정보 서비스
         Route::post('/patient_create', 'FollowMeWebMedicalController@medical_patient_create');
         Route::post('/patient_search', 'FollowMeWebMedicalController@medical_patient_search');
