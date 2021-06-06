@@ -90,7 +90,7 @@
                 buyer_tel: @json($patient->phone_number),
                 buyer_addr: @json($patient->address),
                 buyer_postcode: @json($patient->postal_code),
-                m_redirect_url: 'http://34.234.79.156/index.php/patient/iamport_end/' + @json($patient_id)
+                m_redirect_url: 'http://52.78.153.155/index.php/patient/iamport_end/' + @json($patient_id)
             }, function(rsp) {
                 if (rsp.success) {
                     var msg = '決済が完了しました。';
