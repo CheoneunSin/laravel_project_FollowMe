@@ -252,8 +252,18 @@ class FollowMeAppController extends Controller
                                 'clinic_date', [ $request->input('start_date', Carbon::now()->subMonth()), 
                                 $request->input('end_date', Carbon::now())]
                             )->get();
+        //날짜별 기록 묶기
+        $date = array_fill_keys(array_unique(array_column($storage_record->toArray(), 'clinic_date')), []);
+        foreach($date as $key => $value){
+            foreach ($storage_record as $data) {
+                if ($data['clinic_date'] == $key){
+                    array_push($date[$key], $data);
+                    break;
+                }
+            }
+        }    
         return response()->json([
-            'storage_record' => $storage_record,
+            'storage_record' => $date,
         ],200);
     }
     //종료 된 진료 동선 내역
@@ -264,6 +274,16 @@ class FollowMeAppController extends Controller
                             'flow_create_date', [ $request->input('start_date', Carbon::now()->subMonth()), 
                             $request->input('end_date', Carbon::now())]
                         )->get();
+                        //날짜별 기록 묶기
+        $date = array_fill_keys(array_unique(array_column($flows->toArray(), 'flow_create_date')), []);
+        foreach($date as $key => $value){
+            foreach ($storage_record as $data) {
+                if ($data['flow_create_date'] == $key){
+                    array_push($date[$key], $data);
+                    break;
+                }
+            }
+        }   
         return response()->json([
             'flow_record' => $flows, 
         ],200);
