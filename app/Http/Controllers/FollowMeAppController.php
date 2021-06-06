@@ -116,7 +116,7 @@ class FollowMeAppController extends Controller
         return response()->json([
             'standby_number'=> $standby_number,
             'message'       => $standby_number === 1 ? Config::get('constants.patient_message.standby_number_one') : null,
-            'clinic_info'   => $clinic_info
+            'clinic_info'   => $standby_number === 1 ? $clinic_info : {}
         ],200);
     }
 
