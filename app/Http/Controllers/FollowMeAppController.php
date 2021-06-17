@@ -254,17 +254,18 @@ class FollowMeAppController extends Controller
                             )->get();
         //날짜별 기록 묶기
         $date = array_fill_keys(array_unique(array_column($storage_record->toArray(), 'clinic_date')), []);
-       
+                                
         foreach ($storage_record as $data) {
             foreach($date as $key => $value){
                 if ($data['clinic_date'] == $key){
-                    array_push($date, $data);
+                    array_push($date[$key], $data);
                     break;
                 }
             }
         }    
+        $dateList = array_values($date);
         return response()->json([
-            'storage_record' => $date,
+            'storage_record' => $dateList,
         ],200);
     }
     //종료 된 진료 동선 내역
@@ -280,13 +281,14 @@ class FollowMeAppController extends Controller
         foreach ($storage_record as $data) {
             foreach($date as $key => $value){
                 if ($data['flow_create_date'] == $key){
-                    array_push($date, $data);
+                    array_push($date[$key], $data);
                     break;
                 }
             }
         }    
+        $dateList = array_values($date);
         return response()->json([
-            'flow_record' => $flows, 
+            'flow_record' => $dateList, 
         ],200);
     }
     //결제 화면 
