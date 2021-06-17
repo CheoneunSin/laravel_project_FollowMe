@@ -258,7 +258,7 @@ class FollowMeAppController extends Controller
         foreach ($storage_record as $data) {
             foreach($date as $key => $value){
                 if ($data['clinic_date'] == $key){
-                    array_push($date[$key], $data);
+                    array_push($date, $data);
                     break;
                 }
             }
@@ -280,7 +280,7 @@ class FollowMeAppController extends Controller
         foreach ($storage_record as $data) {
             foreach($date as $key => $value){
                 if ($data['flow_create_date'] == $key){
-                    array_push($date[$key], $data);
+                    array_push($date, $data);
                     break;
                 }
             }
