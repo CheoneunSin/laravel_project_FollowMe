@@ -128,7 +128,10 @@ class FollowMeWebMedicalController extends Controller
         $clinic_record  =  !empty($request->clinic_subject_name) ? 
                               Clinic::with('patient')->whereClinic_date($request->clinic_date)->whereClinic_subject_name($request->clinic_subject_name)->get()
                             : Clinic::with('patient')->whereClinic_date($request->clinic_date)->get();
-
+        $clinic_record->map(function ($info) {
+            $info['patient']['resident_number'] = explode("-", $info['patient']['resident_number'])[0];;
+            return $info;
+        })->all();
         return response()->json([
             'clinic_record' => $clinic_record,   
         ],200);
