@@ -193,7 +193,7 @@ class FollowMeAppController extends Controller
         Auth::guard('patient')->user()->flow()
                         ->whereFlow_status_check(1)
                         ->whereFlow_sequence(0)
-                        ->update([ "flow_status_check" => 0 ]);   //동선 종료 
+                        ->update([ "flow_status_check" => 0, "flow_create_date" => Carbon::now('Asia/Seoul') ]);   //동선 종료 
         // //진료 동선 순서 -1씩
         return response()->json([
             'message' => Config::get('constants.patient_message.flow_end'),            
@@ -249,8 +249,8 @@ class FollowMeAppController extends Controller
     public function app_storage_record(Request $request){
         $storage_record = Clinic::storage(Auth::guard('patient')->user()->patient_id, '1')
                             ->whereBetween(
-                                'clinic_date', [ $request->input('start_date', Carbon::now()->subMonth()), 
-                                $request->input('end_date', Carbon::now())]
+                                'clinic_date', [ $request->input('start_date', Carbon::now('Asia/Seoul')->subMonth()), 
+                                $request->input('end_date', Carbon::now('Asia/Seoul'))]
                             )->get();
         //날짜별 기록 묶기
         $date = array_fill_keys(array_unique(array_column($storage_record->toArray(), 'clinic_date')), []);
@@ -273,8 +273,8 @@ class FollowMeAppController extends Controller
         $flows = Auth::guard('patient')->user()->flow()->with('room_location')
                         ->whereFlow_status_check(0)
                         ->whereBetween(
-                            'flow_create_date', [ $request->input('start_date', Carbon::now()->subMonth()), 
-                            $request->input('end_date', Carbon::now())]
+                            'flow_create_date', [ $request->input('start_date', Carbon::now('Asia/Seoul')->subMonth()), 
+                            $request->input('end_date', Carbon::now('Asia/Seoul'))]
                         )->get();
         $flows->map(function ($info) {
             return $info['flow_date'] = explode(" ", $info['flow_create_date'])[0];
