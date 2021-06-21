@@ -271,20 +271,21 @@ class FollowMeAppController extends Controller
     //종료 된 진료 동선 내역
     public function app_flow_record(Request $request){
         $flows = Auth::guard('patient')->user()->flow()->with('room_location')
-                        ->whereFlow_status_check(0)
-                        ->whereBetween(
-                            'flow_create_date', [ $request->input('start_date', Carbon::now('Asia/Seoul')->subMonth()), 
-                            $request->input('end_date', Carbon::now('Asia/Seoul'))]
-                        )->get();
-        $flows->map(function ($info) {
-            return $info['flow_date'] = explode(" ", $info['flow_create_date'])[0];
-         })->all();
-                        //날짜별 기록 묶기
-        $date = array_fill_keys(array_unique(array_column($flows->toArray(), 'flow_date')), []);
+                ->whereFlow_status_check(0)
+                ->get()
+                ->map(function ($info){
+                    $info['flow_date'] = explode(" ", $info['flow_create_date'])[0];
+                    return $info;
+                })->whereBetween(
+                    'flow_date', [$request->start_date, 
+                    $request->end_date]
+                )->all();
+        $flows = array_values($flows);
+        //날짜별 기록 묶기
+        $date = array_fill_keys(array_unique(array_column($flows, 'flow_date')), []);
         foreach ($flows as $data) {
             foreach($date as $key => $value){
-                // if ($data['flow_create_date'] == $key){
-                if ($data['flow_date'] == explode(" ", $key)[0]){
+                if ($data['flow_date'] == $key){
                     array_push($date[$key], $data);
                     break;
                 }
