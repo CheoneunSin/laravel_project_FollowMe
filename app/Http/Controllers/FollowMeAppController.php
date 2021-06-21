@@ -276,11 +276,15 @@ class FollowMeAppController extends Controller
                             'flow_create_date', [ $request->input('start_date', Carbon::now()->subMonth()), 
                             $request->input('end_date', Carbon::now())]
                         )->get();
+        $flows->map(function ($info) {
+            return $info['flow_date'] = explode(" ", $info['flow_create_date'])[0];
+         })->all();
                         //날짜별 기록 묶기
-        $date = array_fill_keys(array_unique(array_column($flows->toArray(), 'flow_create_date')), []);
+        $date = array_fill_keys(array_unique(array_column($flows->toArray(), 'flow_date')), []);
         foreach ($flows as $data) {
             foreach($date as $key => $value){
-                if (explode(" ", $data['flow_create_date'])[0] == explode(" ", $key)[0]){
+                // if ($data['flow_create_date'] == $key){
+                if ($data['flow_date'] == explode(" ", $key)[0]){
                     array_push($date[$key], $data);
                     break;
                 }
