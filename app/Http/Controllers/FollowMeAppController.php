@@ -278,7 +278,7 @@ class FollowMeAppController extends Controller
                         )->get();
                         //날짜별 기록 묶기
         $date = array_fill_keys(array_unique(array_column($flows->toArray(), 'flow_create_date')), []);
-        foreach ($storage_record as $data) {
+        foreach ($flows as $data) {
             foreach($date as $key => $value){
                 if ($data['flow_create_date'] == $key){
                     array_push($date[$key], $data);
