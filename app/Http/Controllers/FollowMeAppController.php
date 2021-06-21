@@ -280,7 +280,7 @@ class FollowMeAppController extends Controller
         $date = array_fill_keys(array_unique(array_column($flows->toArray(), 'flow_create_date')), []);
         foreach ($flows as $data) {
             foreach($date as $key => $value){
-                if ($data['flow_create_date'] == $key){
+                if (explode(" ", $data['flow_create_date'])[0] == explode(" ", $key)[0]){
                     array_push($date[$key], $data);
                     break;
                 }
