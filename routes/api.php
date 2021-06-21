@@ -84,6 +84,7 @@ Route::middleware(['isMedical'])->prefix('medical')->group(function () {
         Route::get('/room_info', 'FollowMeWebMedicalController@medical_room_info');
         Route::post('/flow_setting', 'FollowMeWebMedicalController@medical_flow_setting');
         Route::post('/flow_list', 'FollowMeWebMedicalController@medical_flow_list');  //현재 동선 목록
+        Route::post('logout', 'AuthController@logout'); //로그아웃
 });  
 //관리자
 Route::middleware(['isAdmin'])->prefix('admin')->group(function () {
@@ -101,6 +102,7 @@ Route::middleware(['isAdmin'])->prefix('admin')->group(function () {
     //방 설정 서비스
     Route::get('/room_info', 'FollowMeWebAdminController@admin_room_info');
     Route::post('/room_update', 'FollowMeWebAdminController@admin_room_update');
+    Route::post('logout', 'AuthController@logout'); //로그아웃
 });
 
 //인증 라우트
@@ -108,5 +110,4 @@ Route::prefix('auth')->group(function () {
     Route::post('register', 'AuthController@register')->middleware('isMedicalRegister');
     Route::post('login', 'AuthController@login');
     Route::get('refresh', 'AuthController@refresh');
-    Route::post('logout', 'AuthController@logout'); //로그아웃
 });
