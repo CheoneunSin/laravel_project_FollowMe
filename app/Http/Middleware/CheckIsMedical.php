@@ -20,7 +20,7 @@ class CheckIsMedical
             return $next($request);
         }
         else {
-            return response()->json(['error' => 'Unauthorized'], 200);
+            return response()->json(['error' => 'Unauthorized'], 400);
         }
     }
 }

@@ -111,3 +111,4 @@ Route::prefix('auth')->group(function () {
     Route::post('login', 'AuthController@login');
     Route::get('refresh', 'AuthController@refresh');
 });
+
