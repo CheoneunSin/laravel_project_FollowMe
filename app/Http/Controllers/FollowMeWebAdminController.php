@@ -45,7 +45,7 @@ class FollowMeWebAdminController extends Controller
     }
     public function admin_beacon_defect_check_main(){
         $beacon_info = Beacon::all()->map(function ($info) {
-            $info['Error']  = "待機中";
+            $info['Error']  = "대기중";
             $info['RSSI']   = "-";
             return $info;
         })->all();
